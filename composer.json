@@ -46,7 +46,8 @@
         "sort-packages": true,
         "preferred-install": "dist",
         "allow-plugins": {
-            "pestphp/pest-plugin": true
+            "pestphp/pest-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
     "extra": {
@@ -59,14 +60,14 @@
     "scripts": {
         "lint": "pint",
         "test:lint": "pint --test",
-        "test:analyse": "vendor/bin/phpstan analyse",
+        "test:analyse": "vendor/bin/phpstan analyse src tests",
         "test:unit": "vendor/bin/pest --colors=always",
         "test:coverage": "vendor/bin/pest --coverage",
         "test:insights": "./vendor/bin/phpinsights",
         "test": [
             "@test:lint",
-            "@test:unit",
-            "@test:analyse"
+            "@test:analyse",
+            "@test:unit"
         ]
     }
 }
