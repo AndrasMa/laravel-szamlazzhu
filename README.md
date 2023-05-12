@@ -7,8 +7,6 @@
 
 Many of the original source code files were reforged to use the built-in features of Laravel, such as HTTP client, Filesystem abstraction, Configuration and service provider. As a result, **Szamlazzhu-agent** provides a more streamlined and idiomatic way of interacting with the Számlázz.hu API.
 
----
-
 ## Installation
 
 > **Requires:**
@@ -22,7 +20,7 @@ To get started with package, simply install it via Composer:
 composer require <package>
 ```
 
-Extend your config/filesystems.php file with new Filesystem Disk
+Extend your config/filesystems.php file with new Filesystem Disk:
 
 ```php
     'disks' => [
@@ -47,19 +45,17 @@ php artisan storage:link
 
 ## Configuration
 
-Configure your API credentials in .env
+Configure your API credentials in .env:
 
 ``` env
 SZAMLAZZHU_API_KEY=<yourAPIToken>
 ```
 
-or in config/szamlazzhu.php file.
+or in config/szamlazzhu.php file:
 
 ``` php
 'api_key' => env('SZAMLAZZHU_API_KEY', null),
 ```
-
----
 
 ## Changelog
 
