@@ -23,47 +23,47 @@ class SzamlaAgent
     /**
      * Számla Agent API aktuális verzió
      */
-    const API_VERSION = '2.10.16';
+    public const API_VERSION = '2.10.16';
 
     /**
      * Számla Agent API url
      */
-    const API_URL = 'https://www.szamlazz.hu/szamla/';
+    public const API_URL = 'https://www.szamlazz.hu/szamla/';
 
     /**
      * Számla Agent API használatához szükséges minimum PHP verzió
      */
-    const PHP_VERSION = '8.1';
+    public const PHP_VERSION = '8.1';
 
     /**
      * Alapértelmezett karakterkódolás
      */
-    const CHARSET = 'utf-8';
+    public const CHARSET = 'utf-8';
 
     /**
      * Alapértelmezett tanúsítvány fájlnév
      */
-    const CERTIFICATION_FILENAME = 'cacert.pem';
+    public const CERTIFICATION_FILENAME = 'cacert.pem';
 
     /**
      * Tanúsítványok útvonala
      */
-    const CERTIFICATION_PATH = './cert';
+    public const CERTIFICATION_PATH = 'cert';
 
     /**
      * PDF dokumentumok útvonala
      */
-    const PDF_FILE_SAVE_PATH = './pdf';
+    public const PDF_FILE_SAVE_PATH = 'pdf';
 
     /**
      * XML fájlok útvonala
      */
-    const XML_FILE_SAVE_PATH = './xmls';
+    public const XML_FILE_SAVE_PATH = 'xmls';
 
     /**
      * Fájl mellékletek útvonala
      */
-    const ATTACHMENTS_SAVE_PATH = './attachments';
+    public const ATTACHMENTS_SAVE_PATH = 'attachments';
 
     /**
      * Naplózási szint
@@ -705,7 +705,7 @@ class SzamlaAgent
     }
 
     /**
-     * @example /var/www/new_path/certs
+     * @example /storage/certs
      */
     public function setCertificationPath($certificationPath)
     {

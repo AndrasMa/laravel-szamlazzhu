@@ -10,69 +10,69 @@ class TaxPayer
     /**
      * EU-n kívüli vállalkozás
      */
-    const TAXPAYER_NON_EU_ENTERPRISE = 7;
+    public const TAXPAYER_NON_EU_ENTERPRISE = 7;
 
     /**
      * EU-s vállalkozás
      */
-    const TAXPAYER_EU_ENTERPRISE = 6;
+    public const TAXPAYER_EU_ENTERPRISE = 6;
 
     /**
      * Társas vállalkozás (Bt., Kft., zRt.)
      *
      * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
      */
-    const TAXPAYER_JOINT_VENTURE = 5;
+    public const TAXPAYER_JOINT_VENTURE = 5;
 
     /**
      * Egyéni vállalkozó
      *
      * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
      */
-    const TAXPAYER_INDIVIDUAL_BUSINESS = 4;
+    public const TAXPAYER_INDIVIDUAL_BUSINESS = 4;
 
     /**
      * Adószámos magánszemély
      *
      * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
      */
-    const TAXPAYER_PRIVATE_INDIVIDUAL_WITH_TAXNUMBER = 3;
+    public const TAXPAYER_PRIVATE_INDIVIDUAL_WITH_TAXNUMBER = 3;
 
     /**
      * Adószámos egyéb szervezet
      *
      * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
      */
-    const TAXPAYER_OTHER_ORGANIZATION_WITH_TAXNUMBER = 2;
+    public const TAXPAYER_OTHER_ORGANIZATION_WITH_TAXNUMBER = 2;
 
     /**
      * Van magyar adószáma
      */
-    const TAXPAYER_HAS_TAXNUMBER = 1;
+    public const TAXPAYER_HAS_TAXNUMBER = 1;
 
     /**
      * Nem tudjuk, hogy adóalany-e
      */
-    const TAXPAYER_WE_DONT_KNOW = 0;
+    public const TAXPAYER_WE_DONT_KNOW = 0;
 
     /**
      * Nincs adószáma
      */
-    const TAXPAYER_NO_TAXNUMBER = -1;
+    public const TAXPAYER_NO_TAXNUMBER = -1;
 
     /**
      * Magánszemély
      *
      * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_NO_TAXNUMBER.
      */
-    const TAXPAYER_PRIVATE_INDIVIDUAL = -2;
+    public const TAXPAYER_PRIVATE_INDIVIDUAL = -2;
 
     /**
      * Adószám nélküli egyéb szervezet
      *
      * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_NO_TAXNUMBER.
      */
-    const TAXPAYER_OTHER_ORGANIZATION_WITHOUT_TAXNUMBER = -3;
+    public const TAXPAYER_OTHER_ORGANIZATION_WITHOUT_TAXNUMBER = -3;
 
     /**
      * Törzsszám

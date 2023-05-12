@@ -12,12 +12,12 @@ class SzamlaAgentSetting
     /**
      * Alapértelmezett számlamásolatok darabszám
      */
-    const DOWNLOAD_COPIES_COUNT = 1;
+    public const DOWNLOAD_COPIES_COUNT = 1;
 
     /**
      * Számla Agent kulcs hossza
      */
-    const API_KEY_LENGTH = 42;
+    public const API_KEY_LENGTH = 42;
 
     /**
      * Számla Agent kéréshez használt felhasználónév
