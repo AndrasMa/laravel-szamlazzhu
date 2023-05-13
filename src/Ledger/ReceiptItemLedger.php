@@ -11,17 +11,6 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 class ReceiptItemLedger extends ItemLedger
 {
     /**
-     * Tétel főkönyvi adatok létrehozása
-     *
-     * @param  string  $revenueLedgerNumber   Árbevétel főkönyvi szám
-     * @param  string  $vatLedgerNumber       ÁFA főkönyvi szám
-     */
-    public function __construct($revenueLedgerNumber = '', $vatLedgerNumber = '')
-    {
-        parent::__construct($revenueLedgerNumber, $vatLedgerNumber);
-    }
-
-    /**
      * Ellenőrizzük a mező típusát
      *
      *
