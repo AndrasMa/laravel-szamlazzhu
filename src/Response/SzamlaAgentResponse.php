@@ -258,9 +258,9 @@ class SzamlaAgentResponse
         switch ($type) {
             case self::RESULT_AS_XML:
             case self::RESULT_AS_TAXPAYER_XML: $postfix = '-xml';
-            break;
+                break;
             case self::RESULT_AS_TEXT:         $postfix = '-text';
-            break;
+                break;
             default:
                 throw new SzamlaAgentException(SzamlaAgentException::RESPONSE_TYPE_NOT_EXISTS." ($type)");
         }
@@ -285,16 +285,7 @@ class SzamlaAgentResponse
         $header = $this->getAgent()->getRequestEntityHeader();
 
         if ($header instanceof InvoiceHeader && $header->isPreviewPdf()) {
-            $entity = $this->getAgent()->getRequestEntity();
-
-            $name = '';
-            if ($entity != null && $entity instanceof Invoice) {
-                try {
-                    $name .= (new \ReflectionClass($entity))->getShortName().'-';
-                } catch (\ReflectionException $e) {
-                }
-            }
-            $documentNumber = strtolower($name).'preview-'.SzamlaAgentUtil::getDateTimeWithMilliseconds();
+            $documentNumber = sprintf('preview-invoice-%s', SzamlaAgentUtil::getDateTimeWithMilliseconds());
         } else {
             $documentNumber = $this->getDocumentNumber();
         }
