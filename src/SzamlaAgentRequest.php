@@ -12,100 +12,100 @@ class SzamlaAgentRequest
     /**
      * Sikesességet jelző válaszkód
      */
-    const HTTP_OK = 200;
+    public const HTTP_OK = 200;
 
-    const CRLF = "\r\n";
+    public const CRLF = "\r\n";
 
     /**
      * Számla Agent XML séma alapértelmezett URL
      * (az XML generálásához használjuk, ne változtasd meg)
      */
-    const XML_BASE_URL = 'http://www.szamlazz.hu/';
+    public const XML_BASE_URL = 'http://www.szamlazz.hu/';
 
     /**
      * Számla Agent kérés maximális idő másodpercben
      */
-    const REQUEST_TIMEOUT = 30;
+    public const REQUEST_TIMEOUT = 30;
 
     /**
      * Számlakészítéshez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/agent/xmlszamla.xsd
      */
-    const XML_SCHEMA_CREATE_INVOICE = 'xmlszamla';
+    public const XML_SCHEMA_CREATE_INVOICE = 'xmlszamla';
 
     /**
      * Számla sztornózásához használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/agentst/xmlszamlast.xsd
      */
-    const XML_SCHEMA_CREATE_REVERSE_INVOICE = 'xmlszamlast';
+    public const XML_SCHEMA_CREATE_REVERSE_INVOICE = 'xmlszamlast';
 
     /**
      * Jóváírás rögzítéséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/agentkifiz/xmlszamlakifiz.xsd
      */
-    const XML_SCHEMA_PAY_INVOICE = 'xmlszamlakifiz';
+    public const XML_SCHEMA_PAY_INVOICE = 'xmlszamlakifiz';
 
     /**
      * Számla adatok lekéréséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/agentxml/xmlszamlaxml.xsd
      */
-    const XML_SCHEMA_REQUEST_INVOICE_XML = 'xmlszamlaxml';
+    public const XML_SCHEMA_REQUEST_INVOICE_XML = 'xmlszamlaxml';
 
     /**
      * Számla PDF lekéréséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/agentpdf/xmlszamlapdf.xsd
      */
-    const XML_SCHEMA_REQUEST_INVOICE_PDF = 'xmlszamlapdf';
+    public const XML_SCHEMA_REQUEST_INVOICE_PDF = 'xmlszamlapdf';
 
     /**
      * Nyugta készítéséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/nyugtacreate/xmlnyugtacreate.xsd
      */
-    const XML_SCHEMA_CREATE_RECEIPT = 'xmlnyugtacreate';
+    public const XML_SCHEMA_CREATE_RECEIPT = 'xmlnyugtacreate';
 
     /**
      * Nyugta sztornóhoz használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/nyugtast/xmlnyugtast.xsd
      */
-    const XML_SCHEMA_CREATE_REVERSE_RECEIPT = 'xmlnyugtast';
+    public const XML_SCHEMA_CREATE_REVERSE_RECEIPT = 'xmlnyugtast';
 
     /**
      * Nyugta kiküldéséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/nyugtasend/xmlnyugtasend.xsd
      */
-    const XML_SCHEMA_SEND_RECEIPT = 'xmlnyugtasend';
+    public const XML_SCHEMA_SEND_RECEIPT = 'xmlnyugtasend';
 
     /**
      * Nyugta megjelenítéséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/nyugtaget/xmlnyugtaget.xsd
      */
-    const XML_SCHEMA_GET_RECEIPT = 'xmlnyugtaget';
+    public const XML_SCHEMA_GET_RECEIPT = 'xmlnyugtaget';
 
     /**
      * Adózó adatainak lekérdezéséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/taxpayer/xmltaxpayer.xsd
      */
-    const XML_SCHEMA_TAXPAYER = 'xmltaxpayer';
+    public const XML_SCHEMA_TAXPAYER = 'xmltaxpayer';
 
     /**
      * Díjbekérő törléséhez használt XML séma
      *
      * @see https://www.szamlazz.hu/szamla/docs/xsds/dijbekerodel/xmlszamladbkdel.xsd
      */
-    const XML_SCHEMA_DELETE_PROFORMA = 'xmlszamladbkdel';
+    public const XML_SCHEMA_DELETE_PROFORMA = 'xmlszamladbkdel';
 
     // Kérés engedélyezési módok
-    const REQUEST_AUTHORIZATION_BASIC_AUTH = 1;
+    public const REQUEST_AUTHORIZATION_BASIC_AUTH = 1;
 
     /**
      * @var SzamlaAgent

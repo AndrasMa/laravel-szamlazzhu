@@ -10,27 +10,27 @@ class SzamlaAgentUtil
     /**
      * Alapértelmezetten hozzáadott napok száma
      */
-    const DEFAULT_ADDED_DAYS = 8;
+    public const DEFAULT_ADDED_DAYS = 8;
 
     /**
      * Alapértelmezett útvonal
      */
-    const DEFAULT_BASE_PATH = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR;
+    public const DEFAULT_BASE_PATH = __DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR;
 
     /**
      * Pontos dátum (Y-m-d) formátumban
      */
-    const DATE_FORMAT_DATE = 'date';
+    public const DATE_FORMAT_DATE = 'date';
 
     /**
      * Pontos dátum (Y-m-d H:i:s) formátumban
      */
-    const DATE_FORMAT_DATETIME = 'datetime';
+    public const DATE_FORMAT_DATETIME = 'datetime';
 
     /**
      * Aktuális időbélyeg
      */
-    const DATE_FORMAT_TIMESTAMP = 'timestamp';
+    public const DATE_FORMAT_TIMESTAMP = 'timestamp';
 
     /**
      * Számla Agent API által generált fájlok alapértelmezett útvonala
