@@ -405,38 +405,53 @@ class SzamlaAgentSetting
 
         foreach ($fields as $key) {
             switch ($key) {
-                case 'felhasznalo':       $value = $this->getUsername();
-                break;
-                case 'jelszo':            $value = $this->getPassword();
-                break;
-                case 'szamlaagentkulcs':  $value = $this->getApiKey();
-                break;
+                case 'felhasznalo':
+                    $value = $this->getUsername();
+                    break;
+                case 'jelszo':
+                    $value = $this->getPassword();
+                    break;
+                case 'szamlaagentkulcs':
+                    $value = $this->getApiKey();
+                    break;
                 case 'szamlaLetoltes':
                 case 'pdf':
-                case 'pdfLetoltes':       $value = $this->isDownloadPdf();
-                break;
-                case 'szamlaLetoltesPld': $value = $this->getDownloadCopiesCount();
-                break;
-                case 'valaszVerzio':      $value = $this->getResponseType();
-                break;
-                case 'aggregator':        $value = $this->getAggregator();
-                break;
-                case 'guardian':          $value = $this->getGuardian();
-                break;
-                case 'cikkazoninvoice':   $value = $this->isInvoiceItemIdentifier();
-                break;
-                case 'szamlaKulsoAzon':   $value = $this->getInvoiceExternalId();
-                break;
-                case 'eszamla':           $value = $request->getEntity()->getHeader()->isEInvoice();
-                break;
-                case 'additiv':           $value = $request->getEntity()->isAdditive();
-                break;
-                case 'szamlaszam':        $value = $request->getEntity()->getHeader()->getInvoiceNumber();
-                break;
-                case 'rendelesSzam':      $value = $request->getEntity()->getHeader()->getOrderNumber();
-                break;
-                case 'adoszam':           $value = $this->getTaxNumber();
-                break;
+                case 'pdfLetoltes':
+                    $value = $this->isDownloadPdf();
+                    break;
+                case 'szamlaLetoltesPld':
+                    $value = $this->getDownloadCopiesCount();
+                    break;
+                case 'valaszVerzio':
+                    $value = $this->getResponseType();
+                    break;
+                case 'aggregator':
+                    $value = $this->getAggregator();
+                    break;
+                case 'guardian':
+                    $value = $this->getGuardian();
+                    break;
+                case 'cikkazoninvoice':
+                    $value = $this->isInvoiceItemIdentifier();
+                    break;
+                case 'szamlaKulsoAzon':
+                    $value = $this->getInvoiceExternalId();
+                    break;
+                case 'eszamla':
+                    $value = $request->getEntity()->getHeader()->isEInvoice();
+                    break;
+                case 'additiv':
+                    $value = $request->getEntity()->isAdditive();
+                    break;
+                case 'szamlaszam':
+                    $value = $request->getEntity()->getHeader()->getInvoiceNumber();
+                    break;
+                case 'rendelesSzam':
+                    $value = $request->getEntity()->getHeader()->getOrderNumber();
+                    break;
+                case 'adoszam':
+                    $value = $this->getTaxNumber();
+                    break;
                 default:
                     throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS.": {$key}");
             }
