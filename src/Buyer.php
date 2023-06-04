@@ -3,180 +3,81 @@
 namespace Omisai\SzamlazzhuAgent;
 
 /**
- * Vevő
+ * HU: Vevő
  */
 class Buyer
 {
-    /**
-     * Vevő azonosítója
-     *
-     * @var string
-     */
-    protected $id;
+    protected string $id;
+
+    protected string $name;
+
+    protected string $country;
+
+    protected string $zipCode;
+
+    protected string $city;
+
+    protected string $address;
 
     /**
-     * Vevő neve
-     *
-     * @var string
+     * If email address is given, the document will be sent to this email address by Számlázz.hu
+     * In case of a test account, the system will not send an email for security reasons
      */
-    protected $name;
+    protected string $email;
+
+    protected bool $sendEmail = true;
+
+    protected int $taxPayer; //TODO: Use the TaxPayer object instead
+
+    protected string $taxNumber;
+
+    protected string $groupIdentifier;
+
+    protected string $taxNumberEU;
 
     /**
-     * Vevő országa
-     *
-     * @var string
+     * Postal data is optional
      */
-    protected $country;
+    protected string $postalName;
 
     /**
-     * Vevő irányítószáma
-     *
-     * @var string
+     * Postal data is optional
      */
-    protected $zipCode;
+    protected string $postalCountry;
 
     /**
-     * Vevő városa
-     *
-     * @var string
+     * Postal data is optional
      */
-    protected $city;
+    protected string $postalZip;
 
     /**
-     * Vevő címe
-     *
-     * @var string
+     * Postal data is optional
      */
-    protected $address;
+    protected string $postalCity;
 
     /**
-     * Vevő e-mail címe
-     *
-     * Ha meg van adva, akkor erre az email címre kiküldi a bizonylatot a Számlázz.hu.
-     * Teszt fiók esetén biztonsági okokból nem küld a rendszer e-mailt!
-     *
-     * @var string
+     * Postal data is optional
      */
-    protected $email;
+    protected string $postalAddress;
 
     /**
-     * Küldjünk-e e-mailt az vevőnek
-     *
-     * @var bool
+     * HU: Vevő főkönyvi adatai
      */
-    protected $sendEmail = true;
+    protected BuyerLedger $ledgerData;
 
     /**
-     * Vevő adóalany
-     *
-     * @var int
+     * If enabled on the settings page (https://www.szamlazz.hu/szamla/beallitasok)
+     * this name will appear below the signature line.
      */
-    protected $taxPayer;
+    protected string $signatoryName;
 
-    /**
-     * Vevő adószáma
-     *
-     * @var string
-     */
-    protected $taxNumber;
+    protected string $phone;
 
-    /**
-     * Csoport azonosító
-     *
-     * @var string
-     */
-    protected $groupIdentifier;
+    protected string $comment;
 
-    /**
-     * Vevó EU-s adószáma
-     *
-     * @var string
-     */
-    protected $taxNumberEU;
+    protected array $requiredFields = [];
 
-    /**
-     * Vevő postázási neve
-     * (A postázási adatok nem kötelezők)
-     *
-     * @var string
-     */
-    protected $postalName;
-
-    /**
-     * Vevő postázási országa
-     *
-     * @var string
-     */
-    protected $postalCountry;
-
-    /**
-     * Vevő postázási irányítószáma
-     *
-     * @var string
-     */
-    protected $postalZip;
-
-    /**
-     * Vevő postázási települése
-     *
-     * @var string
-     */
-    protected $postalCity;
-
-    /**
-     * Vevő postázási címe
-     *
-     * @var string
-     */
-    protected $postalAddress;
-
-    /**
-     * Vevő főkönyvi adatai
-     *
-     * @var BuyerLedger
-     */
-    protected $ledgerData;
-
-    /**
-     * Vevő aláíró neve
-     *
-     * Ha a beállítások oldalon (https://www.szamlazz.hu/szamla/beallitasok) be van kapcsolva,
-     * akkor ez a név megjelenik az aláírásra szolgáló vonal alatt.
-     *
-     * @var string
-     */
-    protected $signatoryName;
-
-    /**
-     * Vevő telefonszáma
-     *
-     * @var string
-     */
-    protected $phone;
-
-    /**
-     * Vevőhöz tartozó megjegyzés
-     *
-     * @var string
-     */
-    protected $comment;
-
-    /**
-     * Kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = [];
-
-    /**
-     * Vevő példányosítása
-     *
-     * @param  string  $name    vevő név
-     * @param  string  $zipCode vevő irányítószám
-     * @param  string  $city    vevő település
-     * @param  string  $address vevő cím
-     */
-    public function __construct($name = '', $zipCode = '', $city = '', $address = '')
+    public function __construct(string $name = '', string $zipCode = '', string $city = '', string $address = '')
     {
         $this->setName($name);
         $this->setZipCode($zipCode);
@@ -184,28 +85,20 @@ class Buyer
         $this->setAddress($address);
     }
 
-    /**
-     * @return array
-     */
-    protected function getRequiredFields()
+    protected function getRequiredFields(): array
     {
         return $this->requiredFields;
     }
 
-    protected function setRequiredFields(array $requiredFields)
+    protected function setRequiredFields(array $requiredFields): void
     {
         $this->requiredFields = $requiredFields;
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
@@ -243,11 +136,9 @@ class Buyer
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkFields()
+    protected function checkFields(): void
     {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
@@ -256,14 +147,11 @@ class Buyer
     }
 
     /**
-     * Létrehozza a vevő XML adatait a kérésben meghatározott XML séma alapján
-     *
-     *
-     * @return array
+     * Generates the XML data of the customer, based on the XML schema defined in the request
      *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $data = [];
         switch ($request->getXmlName()) {
@@ -348,365 +236,231 @@ class Buyer
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
+    public function getId(): string
     {
         return $this->id;
     }
 
-    /**
-     * @param  string  $id
-     */
-    public function setId($id)
+    public function setId(string $id): void
     {
         $this->id = $id;
     }
 
-    /**
-     * @return string
-     */
-    public function getName()
+    public function getName(): string
     {
         return $this->name;
     }
 
-    /**
-     * @param  string  $name
-     */
-    public function setName($name)
+    public function setName(string $name): void
     {
         $this->name = $name;
     }
 
-    /**
-     * @return string
-     */
-    public function getCountry()
+    public function getCountry(): string
     {
         return $this->country;
     }
 
-    /**
-     * @param  string  $country
-     */
-    public function setCountry($country)
+    public function setCountry(string $country): void
     {
         $this->country = $country;
     }
 
-    /**
-     * @return string
-     */
-    public function getZipCode()
+    public function getZipCode(): string
     {
         return $this->zipCode;
     }
 
-    /**
-     * @param  string  $zipCode
-     */
-    public function setZipCode($zipCode)
+    public function setZipCode(string $zipCode): void
     {
         $this->zipCode = $zipCode;
     }
 
-    /**
-     * @return string
-     */
-    public function getCity()
+    public function getCity(): string
     {
         return $this->city;
     }
 
-    /**
-     * @param  string  $city
-     */
-    public function setCity($city)
+    public function setCity(string $city): void
     {
         $this->city = $city;
     }
 
-    /**
-     * @return string
-     */
-    public function getAddress()
+    public function getAddress(): string
     {
         return $this->address;
     }
 
-    /**
-     * @param  string  $address
-     */
-    public function setAddress($address)
+    public function setAddress(string $address): void
     {
         $this->address = $address;
     }
 
-    /**
-     * @return string
-     */
-    public function getEmail()
+    public function getEmail(): string
     {
         return $this->email;
     }
 
-    /**
-     * @param  string  $email
-     */
-    public function setEmail($email)
+    public function setEmail(string $email): void
     {
         $this->email = $email;
     }
 
-    /**
-     * Visszaadja, hogy küldünk-e e-mailt az vevőnek
-     *
-     * @return bool
-     */
-    public function isSendEmail()
+    public function isSendEmail(): bool
     {
         return $this->sendEmail;
     }
 
-    /**
-     * Beállítja, hogy küldjünk-e e-mailt az vevőnek
-     *
-     * @param  bool  $sendEmail
-     */
-    public function setSendEmail($sendEmail)
+    public function setSendEmail(bool $sendEmail): void
     {
         $this->sendEmail = $sendEmail;
     }
 
-    /**
-     * Visszaadja, hogy a vevő milyen típusú adóalany
-     *
-     * @return int
-     */
-    public function getTaxPayer()
+    public function getTaxPayer(): int
     {
         return $this->taxPayer;
     }
 
-    /**
-     * Beállítja, hogy a vevő milyen típusú adóalany.
-     * Ezt az információt a partner adatként tárolja a rendszerben, ott módosítható is.
-     *
-     * A következő értékeket veheti fel ez a mező:
-     *  7: TaxPayer::TAXPAYER_NON_EU_ENTERPRISE - EU-n kívüli vállalkozás
-     *  6: TaxPayer::TAXPAYER_EU_ENTERPRISE     - EU-s vállalkozás
-     *  1: TaxPayer::TAXPAYER_HAS_TAXNUMBER     - van magyar adószáma
-     *  0: TaxPayer::TAXPAYER_WE_DONT_KNOW      - nem tudjuk
-     * -1: TaxPayer::TAXPAYER_NO_TAXNUMBER      - nincs adószáma
-     *
-     * @see https://tudastar.szamlazz.hu/gyik/vevo-adoszama-szamlan
-     *
-     * @param  int  $taxPayer
-     */
-    public function setTaxPayer($taxPayer)
+    public function setTaxPayer(int $taxPayer): void
     {
         $this->taxPayer = $taxPayer;
     }
 
-    /**
-     * @return string
-     */
-    public function getTaxNumber()
+    public function getTaxNumber(): string
     {
         return $this->taxNumber;
     }
 
-    /**
-     * @param  string  $taxNumber
-     */
-    public function setTaxNumber($taxNumber)
+    public function setTaxNumber(string $taxNumber): void
     {
         $this->taxNumber = $taxNumber;
     }
 
-    /**
-     * @return string
-     */
-    public function getGroupIdentifier()
+    public function getGroupIdentifier(): string
     {
         return $this->groupIdentifier;
     }
 
-    /**
-     * @param  string  $groupIdentifier
-     */
-    public function setGroupIdentifier($groupIdentifier)
+    public function setGroupIdentifier(string $groupIdentifier): void
     {
         $this->groupIdentifier = $groupIdentifier;
     }
 
-    /**
-     * @return string
-     */
-    public function getTaxNumberEU()
+    public function getTaxNumberEU(): string
     {
         return $this->taxNumberEU;
     }
 
-    /**
-     * @param  string  $taxNumberEU
-     */
-    public function setTaxNumberEU($taxNumberEU)
+    public function setTaxNumberEU(string $taxNumberEU): void
     {
         $this->taxNumberEU = $taxNumberEU;
     }
 
-    /**
-     * @return string
-     */
-    public function getPostalName()
+    public function getPostalName(): string
     {
         return $this->postalName;
     }
 
     /**
-     * @param  string  $postalName
+     * Postal data is optional
      */
-    public function setPostalName($postalName)
+    public function setPostalName(string $postalName): void
     {
         $this->postalName = $postalName;
     }
 
-    /**
-     * @return string
-     */
-    public function getPostalCountry()
+    public function getPostalCountry(): string
     {
         return $this->postalCountry;
     }
 
     /**
-     * @param  string  $postalCountry
+     * Postal data is optional
      */
-    public function setPostalCountry($postalCountry)
+    public function setPostalCountry(string $postalCountry): void
     {
         $this->postalCountry = $postalCountry;
     }
 
-    /**
-     * @return string
-     */
-    public function getPostalZip()
+    public function getPostalZip(): string
     {
         return $this->postalZip;
     }
 
     /**
-     * @param  string  $postalZip
+     * Postal data is optional
      */
-    public function setPostalZip($postalZip)
+    public function setPostalZip(string $postalZip): void
     {
         $this->postalZip = $postalZip;
     }
 
-    /**
-     * @return string
-     */
-    public function getPostalCity()
+    public function getPostalCity(): string
     {
         return $this->postalCity;
     }
 
     /**
-     * @param  string  $postalCity
+     * Postal data is optional
      */
-    public function setPostalCity($postalCity)
+    public function setPostalCity(string $postalCity): void
     {
         $this->postalCity = $postalCity;
     }
 
-    /**
-     * @return string
-     */
-    public function getPostalAddress()
+    public function getPostalAddress(): string
     {
         return $this->postalAddress;
     }
 
     /**
-     * @param  string  $postalAddress
+     * Postal data is optional
      */
-    public function setPostalAddress($postalAddress)
+    public function setPostalAddress(string $postalAddress): void
     {
         $this->postalAddress = $postalAddress;
     }
 
-    /**
-     * Visszaadja a vevő főkönyvi adatait
-     *
-     * @return BuyerLedger
-     */
-    public function getLedgerData()
+    public function getLedgerData(): BuyerLedger
     {
         return $this->ledgerData;
     }
 
-    /**
-     * Beállítja a vevő főkönyvi adatait
-     */
-    public function setLedgerData(BuyerLedger $ledgerData)
+    public function setLedgerData(BuyerLedger $ledgerData): void
     {
         $this->ledgerData = $ledgerData;
     }
 
-    /**
-     * Visszaadja a vevő aláírójának nevét
-     *
-     * @return string
-     */
-    public function getSignatoryName()
+    public function getSignatoryName(): string
     {
         return $this->signatoryName;
     }
 
     /**
-     * Beállítja a vevő aláírójának nevét
-     *
-     * Ha a beállítások oldalon (https://www.szamlazz.hu/szamla/beallitasok) be van kapcsolva,
-     * akkor ez a név megjelenik az aláírásra szolgáló vonal alatt.
-     *
-     * @param  string  $signatoryName
+     * If enabled on the settings page (https://www.szamlazz.hu/szamla/beallitasok)
+     * this name will appear below the signature line.
      */
-    public function setSignatoryName($signatoryName)
+    public function setSignatoryName(string $signatoryName): void
     {
         $this->signatoryName = $signatoryName;
     }
 
-    /**
-     * @return string
-     */
-    public function getPhone()
+    public function getPhone(): string
     {
         return $this->phone;
     }
 
-    /**
-     * @param  string  $phone
-     */
-    public function setPhone($phone)
+    public function setPhone(string $phone): void
     {
         $this->phone = $phone;
     }
 
-    /**
-     * @return string
-     */
-    public function getComment()
+    public function getComment(): string
     {
         return $this->comment;
     }
 
-    /**
-     * @param  string  $comment
-     */
-    public function setComment($comment)
+    public function setComment(string $comment): void
     {
         $this->comment = $comment;
     }
