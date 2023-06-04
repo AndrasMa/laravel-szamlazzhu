@@ -7,61 +7,37 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
 use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 
 /**
- * Fuvarlevél
+ * HU: Fuvarlevél
  */
 class Waybill
 {
     // Transoflex
-    const WAYBILL_TYPE_TRANSOFLEX = 'Transoflex';
+    public const WAYBILL_TYPE_TRANSOFLEX = 'Transoflex';
 
     // Sprinter
-    const WAYBILL_TYPE_SPRINTER = 'Sprinter';
+    public const WAYBILL_TYPE_SPRINTER = 'Sprinter';
 
     // Pick-Pack-Pont
-    const WAYBILL_TYPE_PPP = 'PPP';
+    public const WAYBILL_TYPE_PPP = 'PPP';
 
     // Magyar Posta
-    const WAYBILL_TYPE_MPL = 'MPL';
+    public const WAYBILL_TYPE_MPL = 'MPL';
+
+    protected string $destination;
 
     /**
-     * Úti cél
-     *
-     * @var string
+     * @example TOF, PPP, SPRINTER, MPL, FOXPOST, GLS, EMPTY
      */
-    protected $destination;
+    protected string $parcel;
 
     /**
-     * Futárszolgálat
-     * (TOF, PPP, SPRINTER, MPL, FOXPOST, GLS, EMPTY)
-     *
-     * @var string
+     * If no specified delivery data, then the barcode will be used
      */
-    protected $parcel;
+    protected string $barcode;
 
-    /**
-     * Általános vonalkód megadási lehetőség, ha nem adjuk meg az adott futárszolgálat
-     * vonalkódjának előállításához szükséges adatokat, akkor ezt használja a rendszer.
-     *
-     * @var string
-     */
-    protected $barcode;
+    protected string $comment;
 
-    /**
-     * A fuvarlevélen ez a megjegyzés jelenik meg
-     *
-     * @var string
-     */
-    protected $comment;
-
-    /**
-     * Fuvarlevél létrehozása
-     *
-     * @param  string  $destination  Úti cél
-     * @param  string  $parcel       Futárszolgálat neve
-     * @param  string  $barcode      Vonalkód
-     * @param  string  $comment      fuvarlevél megjegyzés
-     */
-    protected function __construct($destination = '', $parcel = '', $barcode = '', $comment = '')
+    protected function __construct(string $destination = '', string  $parcel = '', string  $barcode = '', string  $comment = '')
     {
         $this->setDestination($destination);
         $this->setParcel($parcel);
@@ -70,57 +46,23 @@ class Waybill
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkFields(): void
     {
-        if (property_exists($this, $field)) {
-            switch ($field) {
-                case 'destination':
-                case 'parcel':
-                case 'barcode':
-                case 'comment':
-                    SzamlaAgentUtil::checkStrField($field, $value, false, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
+        SzamlaAgentUtil::checkStrField('destination', $this->destination, false, self::class);
+        SzamlaAgentUtil::checkStrField('parcel', $this->parcel, false, self::class);
+        SzamlaAgentUtil::checkStrField('barcode', $this->barcode, false, self::class);
+        SzamlaAgentUtil::checkStrField('comment', $this->comment, false, self::class);
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
-     * @param  string  $entity
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkFields($entity = null)
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            if (get_class() == $entity) {
-                self::checkField($field, $value);
-            } else {
-                $this::checkField($field, $value);
-            }
-        }
-    }
-
-    /**
-     * @return array
-     *
-     * @throws SzamlaAgentException
-     */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $data = [];
-        self::checkFields(get_class());
+        $this->checkFields();
 
         if (SzamlaAgentUtil::isNotBlank($this->getDestination())) {
             $data['uticel'] = $this->getDestination();
@@ -138,66 +80,42 @@ class Waybill
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getDestination()
+    public function getDestination(): string
     {
         return $this->destination;
     }
 
-    /**
-     * @param  string  $destination
-     */
-    public function setDestination($destination)
+    public function setDestination(string $destination): void
     {
         $this->destination = $destination;
     }
 
-    /**
-     * @return string
-     */
-    public function getParcel()
+    public function getParcel(): string
     {
         return $this->parcel;
     }
 
-    /**
-     * @param  string  $parcel
-     */
-    public function setParcel($parcel)
+    public function setParcel(string $parcel): void
     {
         $this->parcel = $parcel;
     }
 
-    /**
-     * @return string
-     */
-    public function getBarcode()
+    public function getBarcode(): string
     {
         return $this->barcode;
     }
 
-    /**
-     * @param  string  $barcode
-     */
-    public function setBarcode($barcode)
+    public function setBarcode(string $barcode): void
     {
         $this->barcode = $barcode;
     }
 
-    /**
-     * @return string
-     */
-    public function getComment()
+    public function getComment(): string
     {
         return $this->comment;
     }
 
-    /**
-     * @param  string  $comment
-     */
-    public function setComment($comment)
+    public function setComment(string $comment): void
     {
         $this->comment = $comment;
     }
