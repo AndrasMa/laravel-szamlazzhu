@@ -20,28 +20,6 @@ To get started with package, simply install it via Composer:
 composer require <package>
 ```
 
-Extend your config/filesystems.php file with new Filesystem Disk:
-
-```php
-    'disks' => [
-        ...
-        'payment' => [
-            'driver' => 'local',
-            'root' => storage_path('app/payment'),
-            'throw' => false,
-            // `private` = 0600, `public` = 0700
-            'visibility' => 'private',
-            // `private` = 0700, `public` = 0755
-            'directory_visibility' => 'private',
-        ],
-        ...
-    ]
-```
-
-To create the symbolic link, you may use the storage:link Artisan command:
-``` bash
-php artisan storage:link
-```
 
 ## Configuration
 

@@ -39,23 +39,6 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Local Logging
-    |--------------------------------------------------------------------------
-    |
-    | Log level options:
-    |   0: Omisai\SzamlazzhuAgent\Log::LOG_LEVEL_OFF
-    |   1: Omisai\SzamlazzhuAgent\Log::LOG_LEVEL_ERROR
-    |   2: Omisai\SzamlazzhuAgent\Log::LOG_LEVEL_WARN
-    |   3: Omisai\SzamlazzhuAgent\Log::LOG_LEVEL_DEBUG
-    |
-    */
-
-    'log_level' => env('SZAMLAZZHU_LOG_LEVEL', '0'),
-
-    'log_filename' =>  env('SZAMLAZZHU_LOG_FILENAME', 'szamlaagent'),
-
-    /*
-    |--------------------------------------------------------------------------
     | Számlázz.hu logging
     |--------------------------------------------------------------------------
     |
@@ -65,7 +48,5 @@ return [
     */
 
     'log_email' => env('SZAMLAZZHU_LOG_EMAIL', null),
-
-
 
 ];
