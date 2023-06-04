@@ -21,7 +21,7 @@ class SzamlaAgentAPI extends SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public static function create($apiKey, $downloadPdf = true, $logLevel = Log::LOG_LEVEL_DEBUG, $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, $aggregator = '')
+    public static function create(string $apiKey, bool $downloadPdf = true, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
     {
         $index = self::getHash($apiKey);
 
@@ -31,7 +31,7 @@ class SzamlaAgentAPI extends SzamlaAgent
         }
 
         if ($agent === null) {
-            return self::$agents[$index] = new self(null, null, $apiKey, $downloadPdf, $logLevel, $responseType, $aggregator);
+            return self::$agents[$index] = new self(null, null, $apiKey, $downloadPdf, $responseType, $aggregator);
         } else {
             return $agent;
         }
