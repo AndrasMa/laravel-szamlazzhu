@@ -1,9 +1,9 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Ledger;
+namespace Omisai\Szamlazzhu\Ledger;
 
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * Nyugtatétel főkönyvi adatok

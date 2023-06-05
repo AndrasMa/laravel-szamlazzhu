@@ -1,9 +1,9 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document;
+namespace Omisai\Szamlazzhu\Document;
 
-use Omisai\SzamlazzhuAgent\Currency;
-use Omisai\SzamlazzhuAgent\Language;
+use Omisai\Szamlazzhu\Currency;
+use Omisai\Szamlazzhu\Language;
 
 /**
  * Bizonylat

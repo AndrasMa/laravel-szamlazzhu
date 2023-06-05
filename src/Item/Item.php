@@ -1,9 +1,9 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Item;
+namespace Omisai\Szamlazzhu\Item;
 
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * HU: Tétel

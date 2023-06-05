@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\CreditNote;
+namespace Omisai\Szamlazzhu\CreditNote;
 
-use Omisai\SzamlazzhuAgent\Document\Document;
+use Omisai\Szamlazzhu\Document\Document;
 
 /**
  * HU: Jóváírás

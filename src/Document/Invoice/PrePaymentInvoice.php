@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document\Invoice;
+namespace Omisai\Szamlazzhu\Document\Invoice;
 
-use Omisai\SzamlazzhuAgent\Header\PrePaymentInvoiceHeader;
+use Omisai\Szamlazzhu\Header\PrePaymentInvoiceHeader;
 
 /**
  * HU: Előlegszámla

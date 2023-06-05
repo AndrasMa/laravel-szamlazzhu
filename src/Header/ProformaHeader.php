@@ -1,10 +1,10 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Header;
+namespace Omisai\Szamlazzhu\Header;
 
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentRequest;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * Díjbekérő fejléc

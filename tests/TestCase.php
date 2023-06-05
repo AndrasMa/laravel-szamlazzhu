@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Tests;
+namespace Omisai\Szamlazzhu\Tests;
 
-use Omisai\SzamlazzhuAgent\SzamlaAgentServiceProvider;
+use Omisai\Szamlazzhu\SzamlaAgentServiceProvider;
 use Orchestra\Testbench\TestCase as OrchestraTestCase;
 
 abstract class TestCase extends OrchestraTestCase

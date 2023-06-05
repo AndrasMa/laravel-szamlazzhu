@@ -1,12 +1,12 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Header;
+namespace Omisai\Szamlazzhu\Header;
 
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\Document\Invoice\Invoice;
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentRequest;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * Számla fejléc

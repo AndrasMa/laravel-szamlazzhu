@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Response;
+namespace Omisai\Szamlazzhu\Response;
 
 /**
  * Egy adózó adatainak lekérésére adott választ reprezentáló osztály

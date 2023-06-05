@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Response;
+namespace Omisai\Szamlazzhu\Response;
 
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * Egy nyugta típusú bizonylat kérésére adott választ reprezentáló osztály

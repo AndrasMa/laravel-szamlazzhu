@@ -1,10 +1,10 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Waybill;
+namespace Omisai\Szamlazzhu\Waybill;
 
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentRequest;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * MPL fuvarlevél

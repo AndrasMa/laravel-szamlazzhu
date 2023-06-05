@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent;
+namespace Omisai\Szamlazzhu;
 
-use Omisai\SzamlazzhuAgent\Response\SzamlaAgentResponse;
+use Omisai\Szamlazzhu\Response\SzamlaAgentResponse;
 
 class SzamlaAgentSetting
 {

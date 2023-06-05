@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent;
+namespace Omisai\Szamlazzhu;
 
 use Illuminate\Support\ServiceProvider;
 

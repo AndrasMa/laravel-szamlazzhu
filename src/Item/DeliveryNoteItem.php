@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Item;
+namespace Omisai\Szamlazzhu\Item;
 
 /**
  * HU: Szállítólevél tétel

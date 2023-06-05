@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Ledger;
+namespace Omisai\Szamlazzhu\Ledger;
 
 /**
  * Tétel főkönyvi adatok

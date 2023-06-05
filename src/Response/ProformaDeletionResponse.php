@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Response;
+namespace Omisai\Szamlazzhu\Response;
 
 /**
  * Díjbekérő törlés kérésére adott válasz

@@ -1,6 +1,6 @@
 <?php
 
-use Omisai\SzamlazzhuAgent\Tests\TestCase;
+use Omisai\Szamlazzhu\Tests\TestCase;
 
 /*
 |--------------------------------------------------------------------------

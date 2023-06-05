@@ -1,16 +1,16 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document\Receipt;
+namespace Omisai\Szamlazzhu\Document\Receipt;
 
-use Omisai\SzamlazzhuAgent\Buyer;
-use Omisai\SzamlazzhuAgent\CreditNote\ReceiptCreditNote;
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\Header\ReceiptHeader;
-use Omisai\SzamlazzhuAgent\Item\ReceiptItem;
-use Omisai\SzamlazzhuAgent\Seller;
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Buyer;
+use Omisai\Szamlazzhu\CreditNote\ReceiptCreditNote;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\Header\ReceiptHeader;
+use Omisai\Szamlazzhu\Item\ReceiptItem;
+use Omisai\Szamlazzhu\Seller;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentRequest;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * HU: Nyugta

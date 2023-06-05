@@ -1,9 +1,9 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent;
+namespace Omisai\Szamlazzhu;
 
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\Document\Invoice\Invoice;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;

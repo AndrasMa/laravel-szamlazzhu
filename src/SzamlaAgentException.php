@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent;
+namespace Omisai\Szamlazzhu;
 
 class SzamlaAgentException extends \Exception
 {

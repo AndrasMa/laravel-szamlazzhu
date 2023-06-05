@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document\Invoice;
+namespace Omisai\Szamlazzhu\Document\Invoice;
 
-use Omisai\SzamlazzhuAgent\Header\CorrectiveInvoiceHeader;
+use Omisai\Szamlazzhu\Header\CorrectiveInvoiceHeader;
 
 /**
  * HU: Helyesbítő számla

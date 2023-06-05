@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Header;
+namespace Omisai\Szamlazzhu\Header;
 
-use Omisai\SzamlazzhuAgent\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Document\Invoice\Invoice;
 
 /**
  * Előlegszámla fejléc

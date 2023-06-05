@@ -1,6 +1,6 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Header;
+namespace Omisai\Szamlazzhu\Header;
 
 /**
  * Szállítólevél fejléc

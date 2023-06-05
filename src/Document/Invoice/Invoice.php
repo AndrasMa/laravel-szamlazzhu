@@ -1,18 +1,18 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document\Invoice;
+namespace Omisai\Szamlazzhu\Document\Invoice;
 
 use Illuminate\Support\Facades\Log;
-use Omisai\SzamlazzhuAgent\Buyer;
-use Omisai\SzamlazzhuAgent\CreditNote\InvoiceCreditNote;
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\Header\InvoiceHeader;
-use Omisai\SzamlazzhuAgent\Item\InvoiceItem;
-use Omisai\SzamlazzhuAgent\Seller;
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
-use Omisai\SzamlazzhuAgent\Waybill\Waybill;
+use Omisai\Szamlazzhu\Buyer;
+use Omisai\Szamlazzhu\CreditNote\InvoiceCreditNote;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\Header\InvoiceHeader;
+use Omisai\Szamlazzhu\Item\InvoiceItem;
+use Omisai\Szamlazzhu\Seller;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentRequest;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Waybill\Waybill;
 
 /**
  * HU: Számla

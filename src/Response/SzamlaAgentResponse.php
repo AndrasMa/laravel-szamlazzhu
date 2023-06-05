@@ -1,17 +1,17 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Response;
+namespace Omisai\Szamlazzhu\Response;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\Document\Invoice\Invoice;
-use Omisai\SzamlazzhuAgent\Header\InvoiceHeader;
-use Omisai\SzamlazzhuAgent\SimpleXMLExtended;
-use Omisai\SzamlazzhuAgent\SzamlaAgent;
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Header\InvoiceHeader;
+use Omisai\Szamlazzhu\SimpleXMLExtended;
+use Omisai\Szamlazzhu\SzamlaAgent;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentRequest;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 class SzamlaAgentResponse
 {

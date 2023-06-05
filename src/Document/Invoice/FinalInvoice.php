@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document\Invoice;
+namespace Omisai\Szamlazzhu\Document\Invoice;
 
-use Omisai\SzamlazzhuAgent\Header\FinalInvoiceHeader;
+use Omisai\Szamlazzhu\Header\FinalInvoiceHeader;
 
 /**
  * HU: Végszámla

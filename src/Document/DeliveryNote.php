@@ -1,9 +1,9 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document;
+namespace Omisai\Szamlazzhu\Document;
 
-use Omisai\SzamlazzhuAgent\Document\Invoice\Invoice;
-use Omisai\SzamlazzhuAgent\Header\DeliveryNoteHeader;
+use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Header\DeliveryNoteHeader;
 
 /**
  * HU: Szállítólevél

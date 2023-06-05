@@ -1,8 +1,8 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Document\Invoice;
+namespace Omisai\Szamlazzhu\Document\Invoice;
 
-use Omisai\SzamlazzhuAgent\Header\ReverseInvoiceHeader;
+use Omisai\Szamlazzhu\Header\ReverseInvoiceHeader;
 
 /**
  * HU: Sztornó számla

@@ -1,10 +1,10 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\CreditNote;
+namespace Omisai\Szamlazzhu\CreditNote;
 
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * HU: Számla jóváírás

@@ -1,10 +1,10 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent\Item;
+namespace Omisai\Szamlazzhu\Item;
 
-use Omisai\SzamlazzhuAgent\Ledger\InvoiceItemLedger;
-use Omisai\SzamlazzhuAgent\SzamlaAgentException;
-use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Ledger\InvoiceItemLedger;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * HU: Számlatétel

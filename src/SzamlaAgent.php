@@ -1,21 +1,21 @@
 <?php
 
-namespace Omisai\SzamlazzhuAgent;
+namespace Omisai\Szamlazzhu;
 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
-use Omisai\SzamlazzhuAgent\Document\DeliveryNote;
-use Omisai\SzamlazzhuAgent\Document\Document;
-use Omisai\SzamlazzhuAgent\Document\Invoice\CorrectiveInvoice;
-use Omisai\SzamlazzhuAgent\Document\Invoice\FinalInvoice;
-use Omisai\SzamlazzhuAgent\Document\Invoice\Invoice;
-use Omisai\SzamlazzhuAgent\Document\Invoice\PrePaymentInvoice;
-use Omisai\SzamlazzhuAgent\Document\Invoice\ReverseInvoice;
-use Omisai\SzamlazzhuAgent\Document\Proforma;
-use Omisai\SzamlazzhuAgent\Document\Receipt\Receipt;
-use Omisai\SzamlazzhuAgent\Document\Receipt\ReverseReceipt;
-use Omisai\SzamlazzhuAgent\Header\DocumentHeader;
-use Omisai\SzamlazzhuAgent\Response\SzamlaAgentResponse;
+use Omisai\Szamlazzhu\Document\DeliveryNote;
+use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\Document\Invoice\CorrectiveInvoice;
+use Omisai\Szamlazzhu\Document\Invoice\FinalInvoice;
+use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Document\Invoice\PrePaymentInvoice;
+use Omisai\Szamlazzhu\Document\Invoice\ReverseInvoice;
+use Omisai\Szamlazzhu\Document\Proforma;
+use Omisai\Szamlazzhu\Document\Receipt\Receipt;
+use Omisai\Szamlazzhu\Document\Receipt\ReverseReceipt;
+use Omisai\Szamlazzhu\Header\DocumentHeader;
+use Omisai\Szamlazzhu\Response\SzamlaAgentResponse;
 
 /**
  * Initialises the "Számla Agent" and handles the sending and receiving of data
