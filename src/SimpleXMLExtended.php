@@ -2,16 +2,9 @@
 
 namespace Omisai\SzamlazzhuAgent;
 
-/**
- * SimpleXMLElement kiterjesztése
- */
 class SimpleXMLExtended extends \SimpleXMLElement
 {
-    /**
-     * @param  string  $value
-     * @return void
-     */
-    public function addCDataToNode(\SimpleXMLElement $node, $value = '')
+    public function addCDataToNode(\SimpleXMLElement $node, string $value = '')
     {
         if ($domElement = dom_import_simplexml($node)) {
             $domOwner = $domElement->ownerDocument;
@@ -19,12 +12,7 @@ class SimpleXMLExtended extends \SimpleXMLElement
         }
     }
 
-    /**
-     * @param  string  $name
-     * @param  string  $value
-     * @return \SimpleXMLElement
-     */
-    public function addChildWithCData($name = '', $value = '')
+    public function addChildWithCData(string $name = '', string $value = ''): \SimpleXMLElement
     {
         $newChild = parent::addChild($name);
         if (SzamlaAgentUtil::isNotBlank($value)) {
@@ -34,28 +22,12 @@ class SimpleXMLExtended extends \SimpleXMLElement
         return $newChild;
     }
 
-    /**
-     * @param  string  $value
-     * @return void
-     */
-    public function addCData($value = '')
+    public function addCData(string $value = ''): void
     {
         $this->addCDataToNode($this, $value);
     }
 
-    /**
-     * @return \SimpleXMLElement|SimpleXMLExtended|null
-     */
-    #[\ReturnTypeWillChange]
-    public function addChild($name, $value = null, $namespace = null)
-    {
-        return parent::addChild($name, $value, $namespace);
-    }
-
-    /**
-     * @param  \SimpleXMLElement  $add
-     */
-    public function extend($add)
+    public function extend(\SimpleXMLElement $add)
     {
         if ($add->count() != 0) {
             $new = $this->addChild($add->getName());
@@ -74,11 +46,7 @@ class SimpleXMLExtended extends \SimpleXMLElement
         }
     }
 
-    /**
-     * @param  \SimpleXMLElement  $data
-     * @return \SimpleXMLElement
-     */
-    public function cleanXMLNode($data)
+    public function cleanXMLNode(\SimpleXMLElement $data): \SimpleXMLElement
     {
         $xmlString = $data->asXML();
         if (strpos($xmlString, '&') !== false) {
@@ -89,12 +57,7 @@ class SimpleXMLExtended extends \SimpleXMLElement
         return $data;
     }
 
-    /**
-     * Remove a SimpleXmlElement from it's parent
-     *
-     * @return $this
-     */
-    public function remove()
+    public function remove(): self
     {
         $node = dom_import_simplexml($this);
         $node->parentNode->removeChild($node);
@@ -102,10 +65,7 @@ class SimpleXMLExtended extends \SimpleXMLElement
         return $this;
     }
 
-    /**
-     * @return \SimpleXMLElement
-     */
-    public function removeChild(\SimpleXMLElement $child)
+    public function removeChild(\SimpleXMLElement $child): self
     {
         if ($child !== null) {
             $node = dom_import_simplexml($this);
