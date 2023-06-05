@@ -7,47 +7,24 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentException;
 use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 
 /**
- * Számla jóváírás
+ * HU: Számla jóváírás
  */
 class InvoiceCreditNote extends CreditNote
 {
-    /**
-     * Jóváírás dátuma
-     *
-     * @var string
-     */
-    protected $date;
+    protected string $date;
 
-    /**
-     * Kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = ['date', 'paymentMode', 'amount'];
+    protected array $requiredFields = ['date', 'paymentMode', 'amount'];
 
-    /**
-     * Jóváírás létrehozása
-     *
-     * @param  string  $date        jóváírás dátuma
-     * @param  string  $paymentMode jóváírás jogcíme (fizetési módja)
-     * @param  float  $amount      jóváírás összege
-     * @param  string  $description jóváírás leírása
-     */
-    public function __construct($date, $amount, $paymentMode = Document::PAYMENT_METHOD_TRANSFER, $description = '')
+    public function __construct(string $date, string $amount, float $paymentMode = Document::PAYMENT_METHOD_TRANSFER, string $description = '')
     {
         parent::__construct($paymentMode, $amount, $description);
         $this->setDate($date);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
@@ -69,8 +46,6 @@ class InvoiceCreditNote extends CreditNote
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
      * @throws SzamlaAgentException
      */
     protected function checkFields()
@@ -82,11 +57,9 @@ class InvoiceCreditNote extends CreditNote
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData()
+    public function buildXmlData(): array
     {
         $data = [];
         $this->checkFields();
@@ -107,18 +80,12 @@ class InvoiceCreditNote extends CreditNote
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getDate()
+    public function getDate(): string
     {
         return $this->date;
     }
 
-    /**
-     * @param  string  $date
-     */
-    public function setDate($date)
+    public function setDate(string $date): void
     {
         $this->date = $date;
     }

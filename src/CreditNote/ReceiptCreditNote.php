@@ -7,60 +7,30 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentException;
 use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 
 /**
- * Nyugta jóváírás
+ * HU: Nyugta jóváírás
  */
 class ReceiptCreditNote extends CreditNote
 {
-    /**
-     * Fizetőeszköz megnevezése
-     *
-     * @var string
-     */
-    protected $paymentMode;
+    protected string $paymentMode;
 
-    /**
-     * A fizetőeszközzel kiegyenlített összeg
-     *
-     * @var float
-     */
-    protected $amount;
+    protected float $amount;
 
-    /**
-     * A fizetőeszköz egyedi leírása
-     *
-     * @var string
-     */
-    protected $description = '';
+    protected string $description = '';
 
-    /**
-     * Nyugta kifizetés létrehozása
-     *
-     * @param  string  $paymentMode fizetőeszköz megnevezése
-     * @param  float  $amount      fizetőeszköz összege
-     * @param  string  $description fizetőeszköz egyedi leírása
-     */
-    public function __construct($paymentMode = Document::PAYMENT_METHOD_CASH, $amount = 0.0, $description = '')
+    public function __construct(string $paymentMode = Document::PAYMENT_METHOD_CASH, float $amount = 0.0, string $description = '')
     {
         parent::__construct($paymentMode, $amount, $description);
     }
 
-    /**
-     * @return array
-     */
-    protected function getRequiredFields()
+    protected function getRequiredFields(): array
     {
         return $this->requiredFields;
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
             $required = in_array($field, $this->getRequiredFields());
@@ -79,8 +49,6 @@ class ReceiptCreditNote extends CreditNote
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
      * @throws SzamlaAgentException
      */
     protected function checkFields()
@@ -92,11 +60,9 @@ class ReceiptCreditNote extends CreditNote
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData()
+    public function buildXmlData(): array
     {
         $data = [];
         $this->checkFields();
