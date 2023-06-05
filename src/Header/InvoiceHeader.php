@@ -240,7 +240,7 @@ class InvoiceHeader extends DocumentHeader
         // Számla típusa (papír vagy e-számla)
         $this->setInvoiceType($type);
         // Számla kiállítás dátuma
-        $this->setIssueDate(SzamlaAgentUtil::getTodayStr());
+        $this->setIssueDate(date('Y-m-d'));
         // Számla fizetési módja (átutalás)
         $this->setPaymentMethod(Document::PAYMENT_METHOD_TRANSFER);
         // Számla pénzneme
@@ -248,7 +248,7 @@ class InvoiceHeader extends DocumentHeader
         // Számla nyelve
         $this->setLanguage(Document::getDefaultLanguage());
         // Számla teljesítés dátuma
-        $this->setFulfillment(SzamlaAgentUtil::getTodayStr());
+        $this->setFulfillment(date('Y-m-d'));
         // Számla fizetési határideje
         $this->setPaymentDue(SzamlaAgentUtil::addDaysToDate(SzamlaAgentUtil::DEFAULT_ADDED_DAYS));
     }
