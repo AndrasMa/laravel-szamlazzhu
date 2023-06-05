@@ -12,7 +12,7 @@ class InvoiceResponse
     /**
      * Számlaértesítő kézbesítése sikertelen
      */
-    const INVOICE_NOTIFICATION_SEND_FAILED = 56;
+    public const INVOICE_NOTIFICATION_SEND_FAILED = 56;
 
     /**
      * Vevői fiók URL
