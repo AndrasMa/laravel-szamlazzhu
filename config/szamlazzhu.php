@@ -49,4 +49,15 @@ return [
 
     'log_email' => env('SZAMLAZZHU_LOG_EMAIL', null),
 
+   /*
+    |--------------------------------------------------------------------------
+    | Számlázz.hu test
+    |--------------------------------------------------------------------------
+    |
+    |  Configuration for test purposes.
+    |
+    */
+
+    'test_prefix' => env('SZAMLAZZHU_TEST_PREFIX'),
+
 ];
