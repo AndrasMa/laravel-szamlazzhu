@@ -3,61 +3,23 @@
 namespace Omisai\SzamlazzhuAgent;
 
 /**
- * A vevő főkönyvi adatai
+ * HU: A vevő főkönyvi adatai
  */
 class BuyerLedger
 {
-    /**
-     * vevő gazdasági esemény azonosító
-     *
-     * @var string
-     */
-    protected $buyerId;
+    protected string $buyerId;
 
-    /**
-     * Könyvelés dátum
-     *
-     * @var string
-     */
-    protected $bookingDate;
+    protected string $bookingDate;
 
-    /**
-     * Vevő főkönyvi szám
-     *
-     * @var string
-     */
-    protected $buyerLedgerNumber;
+    protected string $buyerLedgerNumber;
 
-    /**
-     * Folyamatos teljesítés
-     *
-     * @var bool
-     */
-    protected $continuedFulfillment;
+    protected bool $continuedFulfillment;
 
-    /**
-     * Elszámolási időszak kezdete
-     *
-     * @var string
-     */
-    protected $settlementPeriodStart;
+    protected string $settlementPeriodStart;
 
-    /**
-     * Elszámolási időszak vége
-     *
-     * @var string
-     */
-    protected $settlementPeriodEnd;
+    protected string $settlementPeriodEnd;
 
-    /**
-     * Vevő főkönyvi adatok példányosítása
-     *
-     * @param  string  $buyerId              vevő gazdasági esemény azonosító
-     * @param  string  $bookingDate          könyvelés dátum
-     * @param  string  $buyerLedgerNumber    vevő főkönyvi szám
-     * @param  bool  $continuedFulfillment folyamatos teljesítés
-     */
-    public function __construct($buyerId = '', $bookingDate = '', $buyerLedgerNumber = '', $continuedFulfillment = false)
+    public function __construct(string $buyerId = '', string $bookingDate = '', string $buyerLedgerNumber = '', bool $continuedFulfillment = false)
     {
         $this->setBuyerId($buyerId);
         $this->setBookingDate($bookingDate);
@@ -66,14 +28,9 @@ class BuyerLedger
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
             switch ($field) {
@@ -96,8 +53,6 @@ class BuyerLedger
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
      * @throws SzamlaAgentException
      */
     protected function checkFields()
@@ -109,11 +64,9 @@ class BuyerLedger
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function getXmlData()
+    public function getXmlData(): array
     {
         $data = [];
         $this->checkFields();
@@ -140,122 +93,62 @@ class BuyerLedger
         return $data;
     }
 
-    /**
-     * Visszaadja a vevő gazdasági esemény azonosítót
-     *
-     * @return string
-     */
-    public function getBuyerId()
+    public function getBuyerId(): string
     {
         return $this->buyerId;
     }
 
-    /**
-     * Beállítja a vevő gazdasági esemény azonosítót
-     *
-     * @param  string  $buyerId
-     */
-    public function setBuyerId($buyerId)
+    public function setBuyerId(string $buyerId): void
     {
         $this->buyerId = $buyerId;
     }
 
-    /**
-     * Visszaadja a könyvelési dátumot
-     *
-     * @return string
-     */
-    public function getBookingDate()
+    public function getBookingDate(): string
     {
         return $this->bookingDate;
     }
 
-    /**
-     * Beállítja a könyvelési dátumot
-     *
-     * @param  string  $bookingDate
-     */
-    public function setBookingDate($bookingDate)
+    public function setBookingDate(string $bookingDate): void
     {
         $this->bookingDate = $bookingDate;
     }
 
-    /**
-     * Visszaadja a vevő főkönyvi számát
-     *
-     * @return string
-     */
-    public function getBuyerLedgerNumber()
+    public function getBuyerLedgerNumber(): string
     {
         return $this->buyerLedgerNumber;
     }
 
-    /**
-     * Beállítja a vevő főkönyvi számát
-     *
-     * @param  string  $buyerLedgerNumber
-     */
-    public function setBuyerLedgerNumber($buyerLedgerNumber)
+    public function setBuyerLedgerNumber(string $buyerLedgerNumber): void
     {
         $this->buyerLedgerNumber = $buyerLedgerNumber;
     }
 
-    /**
-     * Visszaadja a vevő folyamatos teljesítésének állapotát
-     *
-     * @return bool
-     */
-    public function isContinuedFulfillment()
+    public function isContinuedFulfillment(): bool
     {
         return $this->continuedFulfillment;
     }
 
-    /**
-     * Beállítja a vevő folyamatos teljesítésének állapotát
-     *
-     * @param  bool  $continuedFulfillment
-     */
-    public function setContinuedFulfillment($continuedFulfillment)
+    public function setContinuedFulfillment(bool $continuedFulfillment): void
     {
         $this->continuedFulfillment = $continuedFulfillment;
     }
 
-    /**
-     * Visszaadja a folyamatos teljesítéséhez tartozó elszámolási időszak kezdetét
-     *
-     * @return string
-     */
-    public function getSettlementPeriodStart()
+    public function getSettlementPeriodStart(): string
     {
         return $this->settlementPeriodStart;
     }
 
-    /**
-     * Beállítja a folyamatos teljesítéséhez tartozó elszámolási időszak kezdetét
-     *
-     * @param  string  $settlementPeriodStart
-     */
-    public function setSettlementPeriodStart($settlementPeriodStart)
+    public function setSettlementPeriodStart(string $settlementPeriodStart): void
     {
         $this->settlementPeriodStart = $settlementPeriodStart;
     }
 
-    /**
-     * Visszaadja a folyamatos teljesítéséhez tartozó elszámolási időszak végét
-     *
-     * @return string
-     */
-    public function getSettlementPeriodEnd()
+    public function getSettlementPeriodEnd(): string
     {
         return $this->settlementPeriodEnd;
     }
 
-    /**
-     * Beállítja a folyamatos teljesítéséhez tartozó elszámolási időszak végét
-     *
-     * @param  string  $settlementPeriodEnd
-     */
-    public function setSettlementPeriodEnd($settlementPeriodEnd)
+    public function setSettlementPeriodEnd(string $settlementPeriodEnd): void
     {
         $this->settlementPeriodEnd = $settlementPeriodEnd;
     }
