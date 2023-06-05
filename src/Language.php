@@ -2,65 +2,29 @@
 
 namespace Omisai\SzamlazzhuAgent;
 
-/**
- * A Számla Agent-ben használható nyelvek
- */
 class Language
 {
-    /**
-     * magyar nyelv
-     */
-    const LANGUAGE_HU = 'hu';
+    public const LANGUAGE_HU = 'hu';
 
-    /**
-     * angol nyelv
-     */
-    const LANGUAGE_EN = 'en';
+    public const LANGUAGE_EN = 'en';
 
-    /**
-     * német nyelv
-     */
-    const LANGUAGE_DE = 'de';
+    public const LANGUAGE_DE = 'de';
 
-    /**
-     * olasz nyelv
-     */
-    const LANGUAGE_IT = 'it';
+    public const LANGUAGE_IT = 'it';
 
-    /**
-     * román nyelv
-     */
-    const LANGUAGE_RO = 'ro';
+    public const LANGUAGE_RO = 'ro';
 
-    /**
-     * szlovák nyelv
-     */
-    const LANGUAGE_SK = 'sk';
+    public const LANGUAGE_SK = 'sk';
 
-    /**
-     * horvát nyelv
-     */
-    const LANGUAGE_HR = 'hr';
+    public const LANGUAGE_HR = 'hr';
 
-    /**
-     * francia nyelv
-     */
-    const LANGUAGE_FR = 'fr';
+    public const LANGUAGE_FR = 'fr';
 
-    /**
-     * spanyol nyelv
-     */
-    const LANGUAGE_ES = 'es';
+    public const LANGUAGE_ES = 'es';
 
-    /**
-     * cseh nyelv
-     */
-    const LANGUAGE_CZ = 'cz';
+    public const LANGUAGE_CZ = 'cz';
 
-    /**
-     * lengyel nyelv
-     */
-    const LANGUAGE_PL = 'pl';
+    public const LANGUAGE_PL = 'pl';
 
     /**
      * Számlázz.hu rendszerében használható nyelvek
@@ -73,20 +37,15 @@ class Language
         self::LANGUAGE_ES, self::LANGUAGE_CZ, self::LANGUAGE_PL,
     ];
 
-    /**
-     * @return string
-     */
-    public static function getDefault()
+    public static function getDefault(): string
     {
         return self::LANGUAGE_HU;
     }
 
     /**
-     * @return array
-     *
      * @throws \ReflectionException
      */
-    public static function getAll()
+    public static function getAll(): array
     {
         $reflector = new \ReflectionClass(new Language());
         $constants = $reflector->getConstants();
@@ -100,12 +59,9 @@ class Language
     }
 
     /**
-     * Nyelvkód alapján visszaadja annak elnevezését
-     *
-     *
      * @return string
      */
-    public static function getLanguageStr($language)
+    public static function getLanguageStr($language): string
     {
         if ($language == null || $language == '' || $language === self::LANGUAGE_HU) {
             $result = 'magyar';
@@ -140,10 +96,7 @@ class Language
         return $result;
     }
 
-    /**
-     * @return array
-     */
-    public function getAvailableLanguages()
+    public function getAvailableLanguages(): array
     {
         return self::$availableLanguages;
     }
