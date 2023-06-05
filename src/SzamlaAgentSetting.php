@@ -4,102 +4,43 @@ namespace Omisai\SzamlazzhuAgent;
 
 use Omisai\SzamlazzhuAgent\Response\SzamlaAgentResponse;
 
-/**
- * A Számla Agent beállításait kezelő osztály
- */
 class SzamlaAgentSetting
 {
-    /**
-     * Alapértelmezett számlamásolatok darabszám
-     */
     public const DOWNLOAD_COPIES_COUNT = 1;
 
-    /**
-     * Számla Agent kulcs hossza
-     */
     public const API_KEY_LENGTH = 42;
 
-    /**
-     * Számla Agent kéréshez használt felhasználónév
-     * A felhasználónév a https://www.szamlazz.hu/szamla/login oldalon használt e-mail cím vagy bejelentkezési név.
-     *
-     * @var string
-     */
-    private $username = '';
+    private string $username = '';
+
+    private string $password = '';
 
     /**
-     * Számla Agent kéréshez használt jelszó
-     * A jelszó a https://www.szamlazz.hu/szamla/login/ oldalon használt bejelentkezési jelszó.
-     *
-     * @var string
-     */
-    private $password = '';
-
-    /**
-     * Számla Agent kéréshez használt kulcs
-     *
      * @link https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      */
-    private $apiKey;
+    private string $apiKey;
+
+    private bool $downloadPdf = true;
+
+    private int $downloadCopiesCount;
 
     /**
-     * Szeretnénk-e PDF formátumban is megkapni a bizonylatot?
-     *
-     * @var bool
-     */
-    private $downloadPdf = true;
-
-    /**
-     * Letöltendő bizonylat másolatainak száma
-     *
-     * Amennyiben az Agenttel papír alapú számlát készít és kéri a számlaletöltést ($downloadPdf = true),
-     * akkor opcionálisan megadható, hogy nem csak a számla eredeti példányát kéri, hanem a másolatot is egyetlen pdf-ben.
-     *
-     * @var int
-     */
-    private $downloadCopiesCount;
-
-    /**
-     * Számla Agent válaszának (response) típusa
-     *
      * 1: RESULT_AS_TEXT - egyszerű szöveges válaszüzenetet vagy pdf-et ad vissza.
      * 2: RESULT_AS_XML - xml válasz, ha kérte a pdf-et az base64 kódolással benne van az xml-ben.
-     *
-     * @var int
      */
-    private $responseType;
+    private int $responseType;
 
     /**
-     * Ha bérelhető webáruházat üzemeltetsz, ebben a mezőben jelezheted a webáruházat futtató motor nevét.
-     * Ha nem vagy benne biztos, akkor kérd ügyfélszolgálatunk segítségét (info@szamlazz.hu).
-     * (pl. WooCommerce, OpenCart, PrestaShop, Shoprenter, Superwebáruház, Drupal invoice Agent, stb.)
-     *
-     * @var string
+     * @example  WooCommerce, OpenCart, PrestaShop, Shoprenter, Superwebáruház, Drupal invoice Agent, etc.
      */
-    private $aggregator;
+    private string $aggregator;
 
-    /**
-     * @var bool
-     */
-    private $guardian;
+    private bool $guardian;
 
-    /**
-     * @var bool
-     */
-    private $invoiceItemIdentifier;
+    private bool $invoiceItemIdentifier;
 
-    /**
-     * A számlát a külső rendszer (Számla Agentet használó rendszer) ezzel az adattal azonosítja. Az adatot trimmelve tároljuk.
-     * (a számla adatai később ezzel az adattal is lekérdezhetők lesznek)
-     *
-     * @var string
-     */
-    private $invoiceExternalId;
+    private string $invoiceExternalId;
 
-    /**
-     * @var string
-     */
-    private $taxNumber;
+    private string $taxNumber;
 
     /**
      * Számla Agent beállítás létrehozása
@@ -112,7 +53,7 @@ class SzamlaAgentSetting
      * @param  int  $responseType válasz típusa (szöveges vagy XML)
      * @param  string  $aggregator   webáruházat futtató motor neve
      */
-    public function __construct($username, $password, $apiKey, $downloadPdf = true, $copiesCount = self::DOWNLOAD_COPIES_COUNT, $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, $aggregator = '')
+    public function __construct(string $username = '', string $password = '', string $apiKey = '', bool $downloadPdf = true, int $copiesCount = self::DOWNLOAD_COPIES_COUNT, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
     {
         $this->setUsername($username);
         $this->setPassword($password);
@@ -123,44 +64,22 @@ class SzamlaAgentSetting
         $this->setAggregator($aggregator);
     }
 
-    /**
-     * Visszaadja a Számla Agent kéréshez használt felhasználónevet
-     *
-     * @return string
-     */
-    public function getUsername()
+    public function getUsername(): string
     {
         return $this->username;
     }
 
-    /**
-     * Beállítja a Számla Agent kéréshez használt felhasználónevet
-     * A felhasználónév a https://www.szamlazz.hu/szamla/login oldalon használt e-mail cím vagy bejelentkezési név.
-     *
-     * @param  string  $username
-     */
-    public function setUsername($username)
+    public function setUsername(string $username): void
     {
         $this->username = $username;
     }
 
-    /**
-     * Visszaadja a Számla Agent kéréshez használt jelszót
-     *
-     * @return string
-     */
-    public function getPassword()
+    public function getPassword(): string
     {
         return $this->password;
     }
 
-    /**
-     * Beállítja a Számla Agent kéréshez használt jelszót
-     * A jelszó a https://www.szamlazz.hu/szamla/login/ oldalon használt bejelentkezési jelszó.
-     *
-     * @param  string  $password
-     */
-    public function setPassword($password)
+    public function setPassword(string $password): void
     {
         $this->password = $password;
     }
@@ -170,72 +89,40 @@ class SzamlaAgentSetting
      *
      * @return string
      */
-    public function getApiKey()
+    public function getApiKey(): string
     {
         return $this->apiKey;
     }
 
     /**
-     * Beállítja a Számla Agent kéréshez használt kulcsot
-     *
      * @link  https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
-     *
-     * @param  string  $apiKey
      */
-    public function setApiKey($apiKey)
+    public function setApiKey(string $apiKey): void
     {
         $this->apiKey = $apiKey;
     }
 
-    /**
-     * Visszaadja, hogy a Agent válaszában megkapjuk-e a számlát PDF-ként
-     *
-     * @return bool
-     */
-    public function isDownloadPdf()
+    public function isDownloadPdf(): bool
     {
         return $this->downloadPdf;
     }
 
-    /**
-     * Beállítja, hogy a Agent válaszában megkapjuk-e a számlát PDF-ként
-     *
-     * @param  bool  $downloadPdf
-     */
-    public function setDownloadPdf($downloadPdf)
+    public function setDownloadPdf(bool $downloadPdf): void
     {
         $this->downloadPdf = $downloadPdf;
     }
 
-    /**
-     * Visszaadja a letöltendő PDF-ben szereplő bizonylat másolatainak számát
-     *
-     * @return int
-     */
-    public function getDownloadCopiesCount()
+    public function getDownloadCopiesCount(): int
     {
         return $this->downloadCopiesCount;
     }
 
-    /**
-     * Letöltendő bizonylat másolat számának beállítása
-     *
-     * Amennyiben az Agenttel papír alapú számlát készítesz és kéred a számlaletöltést ($downloadPdf = true),
-     * akkor opcionálisan megadható, hogy nem csak a számla eredeti példányát kéred, hanem a másolatot is egyetlen pdf-ben.
-     *
-     * @param  int  $downloadCopiesCount
-     */
-    public function setDownloadCopiesCount($downloadCopiesCount)
+    public function setDownloadCopiesCount(int $downloadCopiesCount): void
     {
         $this->downloadCopiesCount = $downloadCopiesCount;
     }
 
-    /**
-     * Visszaadja a Számla Agent válaszának típusát
-     *
-     * @return int
-     */
-    public function getResponseType()
+    public function getResponseType(): int
     {
         return $this->responseType;
     }
@@ -248,17 +135,12 @@ class SzamlaAgentSetting
      *
      * @param  int  $responseType
      */
-    public function setResponseType($responseType)
+    public function setResponseType(int $responseType)
     {
         $this->responseType = $responseType;
     }
 
-    /**
-     * Visszaadja a bérelhető webáruházat futtató motor nevét
-     *
-     * @return string
-     */
-    public function getAggregator()
+    public function getAggregator(): string
     {
         return $this->aggregator;
     }
@@ -270,89 +152,55 @@ class SzamlaAgentSetting
      *
      * @param  string  $aggregator
      */
-    public function setAggregator($aggregator)
+    public function setAggregator(string $aggregator)
     {
         $this->aggregator = $aggregator;
     }
 
-    /**
-     * @return bool
-     */
-    public function getGuardian()
+    public function getGuardian(): bool
     {
         return $this->guardian;
     }
 
-    /**
-     * @param  bool  $guardian
-     */
-    public function setGuardian($guardian)
+    public function setGuardian(bool $guardian): void
     {
         $this->guardian = $guardian;
     }
 
-    /**
-     * @return bool
-     */
-    public function isInvoiceItemIdentifier()
+    public function isInvoiceItemIdentifier(): bool
     {
         return $this->invoiceItemIdentifier;
     }
 
-    /**
-     * @param  bool  $invoiceItemIdentifier
-     */
-    public function setInvoiceItemIdentifier($invoiceItemIdentifier)
+    public function setInvoiceItemIdentifier(bool $invoiceItemIdentifier): void
     {
         $this->invoiceItemIdentifier = $invoiceItemIdentifier;
     }
 
-    /**
-     * @return string
-     */
-    public function getInvoiceExternalId()
+    public function getInvoiceExternalId(): string
     {
         return $this->invoiceExternalId;
     }
 
-    /**
-     * Beállítja a külső számlaazonosítót
-     *
-     * A számlát a külső rendszer (Számla Agentet használó rendszer) ezzel az adattal azonosítja. Az adatot trimmelve tároljuk.
-     * (a számla adatai később ezzel az adattal is lekérdezhetők lesznek)
-     *
-     * @param  string  $invoiceExternalId
-     */
-    public function setInvoiceExternalId($invoiceExternalId)
+    public function setInvoiceExternalId(string $invoiceExternalId): void
     {
         $this->invoiceExternalId = $invoiceExternalId;
     }
 
-    /**
-     * @return string
-     */
-    public function getTaxNumber()
+    public function getTaxNumber(): string
     {
         return $this->taxNumber;
     }
 
-    /**
-     * @param  string  $taxNumber
-     */
-    public function setTaxNumber($taxNumber)
+    public function setTaxNumber(string $taxNumber): void
     {
         $this->taxNumber = $taxNumber;
     }
 
     /**
-     * Összeállítja a Számla Agent beállítás XML adatait
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $settings = ['felhasznalo', 'jelszo', 'szamlaagentkulcs'];
 
@@ -392,50 +240,45 @@ class SzamlaAgentSetting
     }
 
     /**
-     * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields): array
     {
         $data = [];
 
         foreach ($fields as $key) {
             switch ($key) {
-                case 'felhasznalo':       $value = $this->getUsername();
+                case 'felhasznalo': $value = $this->getUsername();
                 break;
-                case 'jelszo':            $value = $this->getPassword();
+                case 'jelszo': $value = $this->getPassword();
                 break;
-                case 'szamlaagentkulcs':  $value = $this->getApiKey();
+                case 'szamlaagentkulcs': $value = $this->getApiKey();
                 break;
                 case 'szamlaLetoltes':
                 case 'pdf':
-                case 'pdfLetoltes':       $value = $this->isDownloadPdf();
+                case 'pdfLetoltes': $value = $this->isDownloadPdf();
                 break;
                 case 'szamlaLetoltesPld': $value = $this->getDownloadCopiesCount();
                 break;
-                case 'valaszVerzio':      $value = $this->getResponseType();
+                case 'valaszVerzio': $value = $this->getResponseType();
                 break;
-                case 'aggregator':        $value = $this->getAggregator();
+                case 'aggregator': $value = $this->getAggregator();
                 break;
-                case 'guardian':          $value = $this->getGuardian();
+                case 'guardian': $value = $this->getGuardian();
                 break;
-                case 'cikkazoninvoice':   $value = $this->isInvoiceItemIdentifier();
+                case 'cikkazoninvoice': $value = $this->isInvoiceItemIdentifier();
                 break;
-                case 'szamlaKulsoAzon':   $value = $this->getInvoiceExternalId();
+                case 'szamlaKulsoAzon': $value = $this->getInvoiceExternalId();
                 break;
-                case 'eszamla':           $value = $request->getEntity()->getHeader()->isEInvoice();
+                case 'eszamla': $value = $request->getEntity()->getHeader()->isEInvoice();
                 break;
-                case 'additiv':           $value = $request->getEntity()->isAdditive();
+                case 'additiv': $value = $request->getEntity()->isAdditive();
                 break;
-                case 'szamlaszam':        $value = $request->getEntity()->getHeader()->getInvoiceNumber();
+                case 'szamlaszam': $value = $request->getEntity()->getHeader()->getInvoiceNumber();
                 break;
-                case 'rendelesSzam':      $value = $request->getEntity()->getHeader()->getOrderNumber();
+                case 'rendelesSzam': $value = $request->getEntity()->getHeader()->getOrderNumber();
                 break;
-                case 'adoszam':           $value = $this->getTaxNumber();
+                case 'adoszam': $value = $this->getTaxNumber();
                 break;
                 default:
                     throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS.": {$key}");
