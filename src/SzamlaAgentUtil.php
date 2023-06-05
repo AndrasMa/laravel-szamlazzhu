@@ -18,7 +18,7 @@ class SzamlaAgentUtil
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    public static function addDaysToDate(int $count, string|null $date = null)
+    public static function addDaysToDate(int $count, ?string $date = null)
     {
         if (empty($date)) {
             $newDate = new \DateTime('now');

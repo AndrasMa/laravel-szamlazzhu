@@ -10,14 +10,14 @@ class SzamlaAgentSetting
 
     public const API_KEY_LENGTH = 42;
 
-    private string $username = '';
+    private ?string $username = '';
 
-    private string $password = '';
+    private ?string $password = '';
 
     /**
      * @link https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      */
-    private string $apiKey;
+    private ?string $apiKey;
 
     private bool $downloadPdf = true;
 
@@ -53,7 +53,7 @@ class SzamlaAgentSetting
      * @param  int  $responseType válasz típusa (szöveges vagy XML)
      * @param  string  $aggregator   webáruházat futtató motor neve
      */
-    public function __construct(string $username = '', string $password = '', string $apiKey = '', bool $downloadPdf = true, int $copiesCount = self::DOWNLOAD_COPIES_COUNT, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
+    public function __construct(?string $username = '', ?string $password = '', ?string $apiKey = '', bool $downloadPdf = true, int $copiesCount = self::DOWNLOAD_COPIES_COUNT, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
     {
         $this->setUsername($username);
         $this->setPassword($password);
@@ -64,22 +64,22 @@ class SzamlaAgentSetting
         $this->setAggregator($aggregator);
     }
 
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->username;
     }
 
-    public function setUsername(string $username): void
+    public function setUsername(?string $username): void
     {
         $this->username = $username;
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->password;
     }
 
-    public function setPassword(string $password): void
+    public function setPassword(?string $password): void
     {
         $this->password = $password;
     }
@@ -89,7 +89,7 @@ class SzamlaAgentSetting
      *
      * @return string
      */
-    public function getApiKey(): string
+    public function getApiKey(): ?string
     {
         return $this->apiKey;
     }
@@ -97,7 +97,7 @@ class SzamlaAgentSetting
     /**
      * @link  https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      */
-    public function setApiKey(string $apiKey): void
+    public function setApiKey(?string $apiKey): void
     {
         $this->apiKey = $apiKey;
     }
