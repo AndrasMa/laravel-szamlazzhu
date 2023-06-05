@@ -7,69 +7,28 @@ namespace Omisai\SzamlazzhuAgent;
  */
 class Seller
 {
-    /**
-     * Bank neve
-     *
-     * @var string
-     */
-    protected $bank;
+    protected string $bank;
 
-    /**
-     * Bankszámlaszám
-     *
-     * @var string
-     */
-    protected $bankAccount;
+    protected string $bankAccount;
 
-    /**
-     * Válasz e-mail cím
-     *
-     * @var string
-     */
-    protected $emailReplyTo;
+    protected string $emailReplyTo;
 
-    /**
-     * E-mail tárgya
-     *
-     * @var string
-     */
-    protected $emailSubject;
+    protected string $emailSubject;
 
-    /**
-     * E-mail tartalma
-     *
-     * @var string
-     */
-    protected $emailContent;
+    protected string $emailContent;
 
-    /**
-     * Aláíró neve
-     *
-     * @var string
-     */
-    protected $signatoryName;
+    protected string $signatoryName;
 
-    /**
-     * Eladó példányosítása banki adatokkal
-     *
-     * @param  string  $bank        banknév
-     * @param  string  $bankAccount bankszámlaszám
-     */
-    public function __construct($bank = '', $bankAccount = '')
+    public function __construct(string $bank = '', string $bankAccount = '')
     {
         $this->setBank($bank);
         $this->setBankAccount($bankAccount);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
             switch ($field) {
@@ -88,8 +47,6 @@ class Seller
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
      * @throws SzamlaAgentException
      */
     protected function checkFields()
@@ -101,14 +58,9 @@ class Seller
     }
 
     /**
-     * Létrehozza az eladó XML adatait a kérésben meghatározott XML séma alapján
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $data = [];
 
@@ -141,10 +93,7 @@ class Seller
         return $data;
     }
 
-    /**
-     * @return array
-     */
-    protected function getXmlEmailData()
+    protected function getXmlEmailData(): array
     {
         $data = [];
         if (SzamlaAgentUtil::isNotBlank($this->getEmailReplyTo())) {
@@ -160,122 +109,63 @@ class Seller
         return $data;
     }
 
-    /**
-     * Visszaadja a bank nevét
-     *
-     * @return string
-     */
-    public function getBank()
+    public function getBank(): string
     {
         return $this->bank;
     }
 
-    /**
-     * Beállítja a bank nevét
-     *
-     * @param  string  $bank
-     */
-    public function setBank($bank)
+    public function setBank(string $bank): void
     {
         $this->bank = $bank;
     }
 
-    /**
-     * Visszaadja a bankszámlaszámot
-     *
-     * @return string
-     */
-    public function getBankAccount()
+    public function getBankAccount(): string
     {
         return $this->bankAccount;
     }
 
-    /**
-     * Beállítja a bankszámlaszámot
-     *
-     * @param  string  $bankAccount
-     */
-    public function setBankAccount($bankAccount)
+    public function setBankAccount(string $bankAccount): void
     {
         $this->bankAccount = $bankAccount;
     }
 
-    /**
-     * Visszaadja a válasz e-mail címet
-     *
-     * @return string
-     */
-    public function getEmailReplyTo()
+    public function getEmailReplyTo(): string
     {
         return $this->emailReplyTo;
     }
 
-    /**
-     * Beállítja a válasz e-mail címet
-     *
-     * @param  string  $emailReplyTo
-     */
-    public function setEmailReplyTo($emailReplyTo)
+    public function setEmailReplyTo(string $emailReplyTo): void
     {
         $this->emailReplyTo = $emailReplyTo;
     }
 
-    /**
-     * Visszaadja az e-mail tárgyát
-     *
-     * @return string
-     */
-    public function getEmailSubject()
+
+    public function getEmailSubject(): string
     {
         return $this->emailSubject;
     }
 
-    /**
-     * Beállítja az e-mail tárgyát
-     *
-     * @param  string  $emailSubject
-     */
-    public function setEmailSubject($emailSubject)
+    public function setEmailSubject(string $emailSubject): void
     {
         $this->emailSubject = $emailSubject;
     }
 
-    /**
-     * Visszaadja az e-mail tartalmát
-     *
-     * @return string
-     */
-    public function getEmailContent()
+    public function getEmailContent(): string
     {
         return $this->emailContent;
     }
 
-    /**
-     * Beállítja az e-mail tartalmát
-     *
-     * @param  string  $emailContent
-     */
-    public function setEmailContent($emailContent)
+    public function setEmailContent(string $emailContent): void
     {
         $this->emailContent = $emailContent;
     }
 
-    /**
-     * Visszaadja az aláíró nevét
-     *
-     * @return string
-     */
-    public function getSignatoryName()
+    public function getSignatoryName(): string
     {
         return $this->signatoryName;
     }
 
-    /**
-     * Beállítja az aláíró nevét
-     *
-     * @param  string  $signatoryName
-     */
-    public function setSignatoryName($signatoryName)
+    public function setSignatoryName(string $signatoryName): void
     {
         $this->signatoryName = $signatoryName;
     }
