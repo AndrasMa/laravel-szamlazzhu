@@ -3,6 +3,7 @@
 namespace Omisai\SzamlazzhuAgent;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Omisai\SzamlazzhuAgent\Document\DeliveryNote;
 use Omisai\SzamlazzhuAgent\Document\Document;
 use Omisai\SzamlazzhuAgent\Document\Invoice\CorrectiveInvoice;
@@ -21,7 +22,7 @@ use Omisai\SzamlazzhuAgent\Response\SzamlaAgentResponse;
  */
 class SzamlaAgent
 {
-    public const API_VERSION = '1.0.0';
+    public const API_VERSION = '0.9.0';
 
     public const API_URL = 'https://www.szamlazz.hu/szamla/';
 
@@ -31,13 +32,9 @@ class SzamlaAgent
 
     public const CERTIFICATION_FILENAME = 'cacert.pem';
 
-    public const CERTIFICATION_PATH = 'cert';
-
     public const PDF_FILE_SAVE_PATH = 'pdf';
 
     public const XML_FILE_SAVE_PATH = 'xmls';
-
-    public const ATTACHMENTS_SAVE_PATH = 'attachments';
 
     private SzamlaAgentSetting $setting;
 
@@ -56,25 +53,28 @@ class SzamlaAgent
 
     protected string $apiUrl = self::API_URL;
 
-    protected bool $xmlFileSave = true;
+    protected bool $xmlFileSave = false;
 
-    protected bool $requestXmlFileSave = true;
+    protected bool $requestXmlFileSave = false;
 
-    protected bool $responseXmlFileSave = true;
+    protected bool $responseXmlFileSave = false;
 
     protected bool $pdfFileSave = true;
 
     protected array $environment = [];
 
-    private string $certificationPath = self::CERTIFICATION_PATH;
-
     private CookieHandler $cookieHandler;
 
-    protected function __construct(string|null $username, string|null $password, string|null $apiKey, bool $downloadPdf, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
+    protected function __construct(?string $username, ?string $password, ?string $apiKey, bool $downloadPdf, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
     {
         $this->setSetting(new SzamlaAgentSetting($username, $password, $apiKey, $downloadPdf, SzamlaAgentSetting::DOWNLOAD_COPIES_COUNT, $responseType, $aggregator));
         $this->setCookieHandler(new CookieHandler($this));
-        Log::debug(sprintf('Számla Agent inicializálása kész ($username: %s, apiKey: %s)', $username, $apiKey));
+        Log::channel('szamlazzhu')->debug(sprintf('Számla Agent inicializálása kész ($username: %s, apiKey: %s)', $username, $apiKey));
+
+        $this->setPdfFileSave($downloadPdf);
+        $this->setXmlFileSave(config('szamlazzhu.xml.file_save', false));
+        $this->setRequestXmlFileSave(config('szamlazzhu.xml.request_file_save', false));
+        $this->setResponseXmlFileSave(config('szamlazzhu.xml.response_file_save', false));
     }
 
     /**
@@ -230,7 +230,7 @@ class SzamlaAgent
     {
         if ($this->getResponseType() != SzamlaAgentResponse::RESULT_AS_TEXT) {
             $message = 'Helytelen beállítási kísérlet a számla kifizetettségi adatok elküldésénél: a kérésre adott válaszverziónak TEXT formátumúnak kell lennie!';
-            Log::warning($message);
+            Log::channel('szamlazzhu')->warning($message);
         }
         $this->setResponseType(SzamlaAgentResponse::RESULT_AS_TEXT);
 
@@ -262,7 +262,7 @@ class SzamlaAgent
 
         if ($this->getResponseType() !== SzamlaAgentResponse::RESULT_AS_XML) {
             $message = 'Helytelen beállítási kísérlet a számla adatok lekérdezésénél: Számla adatok letöltéséhez a kérésre adott válasznak xml formátumúnak kell lennie!';
-            Log::warning($message);
+            Log::channel('szamlazzhu')->warning($message);
         }
 
         $this->setDownloadPdf($downloadPdf);
@@ -292,7 +292,7 @@ class SzamlaAgent
 
         if (! $this->isDownloadPdf()) {
             $message = 'Helytelen beállítási kísérlet a számla PDF lekérdezésénél: Számla letöltéshez a "downloadPdf" paraméternek "true"-nak kell lennie!';
-            Log::warning($message);
+            Log::channel('szamlazzhu')->warning($message);
         }
         $this->setDownloadPdf(true);
 
@@ -412,49 +412,14 @@ class SzamlaAgent
         return self::API_VERSION;
     }
 
-    public function getCertificationFileName(): string
+    public function getCertificationFile(): ?string
     {
-        return self::CERTIFICATION_FILENAME;
+        return Storage::disk('payment')->get(self::CERTIFICATION_FILENAME);
     }
 
-    public function getCertificationFile(): string
+    public function getCookieFilePath(): string
     {
-        if ($this->getCertificationPath() == self::CERTIFICATION_PATH) {
-            return SzamlaAgentUtil::getAbsPath(self::CERTIFICATION_PATH, $this->getCertificationFileName());
-        } else {
-            return $this->getCertificationPath().DIRECTORY_SEPARATOR.$this->getCertificationFileName();
-        }
-    }
-
-    public function getCertificationPath(): string
-    {
-        return $this->certificationPath;
-    }
-
-    /**
-     * @example /storage/certs
-     */
-    public function setCertificationPath(string $certificationPath): void
-    {
-        $this->certificationPath = $certificationPath;
-    }
-
-    public function getCookieFileName(): string
-    {
-        return $this->cookieHandler->getCookieFileName();
-    }
-
-    /**
-     * Számla Agent is optimized in a way that the caller side must take care of storing
-     * the session cookie and make sure that it is sent to Számla Agent during the call.
-     * One single user has to handle all Agent related actions in the application, so
-     * all the requests need to be handled by the same user.
-     *
-     * @link Docs: https://docs.szamlazz.hu/#do-i-need-to-handle-session-cookies
-     */
-    public function setCookieFileName($cookieFile): void
-    {
-        $this->cookieHandler->setCookieFileName($cookieFile);
+        return $this->cookieHandler->getCookieFilePath();
     }
 
     public function getSetting(): SzamlaAgentSetting
@@ -475,7 +440,7 @@ class SzamlaAgent
         return self::$agents;
     }
 
-    public function getUsername(): string
+    public function getUsername(): ?string
     {
         return $this->getSetting()->getUsername();
     }
@@ -484,12 +449,12 @@ class SzamlaAgent
      * The username is the email address or a specificied username
      * used on the https://www.szamlazz.hu/szamla/login website.
      */
-    public function setUsername(string $username): void
+    public function setUsername(?string $username): void
     {
         $this->getSetting()->setUsername($username);
     }
 
-    public function getPassword(): string
+    public function getPassword(): ?string
     {
         return $this->getSetting()->getPassword();
     }
@@ -497,12 +462,12 @@ class SzamlaAgent
     /**
      * The password is used on the https://www.szamlazz.hu/szamla/login website.
      */
-    public function setPassword(string $password): void
+    public function setPassword(?string $password): void
     {
         $this->getSetting()->setPassword($password);
     }
 
-    public function getApiKey(): string
+    public function getApiKey(): ?string
     {
         return $this->getSetting()->getApiKey();
     }
@@ -510,7 +475,7 @@ class SzamlaAgent
     /**
      * @link Docs: https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      */
-    public function setApiKey(string $apiKey): void
+    public function setApiKey(?string $apiKey): void
     {
         $this->getSetting()->setApiKey($apiKey);
     }
@@ -648,7 +613,7 @@ class SzamlaAgent
         if (SzamlaAgentUtil::isNotBlank($key)) {
             $this->customHTTPHeaders[$key] = $value;
         } else {
-            Log::warning('Egyedi HTTP fejléchez megadott kulcs nem lehet üres');
+            Log::channel('szamlazzhu')->warning('Egyedi HTTP fejléchez megadott kulcs nem lehet üres');
         }
     }
 
@@ -764,12 +729,12 @@ class SzamlaAgent
         return $this->environment != null && is_array($this->environment) && ! empty($this->environment);
     }
 
-    public function getEnvironmentName(): string|null
+    public function getEnvironmentName(): ?string
     {
         return $this->hasEnvironment() && array_key_exists('name', $this->environment) ? $this->environment['name'] : null;
     }
 
-    public function getEnvironmentUrl(): string|null
+    public function getEnvironmentUrl(): ?string
     {
         return $this->hasEnvironment() && array_key_exists('url', $this->environment) ? $this->environment['url'] : null;
     }
