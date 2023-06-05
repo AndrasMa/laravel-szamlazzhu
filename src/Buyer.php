@@ -75,7 +75,7 @@ class Buyer
 
     protected string $comment;
 
-    protected array $requiredFields = [];
+    protected array $requiredFields = ['name', 'zip', 'city', 'address'];
 
     public function __construct(string $name = '', string $zipCode = '', string $city = '', string $address = '')
     {
@@ -156,8 +156,6 @@ class Buyer
         $data = [];
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
-                $this->setRequiredFields(['name', 'zip', 'city', 'address']);
-
                 $data = [
                     'nev' => $this->getName(),
                     'orszag' => $this->getCountry(),
