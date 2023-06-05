@@ -152,7 +152,7 @@ class SzamlaAgentRequest
             $this->setXmlData($formatXml->saveXML());
             // Ha nincs hiba az XML-ben, elmentjük
             Log::channel('szamlazzhu')->debug('XML adatok létrehozása kész.');
-            if (($agent->isXmlFileSave() && $agent->isRequestXmlFileSave()) || version_compare(PHP_VERSION, '7.4.1') <= 0) {
+            if (($agent->isXmlFileSave() || $agent->isRequestXmlFileSave())) {
                 $this->createXmlFile($formatXml);
             }
         } catch (\Exception $e) {
