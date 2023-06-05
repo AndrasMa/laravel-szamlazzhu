@@ -299,9 +299,8 @@ class SzamlaAgentUtil
     {
         $xmlString = $xmlNode->asXML();
         $cleanedXmlString = preg_replace('/(<\/|<)[a-z0-9]+:([a-z0-9]+[ =>])/i', '$1$2', $xmlString);
-        $cleanedXmlNode = simplexml_load_string($cleanedXmlString);
 
-        return $cleanedXmlNode;
+        return simplexml_load_string($cleanedXmlString);
     }
 
     /**

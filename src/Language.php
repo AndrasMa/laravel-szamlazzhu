@@ -48,14 +48,14 @@ class Language
     public static function getAll(): array
     {
         $reflector = new \ReflectionClass(new Language());
-        $constants = $reflector->getConstants();
+        $languageConstants = $reflector->getConstants();
 
-        $values = [];
-        foreach ($constants as $constant => $value) {
-            $values[] = $value;
+        $languages = [];
+        foreach ($languageConstants as $languageSymbol) {
+            $languages[] = $languageSymbol;
         }
 
-        return $values;
+        return $languages;
     }
 
     /**
@@ -68,25 +68,25 @@ class Language
         } else {
             switch ($language) {
                 case self::LANGUAGE_EN: $result = 'angol';
-                break;
+                    break;
                 case self::LANGUAGE_DE: $result = 'német';
-                break;
+                    break;
                 case self::LANGUAGE_IT: $result = 'olasz';
-                break;
+                    break;
                 case self::LANGUAGE_RO: $result = 'román';
-                break;
+                    break;
                 case self::LANGUAGE_SK: $result = 'szlovák';
-                break;
+                    break;
                 case self::LANGUAGE_HR: $result = 'horvát';
-                break;
+                    break;
                 case self::LANGUAGE_FR: $result = 'francia';
-                break;
+                    break;
                 case self::LANGUAGE_ES: $result = 'spanyol';
-                break;
+                    break;
                 case self::LANGUAGE_CZ: $result = 'cseh';
-                break;
+                    break;
                 case self::LANGUAGE_PL: $result = 'lengyel';
-                break;
+                    break;
                 default:
                     $result = 'ismeretlen';
                     break;
