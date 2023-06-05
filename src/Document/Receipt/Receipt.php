@@ -13,81 +13,48 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
 use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 
 /**
- * Nyugta
+ * HU: Nyugta
  */
 class Receipt extends Document
 {
-    /**
-     * Jóváírások maximális száma
-     * a nyugta kifizetettségének beállításakor
-     */
-    const CREDIT_NOTES_LIMIT = 5;
+    public const CREDIT_NOTES_LIMIT = 5;
+
+    private ReceiptHeader $header;
 
     /**
-     * A nyugta fejléc
-     *
-     * @var ReceiptHeader
-     */
-    private $header;
-
-    /**
-     * Nyugta tételek
-     *
      * @var ReceiptItem[]
      */
-    protected $items = [];
+    protected array $items = [];
 
     /**
-     * Nyugta jóváírások
-     * A kifizetesek nem kötelező, de ha meg van adva, akkor az összegeknek meg kell egyezniük a nyugta végösszegével.
+     * HU: A kifizetesek nem kötelező, de ha meg van adva,
+     * akkor az összegeknek meg kell egyezniük a nyugta végösszegével.
      *
      * @var ReceiptCreditNote[]
      */
-    protected $creditNotes = [];
+    protected array $creditNotes = [];
 
-    /**
-     * Eladói adatok
-     *
-     * @var Seller
-     */
-    protected $seller;
+    protected Seller $seller;
 
-    /**
-     * Vevő adatok
-     *
-     * @var Buyer
-     */
-    protected $buyer;
+    protected Buyer $buyer;
 
-    /**
-     * Nyugta létrehozása alapértelmezett fejléc adatokkal
-     * (fizetési mód: átutalás, pénznem: Ft)
-     *
-     * @param  string  $receiptNumber nyugtaszám
-     */
-    public function __construct($receiptNumber = '')
+    public function __construct(string $receiptNumber = '')
     {
-        if (! empty($receiptNumber)) {
+        if (!empty($receiptNumber)) {
             $this->setHeader(new ReceiptHeader($receiptNumber));
         }
     }
 
-    /**
-     * @return ReceiptHeader
-     */
-    public function getHeader()
+    public function getHeader(): ReceiptHeader
     {
         return $this->header;
     }
 
-    public function setHeader(ReceiptHeader $header)
+    public function setHeader(ReceiptHeader $header): void
     {
         $this->header = $header;
     }
 
-    /**
-     * Tétel hozzáadása a nyugtához
-     */
     public function addItem(ReceiptItem $item)
     {
         array_push($this->items, $item);
@@ -96,7 +63,7 @@ class Receipt extends Document
     /**
      * @return ReceiptItem[]
      */
-    public function getItems()
+    public function getItems(): array
     {
         return $this->items;
     }
@@ -104,15 +71,12 @@ class Receipt extends Document
     /**
      * @param  ReceiptItem[]  $items
      */
-    public function setItems($items)
+    public function setItems(array $items): void
     {
         $this->items = $items;
     }
 
-    /**
-     * Jóváírás hozzáadása a nyugtához
-     */
-    public function addCreditNote(ReceiptCreditNote $creditNote)
+    public function addCreditNote(ReceiptCreditNote $creditNote): void
     {
         if (count($this->creditNotes) < self::CREDIT_NOTES_LIMIT) {
             array_push($this->creditNotes, $creditNote);
@@ -122,7 +86,7 @@ class Receipt extends Document
     /**
      * @return ReceiptCreditNote[]
      */
-    public function getCreditNotes()
+    public function getCreditNotes(): array
     {
         return $this->creditNotes;
     }
@@ -130,46 +94,35 @@ class Receipt extends Document
     /**
      * @param  ReceiptCreditNote[]  $creditNotes
      */
-    public function setCreditNotes(array $creditNotes)
+    public function setCreditNotes(array $creditNotes): void
     {
         $this->creditNotes = $creditNotes;
     }
 
-    /**
-     * @return Seller
-     */
-    public function getSeller()
+    public function getSeller(): Seller
     {
         return $this->seller;
     }
 
-    public function setSeller(Seller $seller)
+    public function setSeller(Seller $seller): void
     {
         $this->seller = $seller;
     }
 
-    /**
-     * @return Buyer
-     */
-    public function getBuyer()
+    public function getBuyer(): Buyer
     {
         return $this->buyer;
     }
 
-    public function setBuyer(Buyer $buyer)
+    public function setBuyer(Buyer $buyer): void
     {
         $this->buyer = $buyer;
     }
 
     /**
-     * Összeállítja a nyugta XML adatait
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $fields = ['beallitasok', 'fejlec'];
 
@@ -192,14 +145,9 @@ class Receipt extends Document
     }
 
     /**
-     * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields): array
     {
         $data = [];
 
@@ -231,13 +179,9 @@ class Receipt extends Document
     }
 
     /**
-     * Összeállítjuk a nyugtához tartozó tételek adatait
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    protected function buildXmlItemsData()
+    protected function buildXmlItemsData(): array
     {
         $data = [];
 
@@ -251,13 +195,9 @@ class Receipt extends Document
     }
 
     /**
-     * Összeállítjuk a nyugtához tartozó jóváírások adatait
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    protected function buildCreditsXmlData()
+    protected function buildCreditsXmlData(): array
     {
         $data = [];
         if (! empty($this->getCreditNotes())) {
@@ -269,12 +209,7 @@ class Receipt extends Document
         return $data;
     }
 
-    /**
-     * Összeállítjuk a nyugtához tartozó e-mail kiküldési adatokat
-     *
-     * @return array
-     */
-    protected function buildXmlEmailSendingData()
+    protected function buildXmlEmailSendingData(): array
     {
         $data = [];
 

@@ -13,134 +13,128 @@ class Document
     /**
      * Fizetési módok
      */
-    const PAYMENT_METHOD_TRANSFER = 'átutalás';
+    public const PAYMENT_METHOD_TRANSFER = 'átutalás';
 
-    const PAYMENT_METHOD_CASH = 'készpénz';
+    public const PAYMENT_METHOD_CASH = 'készpénz';
 
-    const PAYMENT_METHOD_BANKCARD = 'bankkártya';
+    public const PAYMENT_METHOD_BANKCARD = 'bankkártya';
 
-    const PAYMENT_METHOD_CHEQUE = 'csekk';
+    public const PAYMENT_METHOD_CHEQUE = 'csekk';
 
-    const PAYMENT_METHOD_CASH_ON_DELIVERY = 'utánvét';
+    public const PAYMENT_METHOD_CASH_ON_DELIVERY = 'utánvét';
 
-    const PAYMENT_METHOD_PAYPAL = 'PayPal';
+    public const PAYMENT_METHOD_PAYPAL = 'PayPal';
 
-    const PAYMENT_METHOD_SZEP_CARD = 'SZÉP kártya';
+    public const PAYMENT_METHOD_SZEP_CARD = 'SZÉP kártya';
 
-    const PAYMENT_METHOD_OTP_SIMPLE = 'OTP Simple';
-
-    /**
-     * Normál számla
-     */
-    const DOCUMENT_TYPE_INVOICE = 'invoice';
+    public const PAYMENT_METHOD_OTP_SIMPLE = 'OTP Simple';
 
     /**
-     * Normál számla kódja
+     * HU: Normál számla
      */
-    const DOCUMENT_TYPE_INVOICE_CODE = 'SZ';
+    public const DOCUMENT_TYPE_INVOICE = 'invoice';
 
     /**
-     * Sztornó számla
+     * HU: Normál számla kódja
      */
-    const DOCUMENT_TYPE_REVERSE_INVOICE = 'reverseInvoice';
+    public const DOCUMENT_TYPE_INVOICE_CODE = 'SZ';
 
     /**
-     * Sztornó számla kódja
+     * HU: Sztornó számla
      */
-    const DOCUMENT_TYPE_REVERSE_INVOICE_CODE = 'SS';
+    public const DOCUMENT_TYPE_REVERSE_INVOICE = 'reverseInvoice';
 
     /**
-     * Jóváíró számla
+     * HU: Sztornó számla kódja
      */
-    const DOCUMENT_TYPE_PAY_INVOICE = 'payInvoice';
+    public const DOCUMENT_TYPE_REVERSE_INVOICE_CODE = 'SS';
 
     /**
-     * Jóváíró számla kódja
+     * HU: Jóváíró számla
      */
-    const DOCUMENT_TYPE_PAY_INVOICE_CODE = 'JS';
+    public const DOCUMENT_TYPE_PAY_INVOICE = 'payInvoice';
 
     /**
-     * Helyesbítő számla
+     * HU: Jóváíró számla kódja
      */
-    const DOCUMENT_TYPE_CORRECTIVE_INVOICE = 'correctiveInvoice';
+    public const DOCUMENT_TYPE_PAY_INVOICE_CODE = 'JS';
 
     /**
-     * Helyesbítő számla kódja
+     * HU: Helyesbítő számla
      */
-    const DOCUMENT_TYPE_CORRECTIVE_INVOICE_CODE = 'HS';
+    public const DOCUMENT_TYPE_CORRECTIVE_INVOICE = 'correctiveInvoice';
 
     /**
-     * Előlegszámla
+     * HU: Helyesbítő számla kódja
      */
-    const DOCUMENT_TYPE_PREPAYMENT_INVOICE = 'prePaymentInvoice';
+    public const DOCUMENT_TYPE_CORRECTIVE_INVOICE_CODE = 'HS';
 
     /**
-     * Előlegszámla kódja
+     * HU: Előlegszámla
      */
-    const DOCUMENT_TYPE_PREPAYMENT_INVOICE_CODE = 'ES';
+    public const DOCUMENT_TYPE_PREPAYMENT_INVOICE = 'prePaymentInvoice';
 
     /**
-     * Végszámla
+     * HU: Előlegszámla kódja
      */
-    const DOCUMENT_TYPE_FINAL_INVOICE = 'finalInvoice';
+    public const DOCUMENT_TYPE_PREPAYMENT_INVOICE_CODE = 'ES';
 
     /**
-     * Végszámla kódja
+     * HU: Végszámla
      */
-    const DOCUMENT_TYPE_FINAL_INVOICE_CODE = 'VS';
+    public const DOCUMENT_TYPE_FINAL_INVOICE = 'finalInvoice';
 
     /**
-     * Díjbekérő
+     * HU: Végszámla kódja
      */
-    const DOCUMENT_TYPE_PROFORMA = 'proforma';
+    public const DOCUMENT_TYPE_FINAL_INVOICE_CODE = 'VS';
 
     /**
-     * Díjbekérő kódja
+     * HU: Díjbekérő
      */
-    const DOCUMENT_TYPE_PROFORMA_CODE = 'D';
+    public const DOCUMENT_TYPE_PROFORMA = 'proforma';
 
     /**
-     * Szállítólevél
+     * HU: Díjbekérő kódja
      */
-    const DOCUMENT_TYPE_DELIVERY_NOTE = 'deliveryNote';
+    public const DOCUMENT_TYPE_PROFORMA_CODE = 'D';
 
     /**
-     * Szállítólevél kódja
+     * HU: Szállítólevél
      */
-    const DOCUMENT_TYPE_DELIVERY_NOTE_CODE = 'SL';
+    public const DOCUMENT_TYPE_DELIVERY_NOTE = 'deliveryNote';
 
     /**
-     * Nyugta
+     * HU: Szállítólevél kódja
      */
-    const DOCUMENT_TYPE_RECEIPT = 'receipt';
+    public const DOCUMENT_TYPE_DELIVERY_NOTE_CODE = 'SL';
 
     /**
-     * Nyugta kódja
+     * HU: Nyugta
      */
-    const DOCUMENT_TYPE_RECEIPT_CODE = 'NY';
+    public const DOCUMENT_TYPE_RECEIPT = 'receipt';
 
     /**
-     * Nyugta sztornó
+     * HU: Nyugta kódja
      */
-    const DOCUMENT_TYPE_RESERVE_RECEIPT = 'reserveReceipt';
+    public const DOCUMENT_TYPE_RECEIPT_CODE = 'NY';
 
     /**
-     * Nyugta sztornó kódja
+     * HU: Nyugta sztornó
      */
-    const DOCUMENT_TYPE_RESERVE_RECEIPT_CODE = 'SN';
+    public const DOCUMENT_TYPE_RESERVE_RECEIPT = 'reserveReceipt';
 
     /**
-     * @return string
+     * HU: Nyugta sztornó kódja
      */
-    public static function getDefaultCurrency()
+    public const DOCUMENT_TYPE_RESERVE_RECEIPT_CODE = 'SN';
+
+    public static function getDefaultCurrency(): string
     {
         return Currency::getDefault();
     }
 
-    /**
-     * @return string
-     */
-    public static function getDefaultLanguage()
+    public static function getDefaultLanguage(): string
     {
         return Language::getDefault();
     }

@@ -2,12 +2,12 @@
 
 namespace Omisai\SzamlazzhuAgent\Document\Invoice;
 
+use Illuminate\Support\Facades\Log;
 use Omisai\SzamlazzhuAgent\Buyer;
 use Omisai\SzamlazzhuAgent\CreditNote\InvoiceCreditNote;
 use Omisai\SzamlazzhuAgent\Document\Document;
 use Omisai\SzamlazzhuAgent\Header\InvoiceHeader;
 use Omisai\SzamlazzhuAgent\Item\InvoiceItem;
-use Omisai\SzamlazzhuAgent\Log;
 use Omisai\SzamlazzhuAgent\Seller;
 use Omisai\SzamlazzhuAgent\SzamlaAgentException;
 use Omisai\SzamlazzhuAgent\SzamlaAgentRequest;
@@ -15,179 +15,126 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 use Omisai\SzamlazzhuAgent\Waybill\Waybill;
 
 /**
- * Számla
+ * HU: Számla
  */
 class Invoice extends Document
 {
-    /** Számla típus: papír számla */
-    const INVOICE_TYPE_P_INVOICE = 1;
+    /** HU: Számla típus: papír számla */
+    public const INVOICE_TYPE_P_INVOICE = 1;
 
-    /** Számla típus: e-számla */
-    const INVOICE_TYPE_E_INVOICE = 2;
+    /** HU: Számla típus: e-számla */
+    public const INVOICE_TYPE_E_INVOICE = 2;
 
-    /** Számla lekérdezése számlaszám alapján */
-    const FROM_INVOICE_NUMBER = 1;
+    /** HU: Számla lekérdezése számlaszám alapján */
+    public const FROM_INVOICE_NUMBER = 1;
 
-    /** Számla lekérdezése rendelési szám alapján */
-    const FROM_ORDER_NUMBER = 2;
+    /** HU: Számla lekérdezése rendelési szám alapján */
+    public const FROM_ORDER_NUMBER = 2;
 
-    /** Számla lekérdezése külső számlaazonosító alapján */
-    const FROM_INVOICE_EXTERNAL_ID = 3;
+    /** HU: Számla lekérdezése külső számlaazonosító alapján */
+    public const FROM_INVOICE_EXTERNAL_ID = 3;
 
     /**
-     * Jóváírások maximális száma
+     * HU: Jóváírások maximális száma
      * a számla kifizetettségének beállításakor
      */
-    const CREDIT_NOTES_LIMIT = 5;
+    public const CREDIT_NOTES_LIMIT = 5;
 
     /** Számlához csatolandó fájlok maximális száma */
-    const INVOICE_ATTACHMENTS_LIMIT = 5;
+    public const INVOICE_ATTACHMENTS_LIMIT = 5;
 
     /** Számlázz.hu ajánlott számlakép */
-    const INVOICE_TEMPLATE_DEFAULT = 'SzlaMost';
+    public const INVOICE_TEMPLATE_DEFAULT = 'SzlaMost';
 
     /** Tradicionális számlakép */
-    const INVOICE_TEMPLATE_TRADITIONAL = 'SzlaNoEnv';
+    public const INVOICE_TEMPLATE_TRADITIONAL = 'SzlaNoEnv';
 
     /** Borítékbarát számlakép */
-    const INVOICE_TEMPLATE_ENV_FRIENDLY = 'SzlaAlap';
+    public const INVOICE_TEMPLATE_ENV_FRIENDLY = 'SzlaAlap';
 
     /** Hőnyomtatós számlakép (8 cm széles) */
-    const INVOICE_TEMPLATE_8CM = 'Szla8cm';
+    public const INVOICE_TEMPLATE_8CM = 'Szla8cm';
 
     /** Retró kéziszámla számlakép */
-    const INVOICE_TEMPLATE_RETRO = 'SzlaTomb';
+    public const INVOICE_TEMPLATE_RETRO = 'SzlaTomb';
+
+    private InvoiceHeader $header;
+
+    protected Seller $seller;
+
+    protected Buyer $buyer;
+
+    protected Waybill $waybill;
 
     /**
-     * A számla fejléce
-     *
-     * @var InvoiceHeader
-     */
-    private $header;
-
-    /**
-     * A számlán szereplő eladó adatok
-     *
-     * @var Seller
-     */
-    protected $seller;
-
-    /**
-     * A számlán szereplő vevő adatok
-     *
-     * @var Buyer
-     */
-    protected $buyer;
-
-    /**
-     * Fuvarlevél
-     *
-     * @var Waybill
-     */
-    protected $waybill;
-
-    /**
-     * Számla tételek
-     *
      * @var InvoiceItem[]
      */
-    protected $items = [];
+    protected array $items = [];
 
     /**
-     * Számlához tartozó jóváírások
-     *
      * @var InvoiceCreditNote[]
      */
-    protected $creditNotes = [];
+    protected array $creditNotes = [];
 
     /**
-     * Összeadandó-e a jóváírás
+     * HU: Összeadandó-e a jóváírás
      *
      * Ha igaz, akkor nem törli a korábbi jóváírásokat,
      * hanem hozzáadja az összeget az eddigiekhez.
-     *
-     * @var bool
      */
-    protected $additive = true;
+    protected bool $additive = true;
+
+    protected array $attachments = [];
 
     /**
-     * Számlához tartozó mellékletek
-     *
-     * @var array
-     */
-    protected $attachments = [];
-
-    /**
-     * Számla létrehozása
-     *
-     * Átutalással fizetendő magyar nyelvű (Ft) számla kiállítása mai keltezési és
-     * teljesítési dátummal, +8 nap fizetési határidővel, üres számlaelőtaggal.
-     *
-     * @param  int  $type számla típusa (papír vagy e-számla)
-     *
      * @throws SzamlaAgentException
      */
-    public function __construct($type = self::INVOICE_TYPE_P_INVOICE)
+    public function __construct(int $type = self::INVOICE_TYPE_E_INVOICE)
     {
-        // Alapértelmezett fejléc adatok hozzáadása a számlához
-        if (! empty($type)) {
-            $this->setHeader(new InvoiceHeader($type));
-        }
+        $this->setHeader(new InvoiceHeader($type));
     }
 
-    /**
-     * @return InvoiceHeader
-     */
-    public function getHeader()
+    public function getHeader(): InvoiceHeader
     {
         return $this->header;
     }
 
-    public function setHeader(InvoiceHeader $header)
+    public function setHeader(InvoiceHeader $header): void
     {
         $this->header = $header;
     }
 
-    /**
-     * @return Seller
-     */
-    public function getSeller()
+    public function getSeller(): Seller
     {
         return $this->seller;
     }
 
-    public function setSeller(Seller $seller)
+    public function setSeller(Seller $seller): void
     {
         $this->seller = $seller;
     }
 
-    /**
-     * @return Buyer
-     */
-    public function getBuyer()
+    public function getBuyer(): Buyer
     {
         return $this->buyer;
     }
 
-    public function setBuyer(Buyer $buyer)
+    public function setBuyer(Buyer $buyer): void
     {
         $this->buyer = $buyer;
     }
 
-    /**
-     * @return Waybill
-     */
-    public function getWaybill()
+    public function getWaybill(): Waybill
     {
         return $this->waybill;
     }
 
-    public function setWaybill(Waybill $waybill)
+    public function setWaybill(Waybill $waybill): void
     {
         $this->waybill = $waybill;
     }
 
-    public function addItem(InvoiceItem $item)
+    public function addItem(InvoiceItem $item): void
     {
         array_push($this->items, $item);
     }
@@ -195,7 +142,7 @@ class Invoice extends Document
     /**
      * @return InvoiceItem[]
      */
-    public function getItems()
+    public function getItems(): array
     {
         return $this->items;
     }
@@ -203,15 +150,15 @@ class Invoice extends Document
     /**
      * @param  InvoiceItem[]  $items
      */
-    public function setItems($items)
+    public function setItems(array $items): void
     {
         $this->items = $items;
     }
 
     /**
-     * Jóváírás hozzáadása a számlához
+     * HU: Jóváírás hozzáadása a számlához
      */
-    public function addCreditNote(InvoiceCreditNote $creditNote)
+    public function addCreditNote(InvoiceCreditNote $creditNote): void
     {
         if (count($this->creditNotes) < self::CREDIT_NOTES_LIMIT) {
             array_push($this->creditNotes, $creditNote);
@@ -221,7 +168,7 @@ class Invoice extends Document
     /**
      * @return InvoiceCreditNote[]
      */
-    public function getCreditNotes()
+    public function getCreditNotes(): array
     {
         return $this->creditNotes;
     }
@@ -229,36 +176,25 @@ class Invoice extends Document
     /**
      * @param  InvoiceCreditNote[]  $creditNotes
      */
-    public function setCreditNotes(array $creditNotes)
+    public function setCreditNotes(array $creditNotes): void
     {
         $this->creditNotes = $creditNotes;
     }
 
-    /**
-     * @return bool
-     */
-    public function isAdditive()
+    public function isAdditive(): bool
     {
         return $this->additive;
     }
 
-    /**
-     * @param  bool  $additive
-     */
-    public function setAdditive($additive)
+    public function setAdditive(bool $additive): void
     {
         $this->additive = $additive;
     }
 
     /**
-     * Összeállítja a számla XML adatait
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
@@ -287,14 +223,9 @@ class Invoice extends Document
     }
 
     /**
-     * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields): array
     {
         $data = [];
 
@@ -327,13 +258,9 @@ class Invoice extends Document
     }
 
     /**
-     * Összeállítja a bizonylathoz tartozó tételek adatait
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    protected function buildXmlItemsData()
+    protected function buildXmlItemsData(): array
     {
         $data = [];
 
@@ -347,13 +274,9 @@ class Invoice extends Document
     }
 
     /**
-     * Összeállítja a számlához tartozó jóváírások adatait
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    protected function buildCreditsXmlData()
+    protected function buildCreditsXmlData(): array
     {
         $data = [];
         if (! empty($this->getCreditNotes())) {
@@ -365,18 +288,13 @@ class Invoice extends Document
         return $data;
     }
 
-    /**
-     * Visszaadja a számlához tartozó fájl mellékleteket
-     *
-     * @return array
-     */
-    public function getAttachments()
+    public function getAttachments(): array
     {
         return $this->attachments;
     }
 
     /**
-     * Fájl csatolása a számlához
+     * HU: Fájl csatolása a számlához
      *
      * Összesen 5 db mellékletet tudsz egy számlához csatolni.
      * A beküldött fájlok mérete nem haladhatja meg a 2 MB méretet. Ha valamelyik beküldött fájl csatolása valamilyen okból sikertelen,
@@ -385,14 +303,12 @@ class Invoice extends Document
      * Hibás csatolmány esetén is kiküldésre kerül az értesítő email úgy, hogy a megfelelő fájlok csatolva lesznek.
      * Ha nem érkezik kérés értesítő email kiküldésére, akkor a beküldött csatolmányok nem kerülnek feldolgozásra.
      *
-     * @param  string  $filePath
-     *
      * @throws SzamlaAgentException
      */
-    public function addAttachment($filePath)
+    public function addAttachment(string $filePath)
     {
         if (empty($filePath)) {
-            Log::writeLog('A csatolandó fájl neve nincs megadva!', Log::LOG_LEVEL_WARN);
+            Log::channel('szamlazzhu')->warning('A csatolandó fájl neve nincs megadva!');
         } else {
             if (count($this->attachments) >= self::INVOICE_ATTACHMENTS_LIMIT) {
                 throw new SzamlaAgentException('A következő fájl csatolása sikertelen: "'.$filePath.'". Egy számlához maximum '.self::INVOICE_ATTACHMENTS_LIMIT.' fájl csatolható!');
