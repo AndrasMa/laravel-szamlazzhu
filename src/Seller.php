@@ -3,7 +3,7 @@
 namespace Omisai\SzamlazzhuAgent;
 
 /**
- * Egy bizonylathoz tartozó eladó
+ * HU: Eladó
  */
 class Seller
 {
