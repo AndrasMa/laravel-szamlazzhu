@@ -13,122 +13,122 @@ class Item
     /**
      * HU: Áfakulcs: tárgyi adómentes
      */
-    const VAT_TAM = 'TAM';
+    public const VAT_TAM = 'TAM';
 
     /**
      * HU: Áfakulcs: alanyi adómentes
      */
-    const VAT_AAM = 'AAM';
+    public const VAT_AAM = 'AAM';
 
     /**
      * HU: Áfakulcs: EU-n belül
      */
-    const VAT_EU = 'EU';
+    public const VAT_EU = 'EU';
 
     /**
      * HU: Áfakulcs: EU-n kívül
      */
-    const VAT_EUK = 'EUK';
+    public const VAT_EUK = 'EUK';
 
     /**
      * HU: Áfakulcs: mentes az adó alól
      */
-    const VAT_MAA = 'MAA';
+    public const VAT_MAA = 'MAA';
 
     /**
      * HU: Áfakulcs: fordított áfa
      */
-    const VAT_F_AFA = 'F.AFA';
+    public const VAT_F_AFA = 'F.AFA';
 
     /**
      * HU: Áfakulcs: különbözeti áfa
      */
-    const VAT_K_AFA = 'K.AFA';
+    public const VAT_K_AFA = 'K.AFA';
 
     /**
      * HU: Áfakulcs: áfakörön kívüli
      */
-    const VAT_AKK = 'ÁKK';
+    public const VAT_AKK = 'ÁKK';
 
     /**
      * HU: Áfakulcs: áfakörön kívüli
      */
-    const VAT_TAHK = 'TAHK';
+    public const VAT_TAHK = 'TAHK';
 
     /**
      * HU: Áfakulcs: áfakörön kívüli
      */
-    const VAT_TEHK = 'TEHK';
+    public const VAT_TEHK = 'TEHK';
 
     /**
      * HU: Áfakulcs: EU-n belüli termék értékesítés
      */
-    const VAT_EUT = 'EUT';
+    public const VAT_EUT = 'EUT';
 
     /**
      * HU: Áfakulcs: EU-n kívüli termék értékesítés
      */
-    const VAT_EUKT = 'EUKT';
+    public const VAT_EUKT = 'EUKT';
 
     /**
      * HU: Áfakulcs: EU-n belüli
      */
-    const VAT_KBAET = 'KBAET';
+    public const VAT_KBAET = 'KBAET';
 
     /**
      * HU: Áfakulcs: EU-n belüli
      */
-    const VAT_KBAUK = 'KBAUK';
+    public const VAT_KBAUK = 'KBAUK';
 
     /**
      * HU: Áfakulcs: EU-n kívüli
      */
-    const VAT_EAM = 'EAM';
+    public const VAT_EAM = 'EAM';
 
     /**
      * HU: Áfakulcs: Mentes az adó alól
      */
-    const VAT_NAM = 'KBAUK';
+    public const VAT_NAM = 'KBAUK';
 
     /**
      * HU: Áfakulcs: áfa tárgyi hatályán kívül
      */
-    const VAT_ATK = 'ATK';
+    public const VAT_ATK = 'ATK';
 
     /**
      * HU: Áfakulcs: EU-n belüli
      */
-    const VAT_EUFAD37 = 'EUFAD37';
+    public const VAT_EUFAD37 = 'EUFAD37';
 
     /**
      * HU: Áfakulcs: EU-n belüli
      */
-    const VAT_EUFADE = 'EUFADE';
+    public const VAT_EUFADE = 'EUFADE';
 
     /**
      * HU: Áfakulcs: EU-n belüli
      */
-    const VAT_EUE = 'EUE';
+    public const VAT_EUE = 'EUE';
 
     /**
      * HU: Áfakulcs: EU-n kívüli
      */
-    const VAT_HO = 'HO';
+    public const VAT_HO = 'HO';
 
     /**
      * HU: Alapértelmezett ÁFA érték
      */
-    const DEFAULT_VAT = '27';
+    public const DEFAULT_VAT = '27';
 
     /**
      * HU: Alapértelmezett mennyiség
      */
-    const DEFAULT_QUANTITY = 1.0;
+    public const DEFAULT_QUANTITY = 1.0;
 
     /**
      * HU: Alapértelmezett mennyiségi egység
      */
-    const DEFAULT_QUANTITY_UNIT = 'db';
+    public const DEFAULT_QUANTITY_UNIT = 'db';
 
     protected string $id;
 
