@@ -2,111 +2,43 @@
 
 namespace Omisai\SzamlazzhuAgent;
 
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\File;
 class CookieHandler
 {
-    /**
-     * Cookie-kat tartalmazó fájl neve
-     */
-    const JSON_FILE_NAME = 'cookies.json';
+    public const COOKIE_FILE_PATH = 'cookies/cookie';
 
-    /**
-     * A cookie.txt mentési helye
-     */
-    const COOKIE_FILE_PATH = __DIR__.'/../../'.DIRECTORY_SEPARATOR.'cookie'.DIRECTORY_SEPARATOR;
+    public const COOKIE_HEADER_TEXT = 'JSESSIONID=';
 
-    /**
-     * Cookie file
-     */
-    const COOKIES_STORAGE_FILE = self::COOKIE_FILE_PATH.self::JSON_FILE_NAME;
+    public const DEFAULT_COOKIE_JSON_CONTENT = '{}';
 
-    const COOKIE_HEADER_TEXT = 'JSESSIONID=';
+    public const COOKIE_HANDLE_MODE_TEXT = 0;
 
-    const DEFAULT_COOKIE_JSON_CONTENT = '{}';
+    public const COOKIE_HANDLE_MODE_JSON = 1;
 
-    /**
-     * Cookie kezelés módja (szöveges fájl alapú)
-     */
-    const COOKIE_HANDLE_MODE_DEFAULT = 0;
+    public const COOKIE_HANDLE_MODE_DATABASE = 2;
 
-    /**
-     * Cookie kezelés módja (json fájl alapú)
-     */
-    const COOKIE_HANDLE_MODE_JSON = 1;
+    private SzamlaAgent $agent;
 
-    /**
-     * Cookie kezelés módja (adatbázis alapú)
-     */
-    const COOKIE_HANDLE_MODE_DATABASE = 2;
+    private string $cookieIdentifier;
 
-    /**
-     * @var SzamlaAgent
-     */
-    private $agent;
+    private array $sessions = [];
 
-    /**
-     * A számlázási fiókhoz tartozó egyedi süti azonosító
-     *
-     * @var string
-     */
-    private $cookieIdentifier;
+    private string $cookieSessionId = '';
 
-    /**
-     * Cookie tároló
-     *
-     * @var array
-     */
-    private $sessions = [];
+    private int $cookieHandleMode = self::COOKIE_HANDLE_MODE_JSON;
 
-    /**
-     * @var string
-     */
-    private $cookieSessionId = '';
+    private string $cookieFilePath = '';
 
-    /**
-     * Cookie kezelés módja
-     *
-     * @var int
-     */
-    private $cookieHandleMode = self::COOKIE_HANDLE_MODE_DEFAULT;
-
-    /** Default cookie handling */
-
-    /**
-     * Alapértelmezett süti fájlnév
-     */
-    const COOKIE_FILENAME = 'cookie.txt';
-
-    /**
-     * Cookie fájlnév
-     *
-     * @var string
-     */
-    private $cookieFileName = self::COOKIE_FILENAME;
-
-    /**
-     * @param  SzamlaAgent  $agent
-     */
-    public function __construct($agent)
+    public function __construct(SzamlaAgent $agent)
     {
         $this->agent = $agent;
-        $this->init();
-    }
-
-    /**
-     * Beállítja a CookieHandler-t
-     */
-    private function init()
-    {
         $this->cookieIdentifier = $this->createCookieIdentifier();
-        $this->cookieFileName = $this->buildCookieFileName();
+        $this->cookieFilePath = $this->createCookieFileName();
     }
 
-    /**
-     * Elmenti a számlázási fiókhoz tartozó sessionID-t
-     *
-     * @return void
-     */
-    private function addSession($sessionId)
+    private function addSession(array|null $sessionId): void
     {
         if (SzamlaAgentUtil::isNotNull($sessionId)) {
             $this->sessions[$this->cookieIdentifier]['sessionID'] = $sessionId;
@@ -114,13 +46,7 @@ class CookieHandler
         }
     }
 
-    /**
-     * Kiszedi a header adatokból a sessionId-t, ha benne van, beállítja a cookieSessionId-t
-     * JSON mód esetén frissítjük a session adatokat.
-     *
-     * @return void
-     */
-    public function handleSessionId($header)
+    public function handleSessionId($header): void
     {
         $savedSessionId = [];
         preg_match_all('/(?<=JSESSIONID=)(.*?)(?=;)/', $header, $savedSessionId);
@@ -133,199 +59,96 @@ class CookieHandler
         }
     }
 
-    /**
-     * Elmenti a cookie-kat a json fáljba
-     *
-     * @return void
-     */
-    public function saveSessions()
+    public function saveSessions(): void
     {
         if ($this->isHandleModeJson()) {
-            file_put_contents(self::COOKIES_STORAGE_FILE, json_encode($this->sessions));
+            Storage::disk('payment')->put($this->cookieFilePath, json_encode($this->sessions));
         }
     }
 
-    /**
-     * Beállítja a header-be a sessionId-t
-     */
-    public function addCookieToHeader()
+    public function addCookieToHeader(): void
     {
         $this->refreshJsonSessionData();
-        if (! empty($this->cookieSessionId)) {
+        if (!empty($this->cookieSessionId)) {
             $this->agent->addCustomHTTPHeader('Cookie', self::COOKIE_HEADER_TEXT.$this->cookieSessionId);
         }
     }
 
-    /**
-     * Legenerálja az azonosítót
-     *
-     * @return string|null
-     */
-    private function createCookieIdentifier()
+    private function createCookieIdentifier(): ?string
     {
         $username = $this->agent->getUsername();
         $apiKey = $this->agent->getApiKey();
         $result = null;
 
-        if (! empty($username)) {
+        if (!empty($username)) {
             $result = hash('sha1', $username);
 
-        } elseif (! empty($apiKey)) {
+        } elseif (!empty($apiKey)) {
             $result = hash('sha1', $apiKey);
         }
 
-        if (! $result || ! SzamlaAgentUtil::isNotNull($result)) {
-            $this->agent->writeLog('Süti azonosító generálás sikertelen.', Log::LOG_LEVEL_WARN);
+        if (!$result || !SzamlaAgentUtil::isNotNull($result)) {
+            Log::channel('szamlazzhu')->warning('Generation of the cookie identifier is failed');
         }
 
         return $result;
     }
 
-    /**
-     * Ha nem létezik a tároló akkor létrehozza ha fájl-ban tároljuk a cookie-kat
-     *
-     * @return void
-     */
-    private function checkCookieContainer()
+    private function initJsonSessionId(): void
     {
-        if (! file_exists(self::COOKIES_STORAGE_FILE)) {
-            file_put_contents(self::COOKIES_STORAGE_FILE, self::DEFAULT_COOKIE_JSON_CONTENT);
-        }
-    }
-
-    /**
-     * JSON mód esetén beállítjuk a sütiket. Ha hibás a JSON file, akkor törli annak a tartalmát.
-     *
-     * @return void
-     */
-    private function initJsonSessionId()
-    {
-        $cookieFileContent = file_get_contents(self::COOKIES_STORAGE_FILE);
+        $cookieFileContent = $this->getCookieFile();
         $this->checkFileIsValidJson($cookieFileContent);
         $this->sessions = json_decode($cookieFileContent, true);
     }
 
-    /**
-     * @param  string  $cookieFileContent
-     * @return void
-     */
-    private function checkFileIsValidJson($cookieFileContent)
+    private function checkFileIsValidJson(string $cookieFileContent): void
     {
         try {
             SzamlaAgentUtil::isValidJSON($cookieFileContent);
         } catch (SzamlaAgentException $e) {
-            $this->agent->writeLog('Cookies.txt tartalma nem valid, törölve lett', Log::LOG_LEVEL_ERROR);
-            file_put_contents(self::COOKIES_STORAGE_FILE, self::DEFAULT_COOKIE_JSON_CONTENT);
+            Log::channel('szamlazzhu')->error('Cookie file content is not valid for being JSON type');
+            Storage::disk('payment')->put($this->cookieFilePath, self::DEFAULT_COOKIE_JSON_CONTENT);
         }
     }
 
-    /**
-     * Visszaajda, hogy default módban van-e
-     *
-     * @return bool
-     */
-    public function isHandleModeDefault()
+    public function isHandleModeText(): bool
     {
-        return $this->cookieHandleMode == self::COOKIE_HANDLE_MODE_DEFAULT;
+        return $this->cookieHandleMode == self::COOKIE_HANDLE_MODE_TEXT;
     }
 
-    /**
-     * Visszaajda, hogy json módban van-e
-     *
-     * @return bool
-     */
-    public function isHandleModeJson()
+    public function isHandleModeJson(): bool
     {
         return $this->cookieHandleMode == self::COOKIE_HANDLE_MODE_JSON;
     }
 
-    /**
-     * Visszaajda, hogy database módban van-e
-     *
-     * @return bool
-     */
-    public function isHandleModeDatabase()
+    public function isHandleModeDatabase(): bool
     {
         return $this->cookieHandleMode == self::COOKIE_HANDLE_MODE_DATABASE;
     }
 
-    /**
-     * True ha nem default módban van
-     *
-     * @return bool
-     */
-    public function isNotHandleModeDefault()
-    {
-        return $this->cookieHandleMode != self::COOKIE_HANDLE_MODE_DEFAULT;
-    }
-
-    /**
-     * True ha nem json módban van
-     *
-     * @return bool
-     */
-    public function isNotHandleModeJson()
-    {
-        return $this->cookieHandleMode != self::COOKIE_HANDLE_MODE_JSON;
-    }
-
-    /**
-     * True ha nem database módban van
-     *
-     * @return bool
-     */
-    public function isNotHandleModeDatabase()
-    {
-        return $this->cookieHandleMode != self::COOKIE_HANDLE_MODE_DATABASE;
-    }
-
-    /**
-     * Sütikezelési mód visszaadása
-     *
-     * @return int
-     */
-    public function getCookieHandleMode()
+    public function getCookieHandleMode(): int
     {
         return $this->cookieHandleMode;
     }
 
-    /**
-     * Sütikezelési mód beállítása
-     *
-     * @param  int  $cookieHandleMode
-     */
-    public function setCookieHandleMode($cookieHandleMode)
+    public function setCookieHandleMode(int $cookieHandleMode): void
     {
         $this->cookieHandleMode = $cookieHandleMode;
     }
 
-    /**
-     * Aktuális session  id-t adja vissza
-     *
-     * @return string
-     */
-    public function getCookieSessionId()
+    public function getCookieSessionId(): string
     {
         return $this->cookieSessionId;
     }
 
-    /**
-     * Session id beállítása
-     *
-     * @param  string  $cookieSessionId
-     */
-    public function setCookieSessionId($cookieSessionId)
+    public function setCookieSessionId(string $cookieSessionId): void
     {
         $this->cookieSessionId = $cookieSessionId;
     }
 
-    /**
-     * @return void
-     */
-    private function refreshJsonSessionData()
+    private function refreshJsonSessionData(): void
     {
         if ($this->isHandleModeJson()) {
-            $this->checkCookieContainer();
             $this->initJsonSessionId();
             if (isset($this->sessions[$this->cookieIdentifier])) {
                 $this->cookieSessionId = $this->sessions[$this->cookieIdentifier]['sessionID'];
@@ -333,76 +156,62 @@ class CookieHandler
         }
     }
 
-    /** Default cookie handling */
-
-    /**
-     * @return string
-     */
-    public function getCookieFileName()
+    public function createCookieFileName(): string
     {
-        return $this->cookieFileName;
-    }
-
-    /**
-     * Beállítja a kérés elküldéséhez csatolt cookie fájl nevét
-     *
-     * Erre akkor van szükség, ha több számlázási fiókhoz használod az Agent API-t.
-     * Ebben az esetben számlázási fiókonként beállíthatod a session-hoz tartozó sütit
-     */
-    public function setCookieFileName($cookieFile)
-    {
-        $this->cookieFileName = $cookieFile;
-    }
-
-    /**
-     * @return string
-     */
-    public function buildCookieFileName()
-    {
-        $fileName = 'cookie';
-
-        return $fileName.'_'.$this->cookieIdentifier.'.txt';
-    }
-
-    /**
-     * @return string
-     */
-    public function getCookieFilePath()
-    {
-        $fileName = $this->getCookieFileName();
-        if (SzamlaAgentUtil::isBlank($fileName)) {
-            $fileName = CookieHandler::COOKIE_FILENAME;
+        if ($this->isHandleModeText()) {
+            return sprintf('%s.text', self::COOKIE_FILE_PATH);
         }
 
-        return SzamlaAgentUtil::getBasePath().DIRECTORY_SEPARATOR.$fileName;
+        if ($this->isHandleModeJson()) {
+            return sprintf('%s.json', self::COOKIE_FILE_PATH);
+        }
+
+        return '';
+    }
+
+    public function getCookieFilePath(): string
+    {
+        if (SzamlaAgentUtil::isBlank($this->cookieFilePath)) {
+            if ($this->isHandleModeDatabase()) {
+                Log::channel('szamlazzhu')->warning('The Cookie handle mode is "database", you cannot access the cookie from file.');
+            } else {
+                throw new SzamlaAgentException('No file path set in CookieHandler.');
+            }
+        }
+
+
+        return $this->cookieFilePath;
     }
 
     /**
-     * @return string|null
+     * @throws SzamlaAgentException
      */
-    public function getDefaultCookieFile()
+    public function getCookieFile(): string
     {
-        return $this->getCookieFilePath();
+        if ($this->isHandleModeDatabase()) {
+            throw new SzamlaAgentException('The Cookie handle mode is "database", please override the CookeHandler::getCookieFile() method.');
+        }
+
+        $cookieFile = Storage::disk('payment')->get($this->cookieFilePath);
+        if (!$cookieFile) {
+
+            throw new SzamlaAgentException('The Cookie handle mode is "database", please override the CookeHandler::getCookieFile() method.');
+        }
+
+        return $cookieFile;
     }
 
-    /**
-     * Ürítjük a cookie fájl-t ha nem tartalmazza a curl szöveget
-     *
-     * @return void
-     */
-    public function checkCookieFile($cookieFile)
+
+    public function checkCookieFile()
     {
-        if (file_exists($cookieFile) && filesize($cookieFile) > 0 && strpos(file_get_contents($cookieFile), 'curl') === false) {
-            file_put_contents($cookieFile, '');
-            $this->agent->writeLog('A cookie fájl tartalma megváltozott.', Log::LOG_LEVEL_DEBUG);
+        if (Storage::disk('payment')->exists($this->getCookieFilePath()) && Storage::disk('payment')->size($this->getCookieFilePath()) > 0 && !str_contains($this->getCookieFile(), 'curl')) {
+            Storage::disk('payment')->put($this->cookieFilePath, '');
+            Log::channel('szamlazzhu')->debug('The cookie file content changed');
         }
     }
 
-    /**
-     * @return bool
-     */
-    public function isUsableCookieFile($cookieFile)
+    public function isUsableCookieFile()
     {
-        return file_exists($cookieFile) && filesize($cookieFile) > 0;
+        return Storage::disk('payment')->exists($this->getCookieFilePath()) && Storage::disk('payment')->size($this->getCookieFilePath()) > 0;
     }
 }
