@@ -11,33 +11,17 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
  */
 class ReceiptItem extends Item
 {
-    /**
-     * Tételhez tartozó főkönyvi adatok
-     *
-     * @var ReceiptItemLedger
-     */
     protected $ledgerData;
 
-    /**
-     * Nyugtatétel példányosítás
-     *
-     * @param  string  $name         tétel név
-     * @param  int  $netUnitPrice nettó egységár
-     * @param  float  $quantity     mennyiség
-     * @param  string  $quantityUnit mennyiségi egység
-     * @param  string  $vat          áfatartalom
-     */
-    public function __construct($name, $netUnitPrice, $quantity = self::DEFAULT_QUANTITY, $quantityUnit = self::DEFAULT_QUANTITY_UNIT, $vat = self::DEFAULT_VAT)
+    public function __construct(string $name, float $netUnitPrice, float $quantity = self::DEFAULT_QUANTITY, string $quantityUnit = self::DEFAULT_QUANTITY_UNIT, string $vat = self::DEFAULT_VAT)
     {
         parent::__construct($name, $netUnitPrice, $quantity, $quantityUnit, $vat);
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData()
+    public function buildXmlData(): array
     {
         $data = [];
         $this->checkFields();
@@ -63,15 +47,12 @@ class ReceiptItem extends Item
         return $data;
     }
 
-    /**
-     * @return ReceiptItemLedger
-     */
-    public function getLedgerData()
+    public function getLedgerData(): ReceiptItemLedger
     {
         return $this->ledgerData;
     }
 
-    public function setLedgerData(ReceiptItemLedger $ledgerData)
+    public function setLedgerData(ReceiptItemLedger $ledgerData): void
     {
         $this->ledgerData = $ledgerData;
     }

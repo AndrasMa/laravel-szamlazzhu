@@ -7,37 +7,21 @@ use Omisai\SzamlazzhuAgent\SzamlaAgentException;
 use Omisai\SzamlazzhuAgent\SzamlaAgentUtil;
 
 /**
- * Számlatétel
+ * HU: Számlatétel
  */
 class InvoiceItem extends Item
 {
-    /**
-     * Tételhez tartozó főkönyvi adatok
-     *
-     * @var InvoiceItemLedger
-     */
-    protected $ledgerData;
+    protected InvoiceItemLedger $ledgerData;
 
-    /**
-     * Számlatétel példányosítás
-     *
-     * @param  string  $name          tétel név
-     * @param  float  $netUnitPrice  nettó egységár
-     * @param  float  $quantity      mennyiség
-     * @param  string  $quantityUnit  mennyiségi egység
-     * @param  string  $vat           áfatartalom
-     */
-    public function __construct($name, $netUnitPrice, $quantity = self::DEFAULT_QUANTITY, $quantityUnit = self::DEFAULT_QUANTITY_UNIT, $vat = self::DEFAULT_VAT)
+    public function __construct(string $name, float $netUnitPrice, float $quantity = self::DEFAULT_QUANTITY, string $quantityUnit = self::DEFAULT_QUANTITY_UNIT, string $vat = self::DEFAULT_VAT)
     {
         parent::__construct($name, $netUnitPrice, $quantity, $quantityUnit, $vat);
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData()
+    public function buildXmlData(): array
     {
         $data = [];
         $this->checkFields();
@@ -72,47 +56,32 @@ class InvoiceItem extends Item
         return $data;
     }
 
-    /**
-     * @return float
-     */
-    public function getPriceGapVatBase()
+    public function getPriceGapVatBase(): float
     {
         return $this->priceGapVatBase;
     }
 
-    /**
-     * @param  float  $priceGapVatBase
-     */
-    public function setPriceGapVatBase($priceGapVatBase)
+    public function setPriceGapVatBase(float $priceGapVatBase): void
     {
         $this->priceGapVatBase = (float) $priceGapVatBase;
     }
 
-    /**
-     * @return InvoiceItemLedger
-     */
-    public function getLedgerData()
+    public function getLedgerData(): InvoiceItemLedger
     {
         return $this->ledgerData;
     }
 
-    public function setLedgerData(InvoiceItemLedger $ledgerData)
+    public function setLedgerData(InvoiceItemLedger $ledgerData): void
     {
         $this->ledgerData = $ledgerData;
     }
 
-    /**
-     * @return string
-     */
-    public function getComment()
+    public function getComment(): string
     {
         return $this->comment;
     }
 
-    /**
-     * @param  string  $comment
-     */
-    public function setComment($comment)
+    public function setComment(string $comment): void
     {
         $this->comment = $comment;
     }
