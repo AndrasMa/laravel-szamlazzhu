@@ -7,144 +7,94 @@ namespace Omisai\SzamlazzhuAgent;
  */
 class Currency
 {
-    // forint
-    const CURRENCY_FT = 'Ft';
+    public const CURRENCY_FT = 'Ft';
 
-    // forint
-    const CURRENCY_HUF = 'HUF';
+    public const CURRENCY_HUF = 'HUF';
 
-    // euró
-    const CURRENCY_EUR = 'EUR';
+    public const CURRENCY_EUR = 'EUR';
 
-    // svájci frank
-    const CURRENCY_CHF = 'CHF';
+    public const CURRENCY_CHF = 'CHF';
 
-    // amerikai dollár
-    const CURRENCY_USD = 'USD';
+    public const CURRENCY_USD = 'USD';
 
-    // Arab Emírségek dirham
-    const CURRENCY_AED = 'AED';
+    public const CURRENCY_AED = 'AED';
 
-    // ausztrál dollár
-    const CURRENCY_AUD = 'AUD';
+    public const CURRENCY_AUD = 'AUD';
 
-    // bolgár leva
-    const CURRENCY_BGN = 'BGN';
+    public const CURRENCY_BGN = 'BGN';
 
-    // brazil real
-    const CURRENCY_BRL = 'BRL';
+    public const CURRENCY_BRL = 'BRL';
 
-    // kanadai dollár
-    const CURRENCY_CAD = 'CAD';
+    public const CURRENCY_CAD = 'CAD';
 
-    // kínai jüan
-    const CURRENCY_CNY = 'CNY';
+    public const CURRENCY_CNY = 'CNY';
 
-    // cseh korona
-    const CURRENCY_CZK = 'CZK';
+    public const CURRENCY_CZK = 'CZK';
 
-    // dán korona
-    const CURRENCY_DKK = 'DKK';
+    public const CURRENCY_DKK = 'DKK';
 
-    // észt korona
-    const CURRENCY_EEK = 'EEK';
+    public const CURRENCY_EEK = 'EEK';
 
-    // angol font
-    const CURRENCY_GBP = 'GBP';
+    public const CURRENCY_GBP = 'GBP';
 
-    // hongkongi dollár
-    const CURRENCY_HKD = 'HKD';
+    public const CURRENCY_HKD = 'HKD';
 
-    // horvát kún
-    const CURRENCY_HRK = 'HRK';
+    public const CURRENCY_HRK = 'HRK';
 
-    // indonéz rúpia
-    const CURRENCY_IDR = 'IDR';
+    public const CURRENCY_IDR = 'IDR';
 
-    // izraeli sékel
-    const CURRENCY_ILS = 'ILS';
+    public const CURRENCY_ILS = 'ILS';
 
-    // indiai rúpia
-    const CURRENCY_INR = 'INR';
+    public const CURRENCY_INR = 'INR';
 
-    // izlandi korona
-    const CURRENCY_ISK = 'ISK';
+    public const CURRENCY_ISK = 'ISK';
 
-    // japán jen
-    const CURRENCY_JPY = 'JPY';
+    public const CURRENCY_JPY = 'JPY';
 
-    // dél-koreai won
-    const CURRENCY_KRW = 'KRW';
+    public const CURRENCY_KRW = 'KRW';
 
-    // litván litas
-    const CURRENCY_LTL = 'LTL';
+    public const CURRENCY_LTL = 'LTL';
 
-    // lett lat
-    const CURRENCY_LVL = 'LVL';
+    public const CURRENCY_LVL = 'LVL';
 
-    // mexikói peso
-    const CURRENCY_MXN = 'MXN';
+    public const CURRENCY_MXN = 'MXN';
 
-    // maláj ringgit
-    const CURRENCY_MYR = 'MYR';
+    public const CURRENCY_MYR = 'MYR';
 
-    // norvég koro
-    const CURRENCY_NOK = 'NOK';
+    public const CURRENCY_NOK = 'NOK';
 
-    // új-zélandi dollár
-    const CURRENCY_NZD = 'NZD';
+    public const CURRENCY_NZD = 'NZD';
 
-    // fülöp-szigeteki peso
-    const CURRENCY_PHP = 'PHP';
+    public const CURRENCY_PHP = 'PHP';
 
-    // lengyel zloty
-    const CURRENCY_PLN = 'PLN';
+    public const CURRENCY_PLN = 'PLN';
 
-    // új román lej
-    const CURRENCY_RON = 'RON';
+    public const CURRENCY_RON = 'RON';
 
-    // szerb dínár
-    const CURRENCY_RSD = 'RSD';
+    public const CURRENCY_RSD = 'RSD';
 
-    // orosz rubel
-    const CURRENCY_RUB = 'RUB';
+    public const CURRENCY_RUB = 'RUB';
 
-    // svéd koron
-    const CURRENCY_SEK = 'SEK';
+    public const CURRENCY_SEK = 'SEK';
 
-    // szingapúri dollár
-    const CURRENCY_SGD = 'SGD';
+    public const CURRENCY_SGD = 'SGD';
 
-    // thai bát
-    const CURRENCY_THB = 'THB';
+    public const CURRENCY_THB = 'THB';
 
-    // török líra
-    const CURRENCY_TRY = 'TRY';
+    public const CURRENCY_TRY = 'TRY';
 
-    // ukrán hryvna
-    const CURRENCY_UAH = 'UAH';
+    public const CURRENCY_UAH = 'UAH';
 
-    // vietnámi dong
-    const CURRENCY_VND = 'VND';
+    public const CURRENCY_VND = 'VND';
 
-    // dél-afrikai rand
-    const CURRENCY_ZAR = 'ZAR';
+    public const CURRENCY_ZAR = 'ZAR';
 
-    /**
-     * @return string
-     */
-    public static function getDefault()
+    public static function getDefault(): string
     {
         return self::CURRENCY_FT;
     }
 
-    /**
-     * A valuta kódja alapján visszaadja annak elnevezését
-     *
-     *
-     * @return string
-     */
-    public static function getCurrencyStr($currency)
+    public static function getCurrencyStr($currency): string
     {
         if ($currency == null || $currency == '' || $currency === 'Ft' || $currency == 'HUF') {
             $result = 'forint';
