@@ -1,5 +1,5 @@
 {
-    "name": "omisai/szamlazzhu-agent",
+    "name": "omisai/szamlazzhu",
     "description": "Számlázz.hu Számla Agent API integration for Laravel",
     "keywords": [
         "omisai",
