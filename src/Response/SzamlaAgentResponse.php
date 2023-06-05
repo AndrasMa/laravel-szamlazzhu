@@ -94,7 +94,7 @@ class SzamlaAgentResponse
         }
 
         $this->buildResponseObjData();
-        if ($agent->isXmlFileSave() && $agent->isResponseXmlFileSave()) {
+        if ($agent->isXmlFileSave() || $agent->isResponseXmlFileSave()) {
             $this->createXmlFile($this->getXmlData());
         }
         $this->checkFields();
