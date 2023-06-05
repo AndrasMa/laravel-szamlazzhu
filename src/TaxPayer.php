@@ -3,101 +3,51 @@
 namespace Omisai\SzamlazzhuAgent;
 
 /**
- * Adózó
+ * HU: Adózó (adóalany)
  */
 class TaxPayer
 {
     /**
-     * EU-n kívüli vállalkozás
+     * Non-EU enterprise
      */
     public const TAXPAYER_NON_EU_ENTERPRISE = 7;
 
     /**
-     * EU-s vállalkozás
+     * EU enterprise
      */
     public const TAXPAYER_EU_ENTERPRISE = 6;
 
     /**
-     * Társas vállalkozás (Bt., Kft., zRt.)
-     *
-     * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
-     */
-    public const TAXPAYER_JOINT_VENTURE = 5;
-
-    /**
-     * Egyéni vállalkozó
-     *
-     * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
-     */
-    public const TAXPAYER_INDIVIDUAL_BUSINESS = 4;
-
-    /**
-     * Adószámos magánszemély
-     *
-     * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
-     */
-    public const TAXPAYER_PRIVATE_INDIVIDUAL_WITH_TAXNUMBER = 3;
-
-    /**
-     * Adószámos egyéb szervezet
-     *
-     * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_HAS_TAXNUMBER.
-     */
-    public const TAXPAYER_OTHER_ORGANIZATION_WITH_TAXNUMBER = 2;
-
-    /**
-     * Van magyar adószáma
+     * has a Hungarian tax number
      */
     public const TAXPAYER_HAS_TAXNUMBER = 1;
 
     /**
-     * Nem tudjuk, hogy adóalany-e
+     * we don't know
      */
     public const TAXPAYER_WE_DONT_KNOW = 0;
 
     /**
-     * Nincs adószáma
+     * no tax number
      */
     public const TAXPAYER_NO_TAXNUMBER = -1;
 
     /**
-     * Magánszemély
-     *
-     * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_NO_TAXNUMBER.
-     */
-    public const TAXPAYER_PRIVATE_INDIVIDUAL = -2;
-
-    /**
-     * Adószám nélküli egyéb szervezet
-     *
-     * @deprecated 2.9.5 Ne használd, helyette használd ezt: TaxPayer::TAXPAYER_NO_TAXNUMBER.
-     */
-    public const TAXPAYER_OTHER_ORGANIZATION_WITHOUT_TAXNUMBER = -3;
-
-    /**
-     * Törzsszám
-     *
      * @var string
      */
-    protected $taxPayerId;
+    protected string $taxPayerId;
 
     /**
-     * Az adózó milyen típusú adóalany
-     *
      * @var int
      */
-    protected $taxPayerType;
+    protected int $taxPayerType;
 
     /**
-     * Kötelezően kitöltendő mezők
-     *
      * @var array
      */
-    protected $requiredFields = ['taxPayerId'];
+    protected array $requiredFields = ['taxPayerId'];
 
     /**
-     * Adózó (adóalany) példányosítás
-     *
      * @param  string  $taxpayerId
      * @param  int  $taxPayerType
      */
@@ -110,7 +60,7 @@ class TaxPayer
     /**
      * @return array
      */
-    protected function getRequiredFields()
+    protected function getRequiredFields(): array
     {
         return $this->requiredFields;
     }
@@ -123,13 +73,13 @@ class TaxPayer
     /**
      * @return int
      */
-    public function getDefault()
+    public function getDefault(): int
     {
         return self::TAXPAYER_WE_DONT_KNOW;
     }
 
     /**
-     * Ellenőrizzük a mező típusát
+     * Validates the field type
      *
      * @param  string  $field
      * @param  mixed  $value
@@ -155,7 +105,7 @@ class TaxPayer
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
+     * Validates the attributes
      *
      * @throws SzamlaAgentException
      */
@@ -168,8 +118,7 @@ class TaxPayer
     }
 
     /**
-     * Összeállítja az adózó XML adatait
-     *
+     * Creates the Taxpayer's XML data
      *
      * @return array
      *
@@ -197,7 +146,7 @@ class TaxPayer
     /**
      * @param  string  $taxPayerId
      */
-    public function setTaxPayerId($taxPayerId)
+    public function setTaxPayerId(string $taxPayerId)
     {
         $this->taxPayerId = substr($taxPayerId, 0, 8);
     }
@@ -205,21 +154,22 @@ class TaxPayer
     /**
      * @return int
      */
-    public function getTaxPayerType()
+    public function getTaxPayerType(): int
     {
         return $this->taxPayerType;
     }
 
     /**
-     * Adózó milyen típusú adóalany.
-     * Ezt az információt a partner adatként tárolja a rendszerben, ott módosítható is.
+     * Taxpayer type
      *
-     * A következő értékeket veheti fel ez a mező:
-     *  7: TaxPayer::TAXPAYER_NON_EU_ENTERPRISE - EU-n kívüli vállalkozás
-     *  6: TaxPayer::TAXPAYER_EU_ENTERPRISE     - EU-s vállalkozás
-     *  1: TaxPayer::TAXPAYER_HAS_TAXNUMBER     - van magyar adószáma
-     *  0: TaxPayer::TAXPAYER_WE_DONT_KNOW      - nem tudjuk
-     * -1: TaxPayer::TAXPAYER_NO_TAXNUMBER      - nincs adószáma
+     * This information is stored as data by the partner in the system and can be modified there.
+     *
+     * This field can take the following values:
+     *  7: TaxPayer::TAXPAYER_NON_EU_ENTERPRISE - Non-EU enterprise
+     *  6: TaxPayer::TAXPAYER_EU_ENTERPRISE     - EU enterprise
+     *  1: TaxPayer::TAXPAYER_HAS_TAXNUMBER     - has a Hungarian tax number
+     *  0: TaxPayer::TAXPAYER_WE_DONT_KNOW      - we don't know
+     * -1: TaxPayer::TAXPAYER_NO_TAXNUMBER      - no tax number
      *
      * @see https://tudastar.szamlazz.hu/gyik/vevo-adoszama-szamlan
      *
