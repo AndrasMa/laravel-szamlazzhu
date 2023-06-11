@@ -17,14 +17,11 @@ use Omisai\Szamlazzhu\Document\Receipt\ReverseReceipt;
 use Omisai\Szamlazzhu\Header\DocumentHeader;
 use Omisai\Szamlazzhu\Response\SzamlaAgentResponse;
 
-/**
- * Initialises the "Számla Agent" and handles the sending and receiving of data
- */
 class SzamlaAgent
 {
     public const API_VERSION = '0.9.0';
 
-    public const API_URL = 'https://www.szamlazz.hu/szamla/';
+    public const API_URL = 'https://www.szamlazz.hu/szamla';
 
     public const MINIMUM_PHP_VERSION = '8.1';
 
@@ -51,30 +48,26 @@ class SzamlaAgent
 
     protected array $customHTTPHeaders = [];
 
-    protected string $apiUrl = self::API_URL;
+    protected bool $isXmlFileSaveable = false;
 
-    protected bool $xmlFileSave = false;
+    protected bool $isRequestXmlFileSaveable = false;
 
-    protected bool $requestXmlFileSave = false;
+    protected bool $isResponseXmlFileSaveable = false;
 
-    protected bool $responseXmlFileSave = false;
-
-    protected bool $pdfFileSave = true;
-
-    protected array $environment = [];
+    protected bool $isPdfFileSaveable = true;
 
     private CookieHandler $cookieHandler;
 
-    protected function __construct(?string $username, ?string $password, ?string $apiKey, bool $downloadPdf, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
+    protected function __construct(?string $username, ?string $password, ?string $apiKey, bool $downloadPdf, int $responseType = SzamlaAgentResponse::RESULT_AS_XML, string $aggregator = '')
     {
-        $this->setSetting(new SzamlaAgentSetting($username, $password, $apiKey, $downloadPdf, SzamlaAgentSetting::DOWNLOAD_COPIES_COUNT, $responseType, $aggregator));
-        $this->setCookieHandler(new CookieHandler($this));
-        Log::channel('szamlazzhu')->debug(sprintf('Számla Agent inicializálása kész ($username: %s, apiKey: %s)', $username, $apiKey));
+        $this->setting = new SzamlaAgentSetting($username, $password, $apiKey, $downloadPdf, SzamlaAgentSetting::DOWNLOAD_COPIES_COUNT, $responseType, $aggregator);
+        $this->cookieHandler = new CookieHandler();
+        Log::channel('szamlazzhu')->debug(sprintf('Számla Agent initialization is complete ($username: %s, apiKey: %s)', $username, $apiKey));
 
-        $this->setPdfFileSave($downloadPdf);
-        $this->setXmlFileSave(config('szamlazzhu.xml.file_save', false));
-        $this->setRequestXmlFileSave(config('szamlazzhu.xml.request_file_save', false));
-        $this->setResponseXmlFileSave(config('szamlazzhu.xml.response_file_save', false));
+        $this->isPdfFileSaveable = $downloadPdf;
+        $this->isXmlFileSaveable = config('szamlazzhu.xml.file_save', false);
+        $this->isRequestXmlFileSaveable = config('szamlazzhu.xml.request_file_save', false);
+        $this->isResponseXmlFileSaveable = config('szamlazzhu.xml.response_file_save', false);
     }
 
     /**
@@ -100,7 +93,7 @@ class SzamlaAgent
     /**
      * API key is the recommended authentication mode
      */
-    public static function createWithAPIkey(string $apiKey, bool $downloadPdf = true, int $responseType = SzamlaAgentResponse::RESULT_AS_TEXT, string $aggregator = '')
+    public static function createWithAPIkey(string $apiKey, bool $downloadPdf = true, int $responseType = SzamlaAgentResponse::RESULT_AS_XML, string $aggregator = '')
     {
         $index = self::getHash($apiKey);
 
@@ -166,7 +159,7 @@ class SzamlaAgent
      */
     public function generateDocument(string $type, Document $document): SzamlaAgentResponse
     {
-        $request = new SzamlaAgentRequest($this, $type, $document);
+        $request = new SzamlaAgentRequest($this, $this->cookieHandler, $type, $document);
 
         return $this->sendRequest($request);
     }
@@ -282,7 +275,7 @@ class SzamlaAgent
         if ($type == Invoice::FROM_INVOICE_NUMBER) {
             $invoice->getHeader()->setInvoiceNumber($data);
         } elseif ($type == Invoice::FROM_INVOICE_EXTERNAL_ID) {
-            if (SzamlaAgentUtil::isBlank($data)) {
+            if (!empty($data)) {
                 throw new SzamlaAgentException(SzamlaAgentException::INVOICE_EXTERNAL_ID_IS_EMPTY);
             }
             $this->getSetting()->setInvoiceExternalId($data);
@@ -306,7 +299,7 @@ class SzamlaAgent
     {
         try {
             $result = $this->getInvoicePdf($invoiceExternalId, Invoice::FROM_INVOICE_EXTERNAL_ID);
-            if ($result->isSuccess() && SzamlaAgentUtil::isNotBlank($result->getDocumentNumber())) {
+            if ($result->isSuccess() && !empty($result->getDocumentNumber())) {
                 return true;
             }
         } catch (\Exception $e) {
@@ -341,7 +334,7 @@ class SzamlaAgent
      */
     public function getTaxPayer(string $taxPayerId): SzamlaAgentResponse
     {
-        $request = new SzamlaAgentRequest($this, 'getTaxPayer', new TaxPayer($taxPayerId));
+        $request = new SzamlaAgentRequest($this, $this->cookieHandler, 'getTaxPayer', new TaxPayer($taxPayerId));
         $this->setResponseType(SzamlaAgentResponse::RESULT_AS_TAXPAYER_XML);
 
         return $this->sendRequest($request);
@@ -417,11 +410,6 @@ class SzamlaAgent
         return Storage::disk('payment')->get(self::CERTIFICATION_FILENAME);
     }
 
-    public function getCookieFilePath(): string
-    {
-        return $this->cookieHandler->getCookieFilePath();
-    }
-
     public function getSetting(): SzamlaAgentSetting
     {
         return $this->setting;
@@ -449,9 +437,11 @@ class SzamlaAgent
      * The username is the email address or a specificied username
      * used on the https://www.szamlazz.hu/szamla/login website.
      */
-    public function setUsername(?string $username): void
+    public function setUsername(?string $username): self
     {
         $this->getSetting()->setUsername($username);
+
+        return $this;
     }
 
     public function getPassword(): ?string
@@ -462,9 +452,11 @@ class SzamlaAgent
     /**
      * The password is used on the https://www.szamlazz.hu/szamla/login website.
      */
-    public function setPassword(?string $password): void
+    public function setPassword(?string $password): self
     {
         $this->getSetting()->setPassword($password);
+
+        return $this;
     }
 
     public function getApiKey(): ?string
@@ -475,25 +467,11 @@ class SzamlaAgent
     /**
      * @link Docs: https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      */
-    public function setApiKey(?string $apiKey): void
+    public function setApiKey(?string $apiKey): self
     {
         $this->getSetting()->setApiKey($apiKey);
-    }
 
-    public function getApiUrl(): string
-    {
-        if (SzamlaAgentUtil::isNotBlank($this->getEnvironmentUrl())) {
-            $this->setApiUrl($this->getEnvironmentUrl());
-        } elseif (SzamlaAgentUtil::isBlank($this->apiUrl)) {
-            $this->setApiUrl(self::API_URL);
-        }
-
-        return $this->apiUrl;
-    }
-
-    public function setApiUrl(string $apiUrl): void
-    {
-        $this->apiUrl = $apiUrl;
+        return $this;
     }
 
     public function isDownloadPdf(): bool
@@ -501,9 +479,11 @@ class SzamlaAgent
         return $this->getSetting()->isDownloadPdf();
     }
 
-    public function setDownloadPdf(bool $downloadPdf): void
+    public function setDownloadPdf(bool $downloadPdf): self
     {
         $this->getSetting()->setDownloadPdf($downloadPdf);
+
+        return $this;
     }
 
     public function getDownloadCopiesCount(): int
@@ -518,9 +498,11 @@ class SzamlaAgent
      * EN: If you use Agent to create a paper invoice and request an invoice download ($downloadPdf = true),
      * you can optionally specify that you request not only the original invoice, but also a copy in a single pdf file.
      */
-    public function setDownloadCopiesCount(int $downloadCopiesCount): void
+    public function setDownloadCopiesCount(int $downloadCopiesCount): self
     {
         $this->getSetting()->setDownloadCopiesCount($downloadCopiesCount);
+
+        return $this;
     }
 
     public function getResponseType(): int
@@ -536,9 +518,11 @@ class SzamlaAgent
      * 1: RESULT_AS_TEXT - return a plain text response message or pdf.
      * 2: RESULT_AS_XML  - xml response, if you requested the pdf, then it is included in the xml with base64 encoding.
      */
-    public function setResponseType(int $responseType): void
+    public function setResponseType(int $responseType): self
     {
         $this->getSetting()->setResponseType($responseType);
+
+        return $this;
     }
 
     public function getAggregator(): string
@@ -549,9 +533,11 @@ class SzamlaAgent
     /**
      * @example WooCommerce, OpenCart, PrestaShop, Shoprenter, Superwebáruház, Drupal invoice Agent, etc.
      */
-    public function setAggregator(string $aggregator): void
+    public function setAggregator(string $aggregator): self
     {
         $this->getSetting()->setAggregator($aggregator);
+
+        return $this;
     }
 
     public function getGuardian(): bool
@@ -559,9 +545,11 @@ class SzamlaAgent
         return $this->getSetting()->getGuardian();
     }
 
-    public function setGuardian(bool $guardian): void
+    public function setGuardian(bool $guardian): self
     {
         $this->getSetting()->setGuardian($guardian);
+
+        return $this;
     }
 
     public function getInvoiceExternalId(): string
@@ -577,9 +565,11 @@ class SzamlaAgent
      * identifies the invoice with this data.
      * (the invoice data will also be retrieved later with this data)
      */
-    public function setInvoiceExternalId(string $invoiceExternalId): void
+    public function setInvoiceExternalId(string $invoiceExternalId): self
     {
         $this->getSetting()->setInvoiceExternalId($invoiceExternalId);
+
+        return $this;
     }
 
     public function getRequest(): SzamlaAgentRequest
@@ -587,9 +577,11 @@ class SzamlaAgent
         return $this->request;
     }
 
-    public function setRequest(SzamlaAgentRequest $request): void
+    public function setRequest(SzamlaAgentRequest $request): self
     {
         $this->request = $request;
+
+        return $this;
     }
 
     public function getResponse(): SzamlaAgentResponse
@@ -597,9 +589,11 @@ class SzamlaAgent
         return $this->response;
     }
 
-    public function setResponse(SzamlaAgentResponse $response): void
+    public function setResponse(SzamlaAgentResponse $response): self
     {
         $this->response = $response;
+
+        return $this;
     }
 
 
@@ -608,35 +602,37 @@ class SzamlaAgent
         return $this->customHTTPHeaders;
     }
 
-    public function addCustomHTTPHeader(string $key, string $value): void
+    public function addCustomHTTPHeader(string $key, string $value): self
     {
-        if (SzamlaAgentUtil::isNotBlank($key)) {
+        if (!empty($key)) {
             $this->customHTTPHeaders[$key] = $value;
         } else {
-            Log::channel('szamlazzhu')->warning('Egyedi HTTP fejléchez megadott kulcs nem lehet üres');
+            Log::channel('szamlazzhu')->warning('The custom HTTP header key cannot be blank', [
+                'key' => $key,
+                'value' => $value,
+            ]);
         }
+
+        return $this;
     }
 
-    public function removeCustomHTTPHeader(string $key)
+    public function removeCustomHTTPHeader(string $key): self
     {
-        if (SzamlaAgentUtil::isNotBlank($key)) {
+        if (!empty($key)) {
             unset($this->customHTTPHeaders[$key]);
         }
+
+        return $this;
     }
 
-    public function isPdfFileSave(): bool
+    public function isPdfFileSaveable(): bool
     {
-        return $this->pdfFileSave;
-    }
-
-    public function setPdfFileSave(bool $pdfFileSave): void
-    {
-        $this->pdfFileSave = $pdfFileSave;
+        return $this->isPdfFileSaveable;
     }
 
     public function isXmlFileSave(): bool
     {
-        return $this->xmlFileSave;
+        return $this->isXmlFileSaveable;
     }
 
     public function isNotXmlFileSave(): bool
@@ -644,14 +640,14 @@ class SzamlaAgent
         return ! $this->isXmlFileSave();
     }
 
-    public function setXmlFileSave(bool $xmlFileSave): void
+    public function setXmlFileSave(bool $isXmlFileSaveable): void
     {
-        $this->xmlFileSave = $xmlFileSave;
+        $this->isXmlFileSaveable = $isXmlFileSaveable;
     }
 
     public function isRequestXmlFileSave(): bool
     {
-        return $this->requestXmlFileSave;
+        return $this->isRequestXmlFileSaveable;
     }
 
     public function isNotRequestXmlFileSave(): bool
@@ -659,19 +655,19 @@ class SzamlaAgent
         return ! $this->isRequestXmlFileSave();
     }
 
-    public function setRequestXmlFileSave(bool $requestXmlFileSave): void
+    public function setRequestXmlFileSave(bool $isRequestXmlFileSaveable): void
     {
-        $this->requestXmlFileSave = $requestXmlFileSave;
+        $this->isRequestXmlFileSaveable = $isRequestXmlFileSaveable;
     }
 
     public function isResponseXmlFileSave(): bool
     {
-        return $this->responseXmlFileSave;
+        return $this->isResponseXmlFileSaveable;
     }
 
-    public function setResponseXmlFileSave(bool $responseXmlFileSave): void
+    public function setResponseXmlFileSave(bool $isResponseXmlFileSaveable): void
     {
-        $this->responseXmlFileSave = $responseXmlFileSave;
+        $this->isResponseXmlFileSaveable = $isResponseXmlFileSaveable;
     }
 
     /**
@@ -717,98 +713,5 @@ class SzamlaAgent
     public function setInvoiceItemIdentifier(bool $invoiceItemIdentifier): void
     {
         $this->getSetting()->setInvoiceItemIdentifier($invoiceItemIdentifier);
-    }
-
-    public function getEnvironment(): array
-    {
-        return $this->environment;
-    }
-
-    public function hasEnvironment(): bool
-    {
-        return $this->environment != null && is_array($this->environment) && ! empty($this->environment);
-    }
-
-    public function getEnvironmentName(): ?string
-    {
-        return $this->hasEnvironment() && array_key_exists('name', $this->environment) ? $this->environment['name'] : null;
-    }
-
-    public function getEnvironmentUrl(): ?string
-    {
-        return $this->hasEnvironment() && array_key_exists('url', $this->environment) ? $this->environment['url'] : null;
-    }
-
-    public function setEnvironment(string $name, string $url, array $authorization = []): void
-    {
-        $this->environment = [
-            'name' => $name,
-            'url' => $url,
-            'auth' => $authorization,
-        ];
-    }
-
-    public function hasEnvironmentAuth(): bool
-    {
-        return $this->hasEnvironment() && array_key_exists('auth', $this->environment) && is_array($this->environment['auth']);
-    }
-
-    public function getEnvironmentAuthType(): int
-    {
-        return $this->hasEnvironmentAuth() && array_key_exists('type', $this->environment['auth']) ? $this->environment['auth']['type'] : 0;
-    }
-
-    public function getEnvironmentAuthUser(): string
-    {
-        return $this->hasEnvironmentAuth() && array_key_exists('user', $this->environment['auth']) ? $this->environment['auth']['user'] : null;
-    }
-
-    public function getEnvironmentAuthPassword(): string
-    {
-        return $this->hasEnvironmentAuth() && array_key_exists('password', $this->environment['auth']) ? $this->environment['auth']['password'] : null;
-    }
-
-    public function getCookieHandleMode(): int
-    {
-        return $this->cookieHandler->getCookieHandleMode();
-    }
-
-    /**
-     * HU:
-     * Sütikezelési mód beállítása
-     *
-     * 1. Alapértelmezett mód esetén a főkönyvtárban lesznek tárolva a sütik (CookieHandler::COOKIE_HANDLE_MODE_DEFAULT)
-     * 2. JSON mód használata esetén a cookie mappában lesznek tárolva a sütik (CookieHandler::COOKIE_HANDLE_MODE_JSON)
-     * 3. Adatbázis mód használata esetén a tárolást magadnak kell megvalósítanod (CookieHandler::COOKIE_HANDLE_MODE_DATABASE)
-     *
-     * Fontos! Több számlázási fiókba való számlázás esetén erősen ajánlott az adatbázis mód használata!
-     * Párhuzamos futtatás esetén (pl. cronjob) a JSON módot ne használd - használd helyette az adatbázis módot!
-     *
-     * EN:
-     * TODO: making translation
-     */
-    public function setCookieHandleMode(int $cookieHandleMode): void
-    {
-        $this->cookieHandler->setCookieHandleMode($cookieHandleMode);
-    }
-
-    public function getCookieSessionId(): string
-    {
-        return $this->cookieHandler->getCookieSessionId();
-    }
-
-    public function setCookieSessionId(string $cookieSessionId): void
-    {
-        $this->cookieHandler->setCookieSessionId($cookieSessionId);
-    }
-
-    public function getCookieHandler(): CookieHandler
-    {
-        return $this->cookieHandler;
-    }
-
-    protected function setCookieHandler(CookieHandler $cookieHandler): void
-    {
-        $this->cookieHandler = $cookieHandler;
     }
 }
