@@ -5,6 +5,7 @@ namespace Omisai\Szamlazzhu\Document\Receipt;
 use Omisai\Szamlazzhu\Buyer;
 use Omisai\Szamlazzhu\CreditNote\ReceiptCreditNote;
 use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\Header\ReceiptHeader;
 use Omisai\Szamlazzhu\Item\ReceiptItem;
 use Omisai\Szamlazzhu\Seller;
@@ -15,7 +16,7 @@ use Omisai\Szamlazzhu\SzamlaAgentUtil;
 /**
  * HU: Nyugta
  */
-class Receipt extends Document
+class Receipt extends Document implements HasXmlBuildWithRequestInterface
 {
     public const CREDIT_NOTES_LIMIT = 5;
 
@@ -50,9 +51,11 @@ class Receipt extends Document
         return $this->header;
     }
 
-    public function setHeader(ReceiptHeader $header): void
+    public function setHeader(ReceiptHeader $header): self
     {
         $this->header = $header;
+
+        return $this;
     }
 
     public function addItem(ReceiptItem $item)
@@ -71,16 +74,20 @@ class Receipt extends Document
     /**
      * @param  ReceiptItem[]  $items
      */
-    public function setItems(array $items): void
+    public function setItems(array $items): self
     {
         $this->items = $items;
+
+        return $this;
     }
 
-    public function addCreditNote(ReceiptCreditNote $creditNote): void
+    public function addCreditNote(ReceiptCreditNote $creditNote): self
     {
         if (count($this->creditNotes) < self::CREDIT_NOTES_LIMIT) {
             array_push($this->creditNotes, $creditNote);
         }
+
+        return $this;
     }
 
     /**
@@ -94,9 +101,11 @@ class Receipt extends Document
     /**
      * @param  ReceiptCreditNote[]  $creditNotes
      */
-    public function setCreditNotes(array $creditNotes): void
+    public function setCreditNotes(array $creditNotes): self
     {
         $this->creditNotes = $creditNotes;
+
+        return $this;
     }
 
     public function getSeller(): Seller
@@ -104,9 +113,11 @@ class Receipt extends Document
         return $this->seller;
     }
 
-    public function setSeller(Seller $seller): void
+    public function setSeller(Seller $seller): self
     {
         $this->seller = $seller;
+
+        return $this;
     }
 
     public function getBuyer(): Buyer
@@ -114,9 +125,11 @@ class Receipt extends Document
         return $this->buyer;
     }
 
-    public function setBuyer(Buyer $buyer): void
+    public function setBuyer(Buyer $buyer): self
     {
         $this->buyer = $buyer;
+
+        return $this;
     }
 
     /**

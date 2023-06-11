@@ -3,6 +3,7 @@
 namespace Omisai\Szamlazzhu\Document\Invoice;
 
 use Omisai\Szamlazzhu\Header\PrePaymentInvoiceHeader;
+use Omisai\Szamlazzhu\SzamlaAgentException;
 
 /**
  * HU: Előlegszámla
@@ -10,7 +11,7 @@ use Omisai\Szamlazzhu\Header\PrePaymentInvoiceHeader;
 class PrePaymentInvoice extends Invoice
 {
     /**
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
     public function __construct(int $type = self::INVOICE_TYPE_E_INVOICE)
     {

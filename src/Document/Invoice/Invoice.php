@@ -6,18 +6,18 @@ use Illuminate\Support\Facades\Log;
 use Omisai\Szamlazzhu\Buyer;
 use Omisai\Szamlazzhu\CreditNote\InvoiceCreditNote;
 use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\Header\InvoiceHeader;
 use Omisai\Szamlazzhu\Item\InvoiceItem;
 use Omisai\Szamlazzhu\Seller;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
 use Omisai\Szamlazzhu\Waybill\Waybill;
 
 /**
  * HU: Számla
  */
-class Invoice extends Document
+class Invoice extends Document implements HasXmlBuildWithRequestInterface
 {
     /** HU: Számla típus: papír számla */
     public const INVOICE_TYPE_P_INVOICE = 1;
@@ -99,9 +99,11 @@ class Invoice extends Document
         return $this->header;
     }
 
-    public function setHeader(InvoiceHeader $header): void
+    public function setHeader(InvoiceHeader $header): self
     {
         $this->header = $header;
+
+        return $this;
     }
 
     public function getSeller(): Seller
@@ -109,9 +111,11 @@ class Invoice extends Document
         return $this->seller;
     }
 
-    public function setSeller(Seller $seller): void
+    public function setSeller(Seller $seller): self
     {
         $this->seller = $seller;
+
+        return $this;
     }
 
     public function getBuyer(): Buyer
@@ -119,9 +123,11 @@ class Invoice extends Document
         return $this->buyer;
     }
 
-    public function setBuyer(Buyer $buyer): void
+    public function setBuyer(Buyer $buyer): self
     {
         $this->buyer = $buyer;
+
+        return $this;
     }
 
     public function getWaybill(): Waybill
@@ -129,14 +135,18 @@ class Invoice extends Document
         return $this->waybill;
     }
 
-    public function setWaybill(Waybill $waybill): void
+    public function setWaybill(Waybill $waybill): self
     {
         $this->waybill = $waybill;
+
+        return $this;
     }
 
-    public function addItem(InvoiceItem $item): void
+    public function addItem(InvoiceItem $item): self
     {
         array_push($this->items, $item);
+
+        return $this;
     }
 
     /**
@@ -150,19 +160,20 @@ class Invoice extends Document
     /**
      * @param  InvoiceItem[]  $items
      */
-    public function setItems(array $items): void
+    public function setItems(array $items): self
     {
         $this->items = $items;
+
+        return $this;
     }
 
-    /**
-     * HU: Jóváírás hozzáadása a számlához
-     */
-    public function addCreditNote(InvoiceCreditNote $creditNote): void
+    public function addCreditNote(InvoiceCreditNote $creditNote): self
     {
         if (count($this->creditNotes) < self::CREDIT_NOTES_LIMIT) {
             array_push($this->creditNotes, $creditNote);
         }
+
+        return $this;
     }
 
     /**
@@ -176,9 +187,11 @@ class Invoice extends Document
     /**
      * @param  InvoiceCreditNote[]  $creditNotes
      */
-    public function setCreditNotes(array $creditNotes): void
+    public function setCreditNotes(array $creditNotes): self
     {
         $this->creditNotes = $creditNotes;
+
+        return $this;
     }
 
     public function isAdditive(): bool
@@ -186,9 +199,11 @@ class Invoice extends Document
         return $this->additive;
     }
 
-    public function setAdditive(bool $additive): void
+    public function setAdditive(bool $additive): self
     {
         $this->additive = $additive;
+
+        return $this;
     }
 
     /**
@@ -232,17 +247,23 @@ class Invoice extends Document
         if (! empty($fields)) {
             foreach ($fields as $key) {
                 switch ($key) {
-                    case 'beallitasok': $value = $request->getAgent()->getSetting()->buildXmlData($request);
+                    case 'beallitasok':
+                         $value = $request->getAgent()->getSetting()->buildXmlData($request);
                     break;
-                    case 'fejlec':      $value = $this->getHeader()->buildXmlData($request);
+                    case 'fejlec':
+                        $value = $this->getHeader()->buildXmlData($request);
                     break;
-                    case 'tetelek':     $value = $this->buildXmlItemsData();
+                    case 'tetelek':
+                        $value = $this->buildXmlItemsData();
                     break;
-                    case 'elado':       $value = (SzamlaAgentUtil::isNotNull($this->getSeller())) ? $this->getSeller()->buildXmlData($request) : [];
+                    case 'elado':
+                        $value = (!empty($this->seller)) ? $this->getSeller()->buildXmlData($request) : [];
                     break;
-                    case 'vevo':        $value = (SzamlaAgentUtil::isNotNull($this->getBuyer())) ? $this->getBuyer()->buildXmlData($request) : [];
+                    case 'vevo':
+                        $value = (!empty($this->buyer)) ? $this->getBuyer()->buildXmlData($request) : [];
                     break;
-                    case 'fuvarlevel':  $value = (SzamlaAgentUtil::isNotNull($this->getWaybill())) ? $this->getWaybill()->buildXmlData($request) : [];
+                    case 'fuvarlevel':
+                        $value = (!empty($this->waybill)) ? $this->getWaybill()->buildXmlData($request) : [];
                     break;
                     default:
                         throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS.": {$key}");
@@ -308,10 +329,10 @@ class Invoice extends Document
     public function addAttachment(string $filePath)
     {
         if (empty($filePath)) {
-            Log::channel('szamlazzhu')->warning('A csatolandó fájl neve nincs megadva!');
+            Log::channel('szamlazzhu')->warning('No file path given as an attachment!');
         } else {
             if (count($this->attachments) >= self::INVOICE_ATTACHMENTS_LIMIT) {
-                throw new SzamlaAgentException('A következő fájl csatolása sikertelen: "'.$filePath.'". Egy számlához maximum '.self::INVOICE_ATTACHMENTS_LIMIT.' fájl csatolható!');
+                throw new SzamlaAgentException(sprintf('The file attachment failed: %s. The maximum number of attached file for an invoice is: %s.', $filePath, self::INVOICE_ATTACHMENTS_LIMIT));
             }
 
             if (! file_exists($filePath)) {

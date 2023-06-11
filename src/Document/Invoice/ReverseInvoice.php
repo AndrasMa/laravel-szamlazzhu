@@ -3,6 +3,7 @@
 namespace Omisai\Szamlazzhu\Document\Invoice;
 
 use Omisai\Szamlazzhu\Header\ReverseInvoiceHeader;
+use Omisai\Szamlazzhu\SzamlaAgentException;
 
 /**
  * HU: Sztornó számla
@@ -10,7 +11,7 @@ use Omisai\Szamlazzhu\Header\ReverseInvoiceHeader;
 class ReverseInvoice extends Invoice
 {
     /**
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
     public function __construct(int $type = self::INVOICE_TYPE_E_INVOICE)
     {

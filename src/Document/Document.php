@@ -11,25 +11,6 @@ use Omisai\Szamlazzhu\Language;
 class Document
 {
     /**
-     * Fizetési módok
-     */
-    public const PAYMENT_METHOD_TRANSFER = 'átutalás';
-
-    public const PAYMENT_METHOD_CASH = 'készpénz';
-
-    public const PAYMENT_METHOD_BANKCARD = 'bankkártya';
-
-    public const PAYMENT_METHOD_CHEQUE = 'csekk';
-
-    public const PAYMENT_METHOD_CASH_ON_DELIVERY = 'utánvét';
-
-    public const PAYMENT_METHOD_PAYPAL = 'PayPal';
-
-    public const PAYMENT_METHOD_SZEP_CARD = 'SZÉP kártya';
-
-    public const PAYMENT_METHOD_OTP_SIMPLE = 'OTP Simple';
-
-    /**
      * HU: Normál számla
      */
     public const DOCUMENT_TYPE_INVOICE = 'invoice';
