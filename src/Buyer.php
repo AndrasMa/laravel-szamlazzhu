@@ -2,11 +2,12 @@
 
 namespace Omisai\Szamlazzhu;
 
-/**
- * HU: Vevő
- */
+use Omisai\Szamlazzhu\FieldsValidationTrait;
+
 class Buyer
 {
+    use FieldsValidationTrait;
+
     protected string $id;
 
     protected string $name;
@@ -75,233 +76,149 @@ class Buyer
 
     protected string $comment;
 
-    protected array $requiredFields = ['name', 'zip', 'city', 'address'];
-
-    public function __construct(string $name = '', string $zipCode = '', string $city = '', string $address = '')
-    {
-        $this->setName($name);
-        $this->setZipCode($zipCode);
-        $this->setCity($city);
-        $this->setAddress($address);
-    }
-
-    protected function getRequiredFields(): array
-    {
-        return $this->requiredFields;
-    }
-
-    protected function setRequiredFields(array $requiredFields): void
-    {
-        $this->requiredFields = $requiredFields;
-    }
+    protected array $requiredFields = ['name', 'zip', 'city', 'address', 'country'];
 
     /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkField($field, $value): string
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
-            switch ($field) {
-                case 'taxPayer':
-                    SzamlaAgentUtil::checkIntField($field, $value, $required, __CLASS__);
-                    break;
-                case 'sendEmail':
-                    SzamlaAgentUtil::checkBoolField($field, $value, $required, __CLASS__);
-                    break;
-                case 'id':
-                case 'email':
-                case 'name':
-                case 'country':
-                case 'zipCode':
-                case 'city':
-                case 'address':
-                case 'taxNumber':
-                case 'groupIdentifier':
-                case 'taxNumberEU':
-                case 'postalName':
-                case 'postalCountry':
-                case 'postalZip':
-                case 'postalCity':
-                case 'postalAddress':
-                case 'signatoryName':
-                case 'phone':
-                case 'comment':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields(): void
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
-
-    /**
-     * Generates the XML data of the customer, based on the XML schema defined in the request
-     *
      * @throws SzamlaAgentException
      */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
+        $this->validateFields();
+
         $data = [];
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
                 $data = [
-                    'nev' => $this->getName(),
-                    'orszag' => $this->getCountry(),
-                    'irsz' => $this->getZipCode(),
-                    'telepules' => $this->getCity(),
-                    'cim' => $this->getAddress(),
+                    'nev' => $this->name,
+                    'orszag' => $this->country,
+                    'irsz' => $this->zipCode,
+                    'telepules' => $this->city,
+                    'cim' => $this->address,
                 ];
 
-                if (SzamlaAgentUtil::isNotBlank($this->getEmail())) {
-                    $data['email'] = $this->getEmail();
+                if (!empty($this->email)) {
+                    $data['email'] = $this->email;
                 }
 
                 $data['sendEmail'] = $this->isSendEmail() ? true : false;
 
-                if (SzamlaAgentUtil::isNotBlank($this->getTaxPayer())) {
-                    $data['adoalany'] = $this->getTaxPayer();
+                if (!empty($this->taxPayer)) {
+                    $data['adoalany'] = $this->taxPayer;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getTaxNumber())) {
-                    $data['adoszam'] = $this->getTaxNumber();
+                if (!empty($this->taxNumber)) {
+                    $data['adoszam'] = $this->taxNumber;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getGroupIdentifier())) {
-                    $data['csoportazonosito'] = $this->getGroupIdentifier();
+                if (!empty($this->groupIdentifier)) {
+                    $data['csoportazonosito'] = $this->groupIdentifier;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getTaxNumberEU())) {
-                    $data['adoszamEU'] = $this->getTaxNumberEU();
+                if (!empty($this->taxNumberEU)) {
+                    $data['adoszamEU'] = $this->taxNumberEU;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getPostalName())) {
-                    $data['postazasiNev'] = $this->getPostalName();
+                if (!empty($this->postalName)) {
+                    $data['postazasiNev'] = $this->postalName;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getPostalCountry())) {
-                    $data['postazasiOrszag'] = $this->getPostalCountry();
+                if (!empty($this->postalCountry)) {
+                    $data['postazasiOrszag'] = $this->postalCountry;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getPostalZip())) {
-                    $data['postazasiIrsz'] = $this->getPostalZip();
+                if (!empty($this->postalZip)) {
+                    $data['postazasiIrsz'] = $this->postalZip;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getPostalCity())) {
-                    $data['postazasiTelepules'] = $this->getPostalCity();
+                if (!empty($this->postalCity)) {
+                    $data['postazasiTelepules'] = $this->postalCity;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getPostalAddress())) {
-                    $data['postazasiCim'] = $this->getPostalAddress();
-                }
-
-                if (SzamlaAgentUtil::isNotNull($this->getLedgerData())) {
-                    $data['vevoFokonyv'] = $this->getLedgerData()->getXmlData();
+                if (!empty($this->postalAddress)) {
+                    $data['postazasiCim'] = $this->postalAddress;
                 }
 
-                if (SzamlaAgentUtil::isNotBlank($this->getId())) {
-                    $data['azonosito'] = $this->getId();
+                if (!empty($this->ledgerData)) {
+                    $data['vevoFokonyv'] = $this->ledgerData->getXmlData();
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getSignatoryName())) {
-                    $data['alairoNeve'] = $this->getSignatoryName();
+
+                if (!empty($this->id)) {
+                    $data['azonosito'] = $this->id;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getPhone())) {
-                    $data['telefonszam'] = $this->getPhone();
+                if (!empty($this->signatoryName)) {
+                    $data['alairoNeve'] = $this->signatoryName;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
-                    $data['megjegyzes'] = $this->getComment();
+                if (!empty($this->phone)) {
+                    $data['telefonszam'] = $this->phone;
+                }
+                if (!empty($this->comment)) {
+                    $data['megjegyzes'] = $this->comment;
                 }
                 break;
             case $request::XML_SCHEMA_CREATE_REVERSE_INVOICE:
-                if (SzamlaAgentUtil::isNotBlank($this->getEmail())) {
-                    $data['email'] = $this->getEmail();
+                if (!empty($this->email)) {
+                    $data['email'] = $this->email;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getTaxNumber())) {
-                    $data['adoszam'] = $this->getTaxNumber();
+                if (!empty($this->taxNumber)) {
+                    $data['adoszam'] = $this->taxNumber;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getTaxNumberEU())) {
-                    $data['adoszamEU'] = $this->getTaxNumberEU();
+                if (!empty($this->taxNumberEU)) {
+                    $data['adoszamEU'] = $this->taxNumberEU;
                 }
                 break;
             default:
-                throw new SzamlaAgentException("Nincs ilyen XML séma definiálva: {$request->getXmlName()}");
+                throw new SzamlaAgentException(sprintf('No XML schema defined: %s', $request->getXmlName()));
         }
-        $this->checkFields();
 
         return $data;
     }
 
-    public function getId(): string
+    protected function setRequiredFields(array $requiredFields): self
     {
-        return $this->id;
+        $this->requiredFields = $requiredFields;
+
+        return $this;
     }
 
-    public function setId(string $id): void
+    public function setId(string $id): self
     {
         $this->id = $id;
+
+        return $this;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
-    public function getCountry(): string
-    {
-        return $this->country;
-    }
-
-    public function setCountry(string $country): void
+    public function setCountry(string $country): self
     {
         $this->country = $country;
+
+        return $this;
     }
 
-    public function getZipCode(): string
-    {
-        return $this->zipCode;
-    }
-
-    public function setZipCode(string $zipCode): void
+    public function setZipCode(string $zipCode): self
     {
         $this->zipCode = $zipCode;
+
+        return $this;
     }
 
-    public function getCity(): string
-    {
-        return $this->city;
-    }
-
-    public function setCity(string $city): void
+    public function setCity(string $city): self
     {
         $this->city = $city;
+
+        return $this;
     }
 
-    public function getAddress(): string
-    {
-        return $this->address;
-    }
-
-    public function setAddress(string $address): void
+    public function setAddress(string $address): self
     {
         $this->address = $address;
+
+        return $this;
     }
 
-    public function getEmail(): string
-    {
-        return $this->email;
-    }
-
-    public function setEmail(string $email): void
+    public function setEmail(string $email): self
     {
         $this->email = $email;
+
+        return $this;
     }
 
     public function isSendEmail(): bool
@@ -309,157 +226,120 @@ class Buyer
         return $this->sendEmail;
     }
 
-    public function setSendEmail(bool $sendEmail): void
+    public function setSendEmail(bool $sendEmail): self
     {
         $this->sendEmail = $sendEmail;
+
+        return $this;
     }
 
-    public function getTaxPayer(): int
-    {
-        return $this->taxPayer;
-    }
-
-    public function setTaxPayer(int $taxPayer): void
+    public function setTaxPayer(int $taxPayer): self
     {
         $this->taxPayer = $taxPayer;
+
+        return $this;
     }
 
-    public function getTaxNumber(): string
-    {
-        return $this->taxNumber;
-    }
-
-    public function setTaxNumber(string $taxNumber): void
+    public function setTaxNumber(string $taxNumber): self
     {
         $this->taxNumber = $taxNumber;
+
+        return $this;
     }
 
-    public function getGroupIdentifier(): string
-    {
-        return $this->groupIdentifier;
-    }
-
-    public function setGroupIdentifier(string $groupIdentifier): void
+    public function setGroupIdentifier(string $groupIdentifier): self
     {
         $this->groupIdentifier = $groupIdentifier;
+
+        return $this;
     }
 
-    public function getTaxNumberEU(): string
-    {
-        return $this->taxNumberEU;
-    }
-
-    public function setTaxNumberEU(string $taxNumberEU): void
+    public function setTaxNumberEU(string $taxNumberEU): self
     {
         $this->taxNumberEU = $taxNumberEU;
-    }
 
-    public function getPostalName(): string
-    {
-        return $this->postalName;
+        return $this;
     }
 
     /**
      * Postal data is optional
      */
-    public function setPostalName(string $postalName): void
+    public function setPostalName(string $postalName): self
     {
         $this->postalName = $postalName;
-    }
 
-    public function getPostalCountry(): string
-    {
-        return $this->postalCountry;
+        return $this;
     }
 
     /**
      * Postal data is optional
      */
-    public function setPostalCountry(string $postalCountry): void
+    public function setPostalCountry(string $postalCountry): self
     {
         $this->postalCountry = $postalCountry;
-    }
 
-    public function getPostalZip(): string
-    {
-        return $this->postalZip;
+        return $this;
     }
 
     /**
      * Postal data is optional
      */
-    public function setPostalZip(string $postalZip): void
+    public function setPostalZip(string $postalZip): self
     {
         $this->postalZip = $postalZip;
-    }
 
-    public function getPostalCity(): string
-    {
-        return $this->postalCity;
+        return $this;
     }
 
     /**
      * Postal data is optional
      */
-    public function setPostalCity(string $postalCity): void
+    public function setPostalCity(string $postalCity): self
     {
         $this->postalCity = $postalCity;
-    }
 
-    public function getPostalAddress(): string
-    {
-        return $this->postalAddress;
+        return $this;
     }
 
     /**
      * Postal data is optional
      */
-    public function setPostalAddress(string $postalAddress): void
+    public function setPostalAddress(string $postalAddress): self
     {
         $this->postalAddress = $postalAddress;
+
+        return $this;
     }
 
-    public function getLedgerData(): BuyerLedger
-    {
-        return $this->ledgerData;
-    }
-
-    public function setLedgerData(BuyerLedger $ledgerData): void
+    public function setLedgerData(BuyerLedger $ledgerData): self
     {
         $this->ledgerData = $ledgerData;
-    }
 
-    public function getSignatoryName(): string
-    {
-        return $this->signatoryName;
+        return $this;
     }
 
     /**
      * If enabled on the settings page (https://www.szamlazz.hu/szamla/beallitasok)
      * this name will appear below the signature line.
      */
-    public function setSignatoryName(string $signatoryName): void
+    public function setSignatoryName(string $signatoryName): self
     {
         $this->signatoryName = $signatoryName;
+
+        return $this;
     }
 
-    public function getPhone(): string
-    {
-        return $this->phone;
-    }
-
-    public function setPhone(string $phone): void
+    public function setPhone(string $phone): self
     {
         $this->phone = $phone;
+
+        return $this;
     }
 
-    public function getComment(): string
-    {
-        return $this->comment;
-    }
-
-    public function setComment(string $comment): void
+    public function setComment(string $comment): self
     {
         $this->comment = $comment;
+
+        return $this;
     }
 }
