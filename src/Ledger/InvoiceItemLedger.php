@@ -2,51 +2,21 @@
 
 namespace Omisai\Szamlazzhu\Ledger;
 
+use Omisai\Szamlazzhu\HasXmlBuildInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * Számlatétel főkönyvi adatok
- */
-class InvoiceItemLedger extends ItemLedger
+class InvoiceItemLedger extends ItemLedger implements HasXmlBuildInterface
 {
-    /**
-     * Gazdasági esemény típus
-     *
-     * @var string
-     */
-    protected $economicEventType;
+    protected string $economicEventType;
 
-    /**
-     * ÁFA gazdasági esemény típus
-     *
-     * @var string
-     */
-    protected $vatEconomicEventType;
+    protected string $vatEconomicEventType;
 
-    /**
-     * Elszámolási időszak kezdete
-     *
-     * @var string
-     */
-    protected $settlementPeriodStart;
+    protected string $settlementPeriodStart;
 
-    /**
-     * Elszámolási időszak vége
-     *
-     * @var string
-     */
-    protected $settlementPeriodEnd;
+    protected string $settlementPeriodEnd;
 
-    /**
-     * Tétel főkönyvi adatok létrehozása
-     *
-     * @param  string  $economicEventType     Gazdasági esemény típus
-     * @param  string  $vatEconomicEventType  ÁFA gazdasági esemény típus
-     * @param  string  $revenueLedgerNumber   Árbevétel főkönyvi szám
-     * @param  string  $vatLedgerNumber       ÁFA főkönyvi szám
-     */
-    public function __construct($economicEventType = '', $vatEconomicEventType = '', $revenueLedgerNumber = '', $vatLedgerNumber = '')
+    public function __construct(string $economicEventType = '', string $vatEconomicEventType = '', string $revenueLedgerNumber = '', string $vatLedgerNumber = '')
     {
         parent::__construct((string) $revenueLedgerNumber, (string) $vatLedgerNumber);
         $this->setEconomicEventType($economicEventType);
@@ -54,14 +24,9 @@ class InvoiceItemLedger extends ItemLedger
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
             switch ($field) {
@@ -82,11 +47,10 @@ class InvoiceItemLedger extends ItemLedger
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
      *
      * @throws SzamlaAgentException
      */
-    protected function checkFields()
+    protected function checkFields(): void
     {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
@@ -95,98 +59,60 @@ class InvoiceItemLedger extends ItemLedger
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData()
+    public function buildXmlData(): array
     {
         $data = [];
         $this->checkFields();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getEconomicEventType())) {
-            $data['gazdasagiEsem'] = $this->getEconomicEventType();
+        if (!empty($this->economicEventType)) {
+            $data['gazdasagiEsem'] = $this->economicEventType;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getVatEconomicEventType())) {
-            $data['gazdasagiEsemAfa'] = $this->getVatEconomicEventType();
+        if (!empty($this->vatEconomicEventType)) {
+            $data['gazdasagiEsemAfa'] = $this->vatEconomicEventType;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getRevenueLedgerNumber())) {
-            $data['arbevetelFokonyviSzam'] = $this->getRevenueLedgerNumber();
+        if (!empty($this->revenueLedgerNumber)) {
+            $data['arbevetelFokonyviSzam'] = $this->revenueLedgerNumber;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getVatLedgerNumber())) {
-            $data['afaFokonyviSzam'] = $this->getVatLedgerNumber();
+        if (!empty($this->vatLedgerNumber)) {
+            $data['afaFokonyviSzam'] = $this->vatLedgerNumber;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodStart())) {
-            $data['elszDatumTol'] = $this->getSettlementPeriodStart();
+        if (!empty($this->settlementPeriodStart)) {
+            $data['elszDatumTol'] = $this->settlementPeriodStart;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodEnd())) {
-            $data['elszDatumIg'] = $this->getSettlementPeriodEnd();
+        if (!empty($this->settlementPeriodEnd)) {
+            $data['elszDatumIg'] = $this->settlementPeriodEnd;
         }
 
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getEconomicEventType()
-    {
-        return $this->economicEventType;
-    }
-
-    /**
-     * @param  string  $economicEventType
-     */
-    public function setEconomicEventType($economicEventType)
+    public function setEconomicEventType(string $economicEventType): self
     {
         $this->economicEventType = $economicEventType;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getVatEconomicEventType()
-    {
-        return $this->vatEconomicEventType;
-    }
-
-    /**
-     * @param  string  $vatEconomicEventType
-     */
-    public function setVatEconomicEventType($vatEconomicEventType)
+    public function setVatEconomicEventType(string $vatEconomicEventType): self
     {
         $this->vatEconomicEventType = $vatEconomicEventType;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSettlementPeriodStart()
-    {
-        return $this->settlementPeriodStart;
-    }
-
-    /**
-     * @param  string  $settlementPeriodStart
-     */
-    public function setSettlementPeriodStart($settlementPeriodStart)
+    public function setSettlementPeriodStart(string $settlementPeriodStart): self
     {
         $this->settlementPeriodStart = $settlementPeriodStart;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSettlementPeriodEnd()
-    {
-        return $this->settlementPeriodEnd;
-    }
-
-    /**
-     * @param  string  $settlementPeriodEnd
-     */
-    public function setSettlementPeriodEnd($settlementPeriodEnd)
+    public function setSettlementPeriodEnd(string $settlementPeriodEnd): self
     {
         $this->settlementPeriodEnd = $settlementPeriodEnd;
+
+        return $this;
     }
 }

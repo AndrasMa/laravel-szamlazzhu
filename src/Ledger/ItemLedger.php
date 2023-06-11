@@ -3,65 +3,31 @@
 namespace Omisai\Szamlazzhu\Ledger;
 
 /**
- * Tétel főkönyvi adatok
+ * HU: Tétel főkönyvi adatok
  */
 class ItemLedger
 {
-    /**
-     * Árbevétel főkönyvi szám
-     *
-     * @var string
-     */
-    protected $revenueLedgerNumber;
+    protected string $revenueLedgerNumber;
 
-    /**
-     * ÁFA főkönyvi szám
-     *
-     * @var string
-     */
-    protected $vatLedgerNumber;
+    protected string $vatLedgerNumber;
 
-    /**
-     * Tétel főkönyvi adatok létrehozása
-     *
-     * @param  string  $revenueLedgerNumber Árbevétel főkönyvi szám
-     * @param  string  $vatLedgerNumber     ÁFA főkönyvi szám
-     */
-    protected function __construct($revenueLedgerNumber = '', $vatLedgerNumber = '')
+    protected function __construct(string $revenueLedgerNumber = '', string $vatLedgerNumber = '')
     {
         $this->setRevenueLedgerNumber($revenueLedgerNumber);
         $this->setVatLedgerNumber($vatLedgerNumber);
     }
 
-    /**
-     * @return string
-     */
-    public function getRevenueLedgerNumber()
-    {
-        return $this->revenueLedgerNumber;
-    }
-
-    /**
-     * @param  string  $revenueLedgerNumber
-     */
-    public function setRevenueLedgerNumber($revenueLedgerNumber)
+    public function setRevenueLedgerNumber(string $revenueLedgerNumber): self
     {
         $this->revenueLedgerNumber = $revenueLedgerNumber;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getVatLedgerNumber()
-    {
-        return $this->vatLedgerNumber;
-    }
-
-    /**
-     * @param  string  $vatLedgerNumber
-     */
-    public function setVatLedgerNumber($vatLedgerNumber)
+    public function setVatLedgerNumber(string $vatLedgerNumber): self
     {
         $this->vatLedgerNumber = $vatLedgerNumber;
+
+        return $this;
     }
 }

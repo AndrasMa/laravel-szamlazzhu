@@ -2,23 +2,16 @@
 
 namespace Omisai\Szamlazzhu\Ledger;
 
+use Omisai\Szamlazzhu\HasXmlBuildInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * Nyugtatétel főkönyvi adatok
- */
-class ReceiptItemLedger extends ItemLedger
+class ReceiptItemLedger extends ItemLedger implements HasXmlBuildInterface
 {
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
             switch ($field) {
@@ -33,11 +26,9 @@ class ReceiptItemLedger extends ItemLedger
     }
 
     /**
-     * Ellenőrizzük a tulajdonságokat
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkFields()
+    protected function checkFields(): void
     {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
@@ -46,20 +37,18 @@ class ReceiptItemLedger extends ItemLedger
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData()
+    public function buildXmlData(): array
     {
         $data = [];
         $this->checkFields();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getRevenueLedgerNumber())) {
-            $data['arbevetel'] = $this->getRevenueLedgerNumber();
+        if (!empty($this->revenueLedgerNumber)) {
+            $data['arbevetel'] = $this->revenueLedgerNumber;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getVatLedgerNumber())) {
-            $data['afa'] = $this->getVatLedgerNumber();
+        if (!empty($this->vatLedgerNumber)) {
+            $data['afa'] = $this->vatLedgerNumber;
         }
 
         return $data;
