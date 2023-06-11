@@ -2,8 +2,8 @@
 
 namespace Omisai\Szamlazzhu\CreditNote;
 
-use Omisai\Szamlazzhu\Document\Document;
 use Omisai\Szamlazzhu\PaymentMethod;
+use Carbon\Carbon;
 
 /**
  * HU: Jóváírás
@@ -12,7 +12,7 @@ class CreditNote
 {
     protected float $amount;
 
-    protected string $date;
+    protected Carbon $date;
 
     protected PaymentMethod $paymentMethod;
 
@@ -53,7 +53,7 @@ class CreditNote
         return $this;
     }
 
-    public function setDate(string $date): void
+    public function setDate(Carbon $date): void
     {
         $this->date = $date;
     }

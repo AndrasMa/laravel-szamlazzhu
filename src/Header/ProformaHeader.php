@@ -23,29 +23,26 @@ class ProformaHeader extends InvoiceHeader
      */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-        try {
-            if (empty($request)) {
-                throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
-            }
-
-            $data = [];
-            switch ($request->getXmlName()) {
-                case $request::XML_SCHEMA_DELETE_PROFORMA:
-                    if (!empty($this->invoiceNumber)) {
-                        $data['szamlaszam'] = $this->invoiceNumber;
-                    }
-                    if (!empty($this->orderNumber)) {
-                        $data['rendelesszam'] = $this->orderNumber;
-                    }
-                    $this->checkFields();
-                    break;
-                default:
-                    $data = parent::buildXmlData($request);
-            }
-
-            return $data;
-        } catch (SzamlaAgentException $e) {
-            throw $e;
+        if (empty($request)) {
+            throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
         }
+
+        $this->validateFields();
+
+        $data = [];
+        switch ($request->getXmlName()) {
+            case $request::XML_SCHEMA_DELETE_PROFORMA:
+                if (!empty($this->invoiceNumber)) {
+                    $data['szamlaszam'] = $this->invoiceNumber;
+                }
+                if (!empty($this->orderNumber)) {
+                    $data['rendelesszam'] = $this->orderNumber;
+                }
+                break;
+            default:
+                $data = parent::buildXmlData($request);
+        }
+
+        return $data;
     }
 }

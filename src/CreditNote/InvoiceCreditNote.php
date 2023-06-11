@@ -2,15 +2,18 @@
 
 namespace Omisai\Szamlazzhu\CreditNote;
 
+use Omisai\Szamlazzhu\FieldsValidationTrait;
 use Omisai\Szamlazzhu\PaymentMethod;
 use Omisai\Szamlazzhu\SzamlaAgentException;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Carbon\Carbon;
 
 class InvoiceCreditNote extends CreditNote
 {
+    use FieldsValidationTrait;
+
     protected array $requiredFields = ['date', 'paymentMethod', 'amount'];
 
-    public function __construct(string $date, string $amount, PaymentMethod $paymentMethod = PaymentMethod::PAYMENT_METHOD_TRANSFER, string $description = '')
+    public function __construct(Carbon $date, string $amount, PaymentMethod $paymentMethod = PaymentMethod::PAYMENT_METHOD_TRANSFER, string $description = '')
     {
         parent::__construct($paymentMethod, $amount, $description);
         $this->date = $date;
@@ -19,50 +22,13 @@ class InvoiceCreditNote extends CreditNote
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value): string
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->requiredFields);
-            switch ($field) {
-                case 'date':
-                    SzamlaAgentUtil::checkDateField($field, $value, $required, self::class);
-                    break;
-                case 'amount':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, self::class);
-                    break;
-                case 'paymentMethod':
-                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
-                    break;
-                case 'description':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, self::class);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields()
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(): array
     {
-        $data = [];
-        $this->checkFields();
+        $this->validateFields();
 
+        $data = [];
         if (!empty($this->date)) {
-            $data['datum'] = $this->date;
+            $data['datum'] = $this->date->format('Y-m-d');
         }
 
         $data['jogcim'] = $this->getPaymentMethod();

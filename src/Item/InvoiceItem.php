@@ -15,15 +15,13 @@ class InvoiceItem extends Item implements HasXmlBuildInterface
      */
     public function buildXmlData(): array
     {
+        $this->validateFields();
+
         $data = [];
-        $this->checkFields();
-
         $data['megnevezes'] = $this->name;
-
         if (!empty($this->id)) {
             $data['azonosito'] = $this->id;
         }
-
         $data['mennyiseg'] = $this->quantity;
         $data['mennyisegiEgyseg'] = $this->quantityUnit;
         $data['nettoEgysegar'] = $this->netUnitPrice;

@@ -2,6 +2,7 @@
 
 namespace Omisai\Szamlazzhu\Ledger;
 
+use Carbon\Carbon;
 use Omisai\Szamlazzhu\HasXmlBuildInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
@@ -12,9 +13,9 @@ class InvoiceItemLedger extends ItemLedger implements HasXmlBuildInterface
 
     protected string $vatEconomicEventType;
 
-    protected string $settlementPeriodStart;
+    protected Carbon $settlementPeriodStart;
 
-    protected string $settlementPeriodEnd;
+    protected Carbon $settlementPeriodEnd;
 
     public function __construct(string $economicEventType = '', string $vatEconomicEventType = '', string $revenueLedgerNumber = '', string $vatLedgerNumber = '')
     {
@@ -26,46 +27,9 @@ class InvoiceItemLedger extends ItemLedger implements HasXmlBuildInterface
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            switch ($field) {
-                case 'settlementPeriodStart':
-                case 'settlementPeriodEnd':
-                    SzamlaAgentUtil::checkDateField($field, $value, false, __CLASS__);
-                    break;
-                case 'economicEventType':
-                case 'vatEconomicEventType':
-                case 'revenueLedgerNumber':
-                case 'vatLedgerNumber':
-                    SzamlaAgentUtil::checkStrField($field, $value, false, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     *
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields(): void
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(): array
     {
         $data = [];
-        $this->checkFields();
-
         if (!empty($this->economicEventType)) {
             $data['gazdasagiEsem'] = $this->economicEventType;
         }
@@ -79,10 +43,10 @@ class InvoiceItemLedger extends ItemLedger implements HasXmlBuildInterface
             $data['afaFokonyviSzam'] = $this->vatLedgerNumber;
         }
         if (!empty($this->settlementPeriodStart)) {
-            $data['elszDatumTol'] = $this->settlementPeriodStart;
+            $data['elszDatumTol'] = $this->settlementPeriodStart->format('Y-m-d');
         }
         if (!empty($this->settlementPeriodEnd)) {
-            $data['elszDatumIg'] = $this->settlementPeriodEnd;
+            $data['elszDatumIg'] = $this->settlementPeriodEnd->format('Y-m-d');
         }
 
         return $data;
@@ -102,14 +66,14 @@ class InvoiceItemLedger extends ItemLedger implements HasXmlBuildInterface
         return $this;
     }
 
-    public function setSettlementPeriodStart(string $settlementPeriodStart): self
+    public function setSettlementPeriodStart(Carbon $settlementPeriodStart): self
     {
         $this->settlementPeriodStart = $settlementPeriodStart;
 
         return $this;
     }
 
-    public function setSettlementPeriodEnd(string $settlementPeriodEnd): self
+    public function setSettlementPeriodEnd(Carbon $settlementPeriodEnd): self
     {
         $this->settlementPeriodEnd = $settlementPeriodEnd;
 

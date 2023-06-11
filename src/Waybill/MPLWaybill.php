@@ -37,34 +37,9 @@ class MPLWaybill extends Waybill
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->requiredFields);
-            switch ($field) {
-                case 'insuredValue':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
-                    break;
-                case 'buyerCode':
-                case 'weight':
-                case 'service':
-                case 'shippingTime':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-        $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
-
         $data['mpl'] = [];
         $data['mpl']['vevokod'] = $this->buyerCode;
         $data['mpl']['vonalkod'] = $this->buyerCode;

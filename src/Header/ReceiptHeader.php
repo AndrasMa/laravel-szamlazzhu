@@ -3,15 +3,17 @@
 namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\FieldsValidationTrait;
 use Omisai\Szamlazzhu\PaymentMethod;
 use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
 use Omisai\Szamlazzhu\Header\Type;
 
 class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInterface
 {
+    use FieldsValidationTrait;
+
     protected string $receiptNumber;
 
     protected string $callId;
@@ -31,80 +33,37 @@ class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->requiredFields);
-            switch ($field) {
-                case 'exchangeRate':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
-                    break;
-                case 'paymentMethod':
-                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
-                    break;
-                case 'receiptNumber':
-                case 'callId':
-                case 'prefix':
-                case 'currency':
-                case 'exchangeBank':
-                case 'comment':
-                case 'pdfTemplate':
-                case 'buyerLedgerId':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields(): void
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-        try {
-            if (empty($request)) {
-                throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
-            }
-            $requireFields = ['receiptNumber'];
-            switch ($request->getXmlName()) {
-                case $request::XML_SCHEMA_CREATE_RECEIPT:
-                    $requireFields = ['prefix', 'paymentMethod', 'currency'];
-                    $data = $this->buildFieldsData($request, [
-                        'hivasAzonosito', 'elotag', 'fizmod', 'penznem', 'devizabank', 'devizaarf', 'megjegyzes', 'pdfSablon', 'fokonyvVevo',
-                    ]);
-                    break;
-                case $request::XML_SCHEMA_CREATE_REVERSE_RECEIPT:
-                    $data = $this->buildFieldsData($request, ['nyugtaszam', 'pdfSablon', 'hivasAzonosito']);
-                    break;
-                case $request::XML_SCHEMA_GET_RECEIPT:
-                    $data = $this->buildFieldsData($request, ['nyugtaszam', 'pdfSablon']);
-                    break;
-                case $request::XML_SCHEMA_SEND_RECEIPT:
-                    $data = $this->buildFieldsData($request, ['nyugtaszam']);
-                    break;
-                default:
-                    throw new SzamlaAgentException(SzamlaAgentException::XML_SCHEMA_TYPE_NOT_EXISTS.": {$request->getXmlName()}");
-            }
-            $this->setRequiredFields($requireFields);
-            $this->checkFields();
-
-            return $data;
-        } catch (SzamlaAgentException $e) {
-            throw $e;
+        if (empty($request)) {
+            throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
         }
+
+        $this->validateFields();
+
+        $requireFields = ['receiptNumber'];
+        switch ($request->getXmlName()) {
+            case $request::XML_SCHEMA_CREATE_RECEIPT:
+                $requireFields = ['prefix', 'paymentMethod', 'currency'];
+                $data = $this->buildFieldsData($request, [
+                    'hivasAzonosito', 'elotag', 'fizmod', 'penznem', 'devizabank', 'devizaarf', 'megjegyzes', 'pdfSablon', 'fokonyvVevo',
+                ]);
+                break;
+            case $request::XML_SCHEMA_CREATE_REVERSE_RECEIPT:
+                $data = $this->buildFieldsData($request, ['nyugtaszam', 'pdfSablon', 'hivasAzonosito']);
+                break;
+            case $request::XML_SCHEMA_GET_RECEIPT:
+                $data = $this->buildFieldsData($request, ['nyugtaszam', 'pdfSablon']);
+                break;
+            case $request::XML_SCHEMA_SEND_RECEIPT:
+                $data = $this->buildFieldsData($request, ['nyugtaszam']);
+                break;
+            default:
+                throw new SzamlaAgentException(SzamlaAgentException::XML_SCHEMA_TYPE_NOT_EXISTS.": {$request->getXmlName()}");
+        }
+        $this->setRequiredFields($requireFields);
+
+        return $data;
     }
 
     /**

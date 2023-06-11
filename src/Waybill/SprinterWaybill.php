@@ -46,34 +46,9 @@ class SprinterWaybill extends Waybill
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            switch ($field) {
-                case 'numberOfPackages':
-                    SzamlaAgentUtil::checkIntField($field, $value, false, __CLASS__);
-                    break;
-                case 'id':
-                case 'senderId':
-                case 'shipmentZip':
-                case 'barcodePostfix':
-                case 'shippingTime':
-                    SzamlaAgentUtil::checkStrField($field, $value, false, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-        $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
-
         $data['sprinter'] = [];
         if (!empty($this->id)) {
             $data['sprinter']['azonosito'] = $this->id;

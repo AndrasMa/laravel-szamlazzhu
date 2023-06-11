@@ -2,11 +2,12 @@
 
 namespace Omisai\Szamlazzhu\Item;
 
-use Omisai\Szamlazzhu\SzamlaAgentException;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\FieldsValidationTrait;
 
 class Item
 {
+    use FieldsValidationTrait;
+
     /**
      * HU: Áfakulcs: tárgyi adómentes
      */
@@ -161,48 +162,6 @@ class Item
     protected string $comment;
 
     protected array $requiredFields = ['name', 'quantity', 'quantityUnit', 'netUnitPrice', 'vat', 'netPrice', 'vatAmount', 'grossAmount'];
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->requiredFields);
-            switch ($field) {
-                case 'quantity':
-                case 'netUnitPrice':
-                case 'priceGapVatBase':
-                case 'netPrice':
-                case 'vatAmount':
-                case 'grossAmount':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, self::class);
-                    break;
-                case 'name':
-                case 'id':
-                case 'quantityUnit':
-                case 'vat':
-                case 'comment':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, self::class);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * Ellenőrizzük a tulajdonságokat
-     *
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields()
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
 
     public function setId(string $id): self
     {

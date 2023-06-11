@@ -34,34 +34,9 @@ class TransoflexWaybill extends Waybill
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            switch ($field) {
-                case 'numberOfPackages':
-                    SzamlaAgentUtil::checkIntField($field, $value, false, __CLASS__);
-                    break;
-                case 'id':
-                case 'customShippingId':
-                case 'countryCode':
-                case 'zip':
-                case 'service':
-                    SzamlaAgentUtil::checkStrField($field, $value, false, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-        $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
-
         $data['tof'] = [];
         if (!empty($this->id)) {
             $data['tof']['azonosito'] = $this->id;

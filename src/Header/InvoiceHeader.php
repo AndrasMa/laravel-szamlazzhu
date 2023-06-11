@@ -2,8 +2,10 @@
 
 namespace Omisai\Szamlazzhu\Header;
 
+use Carbon\Carbon;
 use Omisai\Szamlazzhu\Document\Document;
 use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\FieldsValidationTrait;
 use Omisai\Szamlazzhu\PaymentMethod;
 use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
@@ -13,6 +15,8 @@ use Omisai\Szamlazzhu\Header\Type;
 
 class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInterface
 {
+    use FieldsValidationTrait;
+
     protected string $invoiceNumber;
 
     /**
@@ -21,13 +25,13 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
      */
     protected int $invoiceType;
 
-    protected string $issueDate;
+    protected Carbon $issueDate;
 
     protected string $language;
 
-    protected string $fulfillment;
+    protected Carbon $fulfillment;
 
-    protected string $paymentDue;
+    protected Carbon $paymentDue;
 
     protected string $extraLogo;
 
@@ -81,7 +85,7 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
         $this->setInvoiceType($type);
 
-        $this->setIssueDate(date('Y-m-d'));
+        $this->setIssueDate(Carbon::now());
 
         $this->setPaymentMethod(PaymentMethod::PAYMENT_METHOD_TRANSFER);
 
@@ -89,70 +93,9 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
         $this->setLanguage(Document::getDefaultLanguage());
 
-        $this->setFulfillment(date('Y-m-d'));
+        $this->setFulfillment(Carbon::now());
 
-        $this->setPaymentDue(SzamlaAgentUtil::addDaysToDate(SzamlaAgentUtil::DEFAULT_ADDED_DAYS));
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->requiredFields);
-            switch ($field) {
-                case 'issueDate':
-                case 'fulfillment':
-                case 'paymentDue':
-                    SzamlaAgentUtil::checkDateField($field, $value, $required, __CLASS__);
-                    break;
-                case 'exchangeRate':
-                case 'correctionToPay':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
-                    break;
-                case 'proforma':
-                case 'deliveryNote':
-                case 'prePayment':
-                case 'final':
-                case 'reverse':
-                case 'paid':
-                case 'profitVat':
-                case 'corrective':
-                case 'previewPdf':
-                case 'euVat':
-                    SzamlaAgentUtil::checkBoolField($field, $value, $required, __CLASS__);
-                    break;
-                case 'paymentMethod':
-                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
-                    break;
-                case 'currency':
-                case 'comment':
-                case 'exchangeBank':
-                case 'orderNumber':
-                case 'correctivedNumber':
-                case 'extraLogo':
-                case 'prefix':
-                case 'invoiceNumber':
-                case 'invoiceTemplate':
-                case 'prePaymentInvoiceNumber':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields(): void
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
+        $this->setPaymentDue(Carbon::now()->addDays(SzamlaAgentUtil::DEFAULT_ADDED_DAYS));
     }
 
     /**
@@ -160,100 +103,95 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
      */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-
-        try {
-            if (empty($request)) {
-                throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
-            }
-
-            $this->setRequiredFields([
-                'invoiceDate', 'fulfillment', 'paymentDue', 'paymentMethod', 'currency', 'language', 'buyer', 'items',
-            ]);
-
-            $data = [
-                'keltDatum' => $this->issueDate,
-                'teljesitesDatum' => $this->fulfillment,
-                'fizetesiHataridoDatum' => $this->paymentDue,
-                'fizmod' => $this->paymentMethod,
-                'penznem' => $this->currency,
-                'szamlaNyelve' => $this->language,
-            ];
-
-            if (!empty($this->comment)) {
-                $data['megjegyzes'] = $this->comment;
-            }
-            if (!empty($this->exchangeBank)) {
-                $data['arfolyamBank'] = $this->exchangeBank;
-            }
-
-            if (!empty($this->exchangeRate)) {
-                $data['arfolyam'] = $this->exchangeRate;
-            }
-
-            if (!empty($this->orderNumber)) {
-                $data['rendelesSzam'] = $this->orderNumber;
-            }
-            if (!empty($this->proformaNumber)) {
-                $data['dijbekeroSzamlaszam'] = $this->proformaNumber;
-            }
-            if ($this->isPrePayment()) {
-                $data['elolegszamla'] = $this->isPrePayment();
-            }
-            if ($this->isFinal()) {
-                $data['vegszamla'] = $this->isFinal();
-            }
-            if (!empty($this->prePaymentInvoiceNumber)) {
-                $data['elolegSzamlaszam'] = $this->prePaymentInvoiceNumber;
-            }
-            if ($this->isCorrective()) {
-                $data['helyesbitoszamla'] = $this->isCorrective();
-            }
-            if (!empty($this->correctivedNumber)) {
-                $data['helyesbitettSzamlaszam'] = $this->correctivedNumber;
-            }
-            if ($this->isProforma()) {
-                $data['dijbekero'] = $this->isProforma();
-            }
-            if ($this->isDeliveryNote()) {
-                $data['szallitolevel'] = $this->isDeliveryNote();
-            }
-            if (!empty($this->extraLogo)) {
-                $data['logoExtra'] = $this->extraLogo;
-            }
-            if (!empty($this->prefix)) {
-                $data['szamlaszamElotag'] = $this->prefix;
-            }
-
-            if (!empty($this->correctionToPay)) {
-                $data['fizetendoKorrekcio'] = $this->correctionToPay;
-            }
-
-            if ($this->isPaid()) {
-                $data['fizetve'] = true;
-            }
-            if ($this->isProfitVat()) {
-                $data['arresAfa'] = true;
-            }
-
-            $data['eusAfa'] = ($this->isEuVat() ? true : false);
-
-            if (!empty($this->invoiceTemplate)) {
-                $data['szamlaSablon'] = $this->invoiceTemplate;
-            }
-
-            if ($this->isPreviewPdf()) {
-                $data['elonezetpdf'] = true;
-            }
-
-            $this->checkFields();
-
-            return $data;
-        } catch (SzamlaAgentException $e) {
-            throw $e;
+        if (empty($request)) {
+            throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
         }
+
+        $this->validateFields();
+
+        $this->setRequiredFields([
+            'invoiceDate', 'fulfillment', 'paymentDue', 'paymentMethod', 'currency', 'language', 'buyer', 'items',
+        ]);
+
+        $data = [
+            'keltDatum' => $this->issueDate->format('Y-m-d'),
+            'teljesitesDatum' => $this->fulfillment->format('Y-m-d'),
+            'fizetesiHataridoDatum' => $this->paymentDue->format('Y-m-d'),
+            'fizmod' => $this->paymentMethod,
+            'penznem' => $this->currency,
+            'szamlaNyelve' => $this->language,
+        ];
+
+        if (!empty($this->comment)) {
+            $data['megjegyzes'] = $this->comment;
+        }
+        if (!empty($this->exchangeBank)) {
+            $data['arfolyamBank'] = $this->exchangeBank;
+        }
+
+        if (!empty($this->exchangeRate)) {
+            $data['arfolyam'] = $this->exchangeRate;
+        }
+
+        if (!empty($this->orderNumber)) {
+            $data['rendelesSzam'] = $this->orderNumber;
+        }
+        if (!empty($this->proformaNumber)) {
+            $data['dijbekeroSzamlaszam'] = $this->proformaNumber;
+        }
+        if ($this->isPrePayment()) {
+            $data['elolegszamla'] = $this->isPrePayment();
+        }
+        if ($this->isFinal()) {
+            $data['vegszamla'] = $this->isFinal();
+        }
+        if (!empty($this->prePaymentInvoiceNumber)) {
+            $data['elolegSzamlaszam'] = $this->prePaymentInvoiceNumber;
+        }
+        if ($this->isCorrective()) {
+            $data['helyesbitoszamla'] = $this->isCorrective();
+        }
+        if (!empty($this->correctivedNumber)) {
+            $data['helyesbitettSzamlaszam'] = $this->correctivedNumber;
+        }
+        if ($this->isProforma()) {
+            $data['dijbekero'] = $this->isProforma();
+        }
+        if ($this->isDeliveryNote()) {
+            $data['szallitolevel'] = $this->isDeliveryNote();
+        }
+        if (!empty($this->extraLogo)) {
+            $data['logoExtra'] = $this->extraLogo;
+        }
+        if (!empty($this->prefix)) {
+            $data['szamlaszamElotag'] = $this->prefix;
+        }
+
+        if (!empty($this->correctionToPay)) {
+            $data['fizetendoKorrekcio'] = $this->correctionToPay;
+        }
+
+        if ($this->isPaid()) {
+            $data['fizetve'] = true;
+        }
+        if ($this->isProfitVat()) {
+            $data['arresAfa'] = true;
+        }
+
+        $data['eusAfa'] = ($this->isEuVat() ? true : false);
+
+        if (!empty($this->invoiceTemplate)) {
+            $data['szamlaSablon'] = $this->invoiceTemplate;
+        }
+
+        if ($this->isPreviewPdf()) {
+            $data['elonezetpdf'] = true;
+        }
+
+        return $data;
     }
 
-    public function setIssueDate(string $issueDate): self
+    public function setIssueDate(Carbon $issueDate): self
     {
         $this->issueDate = $issueDate;
 
@@ -267,14 +205,14 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
         return $this;
     }
 
-    public function setFulfillment(string $fulfillment): self
+    public function setFulfillment(Carbon $fulfillment): self
     {
         $this->fulfillment = $fulfillment;
 
         return $this;;
     }
 
-    public function setPaymentDue(string $paymentDue): self
+    public function setPaymentDue(Carbon $paymentDue): self
     {
         $this->paymentDue = $paymentDue;
 

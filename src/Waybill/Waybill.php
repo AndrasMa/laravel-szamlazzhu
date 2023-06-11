@@ -49,22 +49,9 @@ class Waybill implements HasXmlBuildWithRequestInterface
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkFields(): void
-    {
-        SzamlaAgentUtil::checkStrField('destination', $this->destination, false, self::class);
-        SzamlaAgentUtil::checkStrField('parcel', $this->parcel, false, self::class);
-        SzamlaAgentUtil::checkStrField('barcode', $this->barcode, false, self::class);
-        SzamlaAgentUtil::checkStrField('comment', $this->comment, false, self::class);
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $data = [];
-        $this->checkFields();
-
         if (!empty($this->destination)) {
             $data['uticel'] = $this->destination;
         }

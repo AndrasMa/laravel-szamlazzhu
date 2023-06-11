@@ -28,59 +28,32 @@ class ReverseInvoiceHeader extends InvoiceHeader
     /**
      * @throws SzamlaAgentException
      */
-    public function checkField(string $field, mixed $value): mixed
-    {
-        if (property_exists(get_parent_class($this), $field) || property_exists($this, $field)) {
-            $required = in_array($field, $this->requiredFields);
-            switch ($field) {
-                case 'issueDate':
-                case 'fulfillment':
-                    SzamlaAgentUtil::checkDateField($field, $value, $required, __CLASS__);
-                    break;
-                case 'invoiceNumber':
-                case 'comment':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
-
-        try {
-            if (empty($request)) {
-                throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
-            }
-
-            $data['szamlaszam'] = $this->getInvoiceNumber();
-
-            if (!empty($this->issueDate)) {
-                $data['keltDatum'] = $this->issueDate;
-            }
-            if (!empty($this->fulfillment)) {
-                $data['teljesitesDatum'] = $this->fulfillment;
-            }
-            if (!empty($this->comment)) {
-                $data['megjegyzes'] = $this->comment;
-            }
-
-            $data['tipus'] = Document::DOCUMENT_TYPE_REVERSE_INVOICE_CODE;
-
-            if (!empty($this->invoiceTemplate)) {
-                $data['szamlaSablon'] = $this->invoiceTemplate;
-            }
-
-            $this->checkFields();
-
-            return $data;
-        } catch (SzamlaAgentException $e) {
-            throw $e;
+        if (empty($request)) {
+            throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
         }
+
+        $this->validateFields();
+
+        $data['szamlaszam'] = $this->getInvoiceNumber();
+
+        if (!empty($this->issueDate)) {
+            $data['keltDatum'] = $this->issueDate;
+        }
+        if (!empty($this->fulfillment)) {
+            $data['teljesitesDatum'] = $this->fulfillment;
+        }
+        if (!empty($this->comment)) {
+            $data['megjegyzes'] = $this->comment;
+        }
+
+        $data['tipus'] = Document::DOCUMENT_TYPE_REVERSE_INVOICE_CODE;
+
+        if (!empty($this->invoiceTemplate)) {
+            $data['szamlaSablon'] = $this->invoiceTemplate;
+        }
+
+        return $data;
     }
 }
