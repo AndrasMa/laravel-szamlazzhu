@@ -2,11 +2,12 @@
 
 namespace Omisai\Szamlazzhu;
 
-/**
- * HU: Eladó
- */
+use Omisai\Szamlazzhu\FieldsValidationTrait;
+
 class Seller
 {
+    use FieldsValidationTrait;
+
     protected string $bank;
 
     protected string $bankAccount;
@@ -19,68 +20,31 @@ class Seller
 
     protected string $signatoryName;
 
-    public function __construct(string $bank = '', string $bankAccount = '')
-    {
-        $this->setBank($bank);
-        $this->setBankAccount($bankAccount);
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkField($field, $value): string
-    {
-        if (property_exists($this, $field)) {
-            switch ($field) {
-                case 'bank':
-                case 'bankAccount':
-                case 'emailReplyTo':
-                case 'emailSubject':
-                case 'emailContent':
-                case 'signatoryName':
-                    SzamlaAgentUtil::checkStrField($field, $value, false, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields()
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
+    protected array $requiredFields = ['bank', 'bankAccount'];
 
     /**
      * @throws SzamlaAgentException
      */
     public function buildXmlData(SzamlaAgentRequest $request): array
     {
+        $this->validateFields();
+
         $data = [];
-
-        $this->checkFields();
-
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
-                if (SzamlaAgentUtil::isNotBlank($this->getBank())) {
-                    $data['bank'] = $this->getBank();
+                if (!empty($this->bank)) {
+                    $data['bank'] = $this->bank;
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getBankAccount())) {
-                    $data['bankszamlaszam'] = $this->getBankAccount();
+                if (!empty($this->bankAccount)) {
+                    $data['bankszamlaszam'] = $this->bankAccount;
                 }
 
                 $emailData = $this->getXmlEmailData();
                 if (! empty($emailData)) {
                     $data = array_merge($data, $emailData);
                 }
-                if (SzamlaAgentUtil::isNotBlank($this->getSignatoryName())) {
-                    $data['alairoNeve'] = $this->getSignatoryName();
+                if (!empty($this->signatoryName)) {
+                    $data['alairoNeve'] = $this->signatoryName;
                 }
                 break;
             case $request::XML_SCHEMA_CREATE_REVERSE_INVOICE:
@@ -96,77 +60,58 @@ class Seller
     protected function getXmlEmailData(): array
     {
         $data = [];
-        if (SzamlaAgentUtil::isNotBlank($this->getEmailReplyTo())) {
-            $data['emailReplyto'] = $this->getEmailReplyTo();
+        if (!empty($this->emailReplyTo)) {
+            $data['emailReplyto'] = $this->emailReplyTo;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getEmailSubject())) {
-            $data['emailTargy'] = $this->getEmailSubject();
+        if (!empty($this->emailSubject)) {
+            $data['emailTargy'] = $this->emailSubject;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getEmailContent())) {
-            $data['emailSzoveg'] = $this->getEmailContent();
+        if (!empty($this->emailContent)) {
+            $data['emailSzoveg'] = $this->emailContent;
         }
 
         return $data;
     }
 
-    public function getBank(): string
-    {
-        return $this->bank;
-    }
-
-    public function setBank(string $bank): void
+    public function setBank(string $bank): self
     {
         $this->bank = $bank;
+
+        return $this;
     }
 
-    public function getBankAccount(): string
-    {
-        return $this->bankAccount;
-    }
-
-    public function setBankAccount(string $bankAccount): void
+    public function setBankAccount(string $bankAccount): self
     {
         $this->bankAccount = $bankAccount;
+
+        return $this;
     }
 
-    public function getEmailReplyTo(): string
-    {
-        return $this->emailReplyTo;
-    }
-
-    public function setEmailReplyTo(string $emailReplyTo): void
+    public function setEmailReplyTo(string $emailReplyTo): self
     {
         $this->emailReplyTo = $emailReplyTo;
+
+        return $this;
     }
 
-
-    public function getEmailSubject(): string
-    {
-        return $this->emailSubject;
-    }
-
-    public function setEmailSubject(string $emailSubject): void
+    public function setEmailSubject(string $emailSubject): self
     {
         $this->emailSubject = $emailSubject;
+
+        return $this;
     }
 
-    public function getEmailContent(): string
-    {
-        return $this->emailContent;
-    }
-
-    public function setEmailContent(string $emailContent): void
+    public function setEmailContent(string $emailContent): self
     {
         $this->emailContent = $emailContent;
+
+        return $this;
     }
 
-    public function getSignatoryName(): string
-    {
-        return $this->signatoryName;
-    }
-
-    public function setSignatoryName(string $signatoryName): void
+    public function setSignatoryName(string $signatoryName): self
     {
         $this->signatoryName = $signatoryName;
+
+        return $this;
     }
 }
