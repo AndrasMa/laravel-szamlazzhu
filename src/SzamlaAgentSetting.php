@@ -17,11 +17,11 @@ class SzamlaAgentSetting
     /**
      * @link https://www.szamlazz.hu/blog/2019/07/szamla_agent_kulcsok/
      */
-    private ?string $apiKey;
+    private ?string $apiKey = '';
 
     private bool $downloadPdf = true;
 
-    private int $downloadCopiesCount;
+    private int $downloadCopiesCount = self::DOWNLOAD_COPIES_COUNT;
 
     /**
      * 1: RESULT_AS_TEXT - egyszerű szöveges válaszüzenetet vagy pdf-et ad vissza.
@@ -34,13 +34,13 @@ class SzamlaAgentSetting
      */
     private string $aggregator;
 
-    private bool $guardian;
+    private bool $guardian = false;
 
-    private bool $invoiceItemIdentifier;
+    private bool $invoiceItemIdentifier = false;
 
-    private string $invoiceExternalId;
+    private string $invoiceExternalId = '';
 
-    private string $taxNumber;
+    private string $taxNumber = '';
 
     /**
      * Számla Agent beállítás létrehozása
@@ -206,13 +206,13 @@ class SzamlaAgentSetting
 
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_INVOICE:
-                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'valaszVerzio', 'aggregator', 'guardian', 'cikkazoninvoice', 'szamlaKulsoAzon']));
+                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'valaszVerzio', 'aggregator', 'szamlaKulsoAzon']));
                 break;
             case $request::XML_SCHEMA_DELETE_PROFORMA:
                 $data = $this->buildFieldsData($request, $settings);
                 break;
             case $request::XML_SCHEMA_CREATE_REVERSE_INVOICE:
-                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'aggregator', 'guardian', 'valaszVerzio', 'szamlaKulsoAzon']));
+                $data = $this->buildFieldsData($request, array_merge($settings, ['eszamla', 'szamlaLetoltes', 'szamlaLetoltesPld', 'aggregator', 'valaszVerzio', 'szamlaKulsoAzon']));
                 break;
             case $request::XML_SCHEMA_PAY_INVOICE:
                 $data = $this->buildFieldsData($request, array_merge($settings, ['szamlaszam', 'adoszam', 'additiv', 'aggregator', 'valaszVerzio']));
