@@ -20,7 +20,7 @@ class Seller
 
     protected string $signatoryName;
 
-    protected array $requiredFields = ['bank', 'bankAccount'];
+    protected array $requiredFields = [];
 
     /**
      * @throws SzamlaAgentException
@@ -113,5 +113,20 @@ class Seller
         $this->signatoryName = $signatoryName;
 
         return $this;
+    }
+
+    public function getEmailReplyTo(): string
+    {
+        return $this->emailReplyTo;
+    }
+
+    public function getEmailSubject(): string
+    {
+        return $this->emailSubject;
+    }
+
+    public function getEmailContent(): string
+    {
+        return $this->emailContent;
     }
 }
