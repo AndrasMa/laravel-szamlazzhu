@@ -27,14 +27,14 @@ return [
         /*
          *  Enable/Disable both XML save option
          */
-        'file_save' => env('SZAMLAZZHU_XML_FILE_SAVE', true),
+        'file_save' => env('SZAMLAZZHU_XML_FILE_SAVE', false),
 
-        'request_file_save' => env('SZAMLAZZHU_XML_REQUEST_FILE_SAVE', true),
-        'response_file_save' => env('SZAMLAZZHU_XML_RESPONSE_FILE_SAVE', true),
+        'request_file_save' => env('SZAMLAZZHU_XML_REQUEST_FILE_SAVE', false),
+        'response_file_save' => env('SZAMLAZZHU_XML_RESPONSE_FILE_SAVE', false),
     ],
 
     'pdf' => [
-        'file_save' => env('SZAMLAZZHU_PDF_FILE_SAVE', true),
+        'file_save' => env('SZAMLAZZHU_PDF_FILE_SAVE', false),
     ],
 
     /*
