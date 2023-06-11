@@ -150,14 +150,6 @@ class Invoice extends Document implements HasXmlBuildWithRequestInterface
     }
 
     /**
-     * @return InvoiceItem[]
-     */
-    public function getItems(): array
-    {
-        return $this->items;
-    }
-
-    /**
      * @param  InvoiceItem[]  $items
      */
     public function setItems(array $items): self
@@ -251,19 +243,19 @@ class Invoice extends Document implements HasXmlBuildWithRequestInterface
                          $value = $request->getAgent()->getSetting()->buildXmlData($request);
                     break;
                     case 'fejlec':
-                        $value = $this->getHeader()->buildXmlData($request);
+                        $value = $this->header->buildXmlData($request);
                     break;
                     case 'tetelek':
                         $value = $this->buildXmlItemsData();
                     break;
                     case 'elado':
-                        $value = (!empty($this->seller)) ? $this->getSeller()->buildXmlData($request) : [];
+                        $value = (!empty($this->seller)) ? $this->seller->buildXmlData($request) : [];
                     break;
                     case 'vevo':
-                        $value = (!empty($this->buyer)) ? $this->getBuyer()->buildXmlData($request) : [];
+                        $value = (!empty($this->buyer)) ? $this->buyer->buildXmlData($request) : [];
                     break;
                     case 'fuvarlevel':
-                        $value = (!empty($this->waybill)) ? $this->getWaybill()->buildXmlData($request) : [];
+                        $value = (!empty($this->waybill)) ? $this->waybill->buildXmlData($request) : [];
                     break;
                     default:
                         throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS.": {$key}");
@@ -285,8 +277,8 @@ class Invoice extends Document implements HasXmlBuildWithRequestInterface
     {
         $data = [];
 
-        if (! empty($this->getItems())) {
-            foreach ($this->getItems() as $key => $item) {
+        if (! empty($this->items)) {
+            foreach ($this->items as $key => $item) {
                 $data["item{$key}"] = $item->buildXmlData();
             }
         }
