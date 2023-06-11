@@ -7,46 +7,29 @@ use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
- * Pick Pack Pont fuvarlevél
+ * HU: Pick Pack Pont fuvarlevél
  */
 class PPPWaybill extends Waybill
 {
     /**
-     * Vonalkód előtag
-     * PPP-vel egyeztetett 3 karakteres rövidítés
-     *
-     * @var string
+     * HU: PPP-vel egyeztetett 3 karakteres rövidítés
      */
-    protected $barcodePrefix;
+    protected string $barcodePrefix;
 
     /**
-     * Számlánként egyedi vonalkód, maximum 7 karakteres azonosító
-     *
-     * @var string
+     * HU: Számlánként egyedi vonalkód, maximum 7 karakteres azonosító
      */
-    protected $barcodePostfix;
+    protected string $barcodePostfix;
 
-    /**
-     * PPP (Pick Pack Pont) fuvarlevél létrehozása
-     *
-     * @param  string  $destination  Úti cél
-     * @param  string  $barcode      Vonalkód
-     * @param  string  $comment      fuvarlevél megjegyzés
-     */
-    public function __construct($destination = '', $barcode = '', $comment = '')
+    public function __construct(string $destination = '', string $barcode = '', string $comment = '')
     {
         parent::__construct($destination, self::WAYBILL_TYPE_PPP, $barcode, $comment);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
             switch ($field) {
@@ -61,55 +44,35 @@ class PPPWaybill extends Waybill
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
         $data['ppp'] = [];
-        if (SzamlaAgentUtil::isNotBlank($this->getBarcodePrefix())) {
-            $data['ppp']['vonalkodPrefix'] = $this->getBarcodePrefix();
+        if (!empty($this->barcodePrefix)) {
+            $data['ppp']['vonalkodPrefix'] = $this->barcodePrefix;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getBarcodePostfix())) {
-            $data['ppp']['vonalkodPostfix'] = $this->getBarcodePostfix();
+        if (!empty($this->barcodePostfix)) {
+            $data['ppp']['vonalkodPostfix'] = $this->barcodePostfix;
         }
 
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getBarcodePrefix()
-    {
-        return $this->barcodePrefix;
-    }
-
-    /**
-     * @param  string  $barcodePrefix
-     */
-    public function setBarcodePrefix($barcodePrefix)
+    public function setBarcodePrefix(string $barcodePrefix): self
     {
         $this->barcodePrefix = $barcodePrefix;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getBarcodePostfix()
-    {
-        return $this->barcodePostfix;
-    }
-
-    /**
-     * @param  string  $barcodePostfix
-     */
-    public function setBarcodePostfix($barcodePostfix)
+    public function setBarcodePostfix(string $barcodePostfix): self
     {
         $this->barcodePostfix = $barcodePostfix;
+
+        return $this;
     }
 }

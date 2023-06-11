@@ -2,6 +2,7 @@
 
 namespace Omisai\Szamlazzhu\Waybill;
 
+use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
@@ -9,7 +10,7 @@ use Omisai\Szamlazzhu\SzamlaAgentUtil;
 /**
  * HU: Fuvarlevél
  */
-class Waybill
+class Waybill implements HasXmlBuildWithRequestInterface
 {
     // Transoflex
     public const WAYBILL_TYPE_TRANSOFLEX = 'Transoflex';
@@ -64,25 +65,20 @@ class Waybill
         $data = [];
         $this->checkFields();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getDestination())) {
-            $data['uticel'] = $this->getDestination();
+        if (!empty($this->destination)) {
+            $data['uticel'] = $this->destination;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getParcel())) {
-            $data['futarSzolgalat'] = $this->getParcel();
+        if (!empty($this->parcel)) {
+            $data['futarSzolgalat'] = $this->parcel;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getBarcode())) {
-            $data['vonalkod'] = $this->getBarcode();
+        if (!empty($this->barcode)) {
+            $data['vonalkod'] = $this->barcode;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
-            $data['megjegyzes'] = $this->getComment();
+        if (!empty($this->comment)) {
+            $data['megjegyzes'] = $this->comment;
         }
 
         return $data;
-    }
-
-    public function getDestination(): string
-    {
-        return $this->destination;
     }
 
     public function setDestination(string $destination): void
@@ -90,29 +86,14 @@ class Waybill
         $this->destination = $destination;
     }
 
-    public function getParcel(): string
-    {
-        return $this->parcel;
-    }
-
     public function setParcel(string $parcel): void
     {
         $this->parcel = $parcel;
     }
 
-    public function getBarcode(): string
-    {
-        return $this->barcode;
-    }
-
     public function setBarcode(string $barcode): void
     {
         $this->barcode = $barcode;
-    }
-
-    public function getComment(): string
-    {
-        return $this->comment;
     }
 
     public function setComment(string $comment): void

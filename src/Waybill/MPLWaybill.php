@@ -7,84 +7,40 @@ use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
- * MPL fuvarlevél
+ * HU: MPL fuvarlevél
  */
 class MPLWaybill extends Waybill
 {
-    /**
-     * MPL vevőkód
-     *
-     * @var string
-     */
-    protected $buyerCode;
+    protected string $buyerCode;
+
+    protected string $barcode;
 
     /**
-     * A vonalkód ezen string alapján készül
-     *
-     * @var string
+     * HU: A csomag tömege, tartalmazhat tizedes pontot, ha szükséges
      */
-    protected $barcode;
+    protected string $weight;
 
     /**
-     * A csomag tömege, tartalmazhat tizedes pontot, ha szükséges
-     *
-     * @var string
+     * HU: A különszolgáltatásokhoz megadható ikonok konfigurációja, ha nincs megadva, akkor egy ikon sem jelenik meg
      */
-    protected $weight;
+    protected string $service;
 
-    /**
-     * A különszolgáltatásokhoz megadható ikonok konfigurációja, ha nincs megadva, akkor egy ikon sem jelenik meg
-     *
-     * @var string
-     */
-    protected $service;
+    protected float $insuredValue;
 
-    /**
-     * A fuvarlevélen az értéknyilvánítás mező értéke
-     *
-     * @var float
-     */
-    protected $insuredValue;
+    protected array $requiredFields = ['buyerCode', 'barcode', 'weight'];
 
-    /**
-     * Kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = ['buyerCode', 'barcode', 'weight'];
-
-    /**
-     * MPL fuvarlevél létrehozása
-     *
-     * @param  string  $destination  Úti cél
-     * @param  string  $barcode      Vonalkód
-     * @param  string  $comment      fuvarlevél megjegyzés
-     */
-    public function __construct($destination = '', $barcode = '', $comment = '')
+    public function __construct(string $destination = '', string $barcode = '', string $comment = '')
     {
         parent::__construct($destination, self::WAYBILL_TYPE_MPL, $barcode, $comment);
     }
 
     /**
-     * @return array
-     */
-    protected function getRequiredFields()
-    {
-        return $this->requiredFields;
-    }
-
-    /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'insuredValue':
                     SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
@@ -102,92 +58,54 @@ class MPLWaybill extends Waybill
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
         $data['mpl'] = [];
-        $data['mpl']['vevokod'] = $this->getBuyerCode();
-        $data['mpl']['vonalkod'] = $this->getBarcode();
-        $data['mpl']['tomeg'] = $this->getWeight();
+        $data['mpl']['vevokod'] = $this->buyerCode;
+        $data['mpl']['vonalkod'] = $this->buyerCode;
+        $data['mpl']['tomeg'] = $this->weight;
 
-        if (SzamlaAgentUtil::isNotBlank($this->getService())) {
-            $data['mpl']['kulonszolgaltatasok'] = $this->getService();
+        if (!empty($this->service)) {
+            $data['mpl']['kulonszolgaltatasok'] = $this->service;
         }
 
-        if (SzamlaAgentUtil::isNotNull($this->getInsuredValue())) {
-            $data['mpl']['erteknyilvanitas'] = SzamlaAgentUtil::doubleFormat($this->getInsuredValue());
+        if (!empty($this->insuredValue)) {
+            $data['mpl']['erteknyilvanitas'] = $this->insuredValue;
         }
 
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getBuyerCode()
-    {
-        return $this->buyerCode;
-    }
-
-    /**
-     * @param  string  $buyerCode
-     */
-    public function setBuyerCode($buyerCode)
+    public function setBuyerCode(string $buyerCode): self
     {
         $this->buyerCode = $buyerCode;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getWeight()
-    {
-        return $this->weight;
-    }
-
-    /**
-     * @param  string  $weight
-     */
-    public function setWeight($weight)
+    public function setWeight(string $weight): self
     {
         $this->weight = $weight;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getService()
-    {
-        return $this->service;
-    }
-
-    /**
-     * @param  string  $service
-     */
-    public function setService($service)
+    public function setService(string $service): self
     {
         $this->service = $service;
+
+        return $this;
     }
 
-    /**
-     * @return float
-     */
-    public function getInsuredValue()
-    {
-        return $this->insuredValue;
-    }
-
-    /**
-     * @param  float  $insuredValue
-     */
-    public function setInsuredValue($insuredValue)
+    public function setInsuredValue(float $insuredValue): self
     {
         $this->insuredValue = (float) $insuredValue;
+
+        return $this;
     }
 }

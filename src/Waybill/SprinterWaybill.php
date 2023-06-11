@@ -7,79 +7,50 @@ use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
- * Sprinter fuvarlevél
+ * HU: Sprinter fuvarlevél
  */
 class SprinterWaybill extends Waybill
 {
     /**
-     * Fuvarlevél azonosító
-     * a Sprinterrel egyeztetett 3 karakteres rövidítés
-     *
-     * @var string
+     * HU: A Sprinterrel egyeztetett 3 karakteres rövidítés
      */
-    protected $id;
+    protected string $id;
 
     /**
-     * Sprintertől kapott feladókód, 10 jegyű szám
-     *
-     * @var string
+     * HU: Sprintertől kapott feladókód, 10 jegyű szám
      */
-    protected $senderId;
+    protected string $senderId;
 
     /**
-     * Sprinteres iránykód, az a sprinter saját "irányítószáma", pl. "106"
-     *
-     * @var string
+     * HU: Sprinteres iránykód, az a sprinter saját "irányítószáma", pl. "106"
      */
-    protected $shipmentZip;
+    protected string $shipmentZip;
 
     /**
-     * Csomagok száma, ennyi fuvarlevél lesz a számlához összesen
-     *
-     * @var int
+     * HU: Csomagok száma, ennyi fuvarlevél lesz a számlához összesen
      */
-    protected $packetNumber;
+    protected int $numberOfPackages;
 
     /**
-     * Számlánként egyedi vonalkód, 7-13 karakteres azonosító
-     *
-     * @var string
+     * HU: Számlánként egyedi vonalkód, 7-13 karakteres azonosító
      */
-    protected $barcodePostfix;
+    protected string $barcodePostfix;
 
-    /**
-     * Szállítási idő
-     * ez az 1 munkanapos szöveg, többnyire
-     *
-     * @var string
-     */
-    protected $shippingTime;
+    protected string $shippingTime;
 
-    /**
-     * Sprinter fuvarlevél létrehozása
-     *
-     * @param  string  $destination  Úti cél
-     * @param  string  $barcode      Vonalkód
-     * @param  string  $comment      fuvarlevél megjegyzés
-     */
-    public function __construct($destination = '', $barcode = '', $comment = '')
+    public function __construct(string $destination = '', string $barcode = '', string $comment = '')
     {
         parent::__construct($destination, self::WAYBILL_TYPE_SPRINTER, $barcode, $comment);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
             switch ($field) {
-                case 'packetNumber':
+                case 'numberOfPackages':
                     SzamlaAgentUtil::checkIntField($field, $value, false, __CLASS__);
                     break;
                 case 'id':
@@ -96,131 +67,75 @@ class SprinterWaybill extends Waybill
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
         $data['sprinter'] = [];
-        if (SzamlaAgentUtil::isNotBlank($this->getId())) {
-            $data['sprinter']['azonosito'] = $this->getId();
+        if (!empty($this->id)) {
+            $data['sprinter']['azonosito'] = $this->id;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getSenderId())) {
-            $data['sprinter']['feladokod'] = $this->getSenderId();
+        if (!empty($this->senderId)) {
+            $data['sprinter']['feladokod'] = $this->senderId;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getShipmentZip())) {
-            $data['sprinter']['iranykod'] = $this->getShipmentZip();
+        if (!empty($this->shipmentZip)) {
+            $data['sprinter']['iranykod'] = $this->shipmentZip;
         }
-        if (SzamlaAgentUtil::isNotNull($this->getPacketNumber())) {
-            $data['sprinter']['csomagszam'] = $this->getPacketNumber();
+        if (!empty($this->numberOfPackages)) {
+            $data['sprinter']['csomagszam'] = $this->numberOfPackages;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getBarcodePostfix())) {
-            $data['sprinter']['vonalkodPostfix'] = $this->getBarcodePostfix();
+        if (!empty($this->barcodePostfix)) {
+            $data['sprinter']['vonalkodPostfix'] = $this->barcodePostfix;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getShippingTime())) {
-            $data['sprinter']['szallitasiIdo'] = $this->getShippingTime();
+        if (!empty($this->shippingTime)) {
+            $data['sprinter']['szallitasiIdo'] = $this->shippingTime;
         }
 
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param  string  $id
-     */
-    public function setId($id)
+    public function setId(string $id): self
     {
         $this->id = $id;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getSenderId()
-    {
-        return $this->senderId;
-    }
-
-    /**
-     * @param  string  $senderId
-     */
-    public function setSenderId($senderId)
+    public function setSenderId(string $senderId): self
     {
         $this->senderId = $senderId;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getShipmentZip()
-    {
-        return $this->shipmentZip;
-    }
-
-    /**
-     * @param  string  $shipmentZip
-     */
-    public function setShipmentZip($shipmentZip)
+    public function setShipmentZip(string $shipmentZip): self
     {
         $this->shipmentZip = $shipmentZip;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getPacketNumber()
+    public function setPacketNumber(int $numberOfPackages): self
     {
-        return $this->packetNumber;
+        $this->numberOfPackages = $numberOfPackages;
+
+        return $this;
     }
 
-    /**
-     * @param  int  $packetNumber
-     */
-    public function setPacketNumber($packetNumber)
-    {
-        $this->packetNumber = $packetNumber;
-    }
-
-    /**
-     * @return string
-     */
-    public function getBarcodePostfix()
-    {
-        return $this->barcodePostfix;
-    }
-
-    /**
-     * @param  string  $barcodePostfix
-     */
-    public function setBarcodePostfix($barcodePostfix)
+    public function setBarcodePostfix(string $barcodePostfix): self
     {
         $this->barcodePostfix = $barcodePostfix;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getShippingTime()
-    {
-        return $this->shippingTime;
-    }
-
-    /**
-     * @param  string  $shippingTime
-     */
-    public function setShippingTime($shippingTime)
+    public function setShippingTime(string $shippingTime): self
     {
         $this->shippingTime = $shippingTime;
+
+        return $this;
     }
 }

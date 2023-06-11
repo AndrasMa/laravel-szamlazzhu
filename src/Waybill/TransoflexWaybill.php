@@ -7,82 +7,42 @@ use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
- * Transoflex fuvarlevél
+ * HU: Transoflex fuvarlevél
  */
 class TransoflexWaybill extends Waybill
 {
     /**
-     * Fuvarlevél azonosító
-     * a TOF-tól kapott 5 jegyű szám
-     *
-     * @var string
+     * HU: A Transoflextól kapott 5 jegyű szám
      */
-    protected $id;
+    protected string $id;
 
-    /**
-     * Egyedi szállítási azonosító
-     *
-     * @var string
-     */
-    protected $shippingId;
+    protected string $customShippingId;
 
-    /**
-     * Csomagszám
-     *
-     * @var int
-     */
-    protected $packetNumber;
+    protected int $numberOfPackages;
 
-    /**
-     * Országkód
-     *
-     * @var string
-     */
-    protected $countryCode;
+    protected string $countryCode;
 
-    /**
-     * Irányítószám
-     *
-     * @var string
-     */
-    protected $zip;
+    protected string $zip;
 
-    /**
-     * Szolgáltatás
-     *
-     * @var string
-     */
-    protected $service;
+    protected string $service;
 
-    /**
-     * Transoflex fuvarlevél létrehozása
-     *
-     * @param  string  $destination  Úti cél
-     * @param  string  $barcode      Vonalkód
-     * @param  string  $comment      fuvarlevél megjegyzés
-     */
-    public function __construct($destination = '', $barcode = '', $comment = '')
+    public function __construct(string $destination = '', string $barcode = '', string $comment = '')
     {
         parent::__construct($destination, self::WAYBILL_TYPE_TRANSOFLEX, $barcode, $comment);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
             switch ($field) {
-                case 'packetNumber':
+                case 'numberOfPackages':
                     SzamlaAgentUtil::checkIntField($field, $value, false, __CLASS__);
                     break;
                 case 'id':
-                case 'shippingId':
+                case 'customShippingId':
                 case 'countryCode':
                 case 'zip':
                 case 'service':
@@ -95,131 +55,75 @@ class TransoflexWaybill extends Waybill
     }
 
     /**
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         $this->checkFields(get_class());
         $data = parent::buildXmlData($request);
 
         $data['tof'] = [];
-        if (SzamlaAgentUtil::isNotBlank($this->getId())) {
-            $data['tof']['azonosito'] = $this->getId();
+        if (!empty($this->id)) {
+            $data['tof']['azonosito'] = $this->id;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getShippingId())) {
-            $data['tof']['shippingID'] = $this->getShippingId();
+        if (!empty($this->customShippingId)) {
+            $data['tof']['shippingID'] = $this->customShippingId;
         }
-        if (SzamlaAgentUtil::isNotNull($this->getPacketNumber())) {
-            $data['tof']['csomagszam'] = $this->getPacketNumber();
+        if (!empty($this->numberOfPackages)) {
+            $data['tof']['csomagszam'] = $this->numberOfPackages;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getCountryCode())) {
-            $data['tof']['countryCode'] = $this->getCountryCode();
+        if (!empty($this->countryCode)) {
+            $data['tof']['countryCode'] = $this->countryCode;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getZip())) {
-            $data['tof']['zip'] = $this->getZip();
+        if (!empty($this->zip)) {
+            $data['tof']['zip'] = $this->zip;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getService())) {
-            $data['tof']['service'] = $this->getService();
+        if (!empty($this->service)) {
+            $data['tof']['service'] = $this->service;
         }
 
         return $data;
     }
 
-    /**
-     * @return string
-     */
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     * @param  string  $id
-     */
-    public function setId($id)
+    public function setId(string $id): self
     {
         $this->id = $id;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getShippingId()
+    public function setCustomShippingId(string $customShippingId): self
     {
-        return $this->shippingId;
+        $this->customShippingId = $customShippingId;
+
+        return $this;
     }
 
-    /**
-     * @param  string  $shippingId
-     */
-    public function setShippingId($shippingId)
+    public function setPacketNumber(int $numberOfPackages): self
     {
-        $this->shippingId = $shippingId;
+        $this->numberOfPackages = $numberOfPackages;
+
+        return $this;
     }
 
-    /**
-     * @return int
-     */
-    public function getPacketNumber()
-    {
-        return $this->packetNumber;
-    }
-
-    /**
-     * @param  int  $packetNumber
-     */
-    public function setPacketNumber($packetNumber)
-    {
-        $this->packetNumber = $packetNumber;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCountryCode()
-    {
-        return $this->countryCode;
-    }
-
-    /**
-     * @param  string  $countryCode
-     */
-    public function setCountryCode($countryCode)
+    public function setCountryCode(string $countryCode): self
     {
         $this->countryCode = $countryCode;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getZip()
-    {
-        return $this->zip;
-    }
-
-    /**
-     * @param  string  $zip
-     */
-    public function setZip($zip)
+    public function setZip(string $zip): self
     {
         $this->zip = $zip;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getService()
-    {
-        return $this->service;
-    }
-
-    /**
-     * @param  string  $service
-     */
-    public function setService($service)
+    public function setService(string $service): self
     {
         $this->service = $service;
+
+        return $this;
     }
 }
