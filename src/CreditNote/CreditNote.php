@@ -53,8 +53,10 @@ class CreditNote
         return $this;
     }
 
-    public function setDate(Carbon $date): void
+    public function setDate(Carbon $date): self
     {
         $this->date = $date;
+
+        return $this;
     }
 }

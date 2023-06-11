@@ -68,23 +68,31 @@ class Waybill implements HasXmlBuildWithRequestInterface
         return $data;
     }
 
-    public function setDestination(string $destination): void
+    public function setDestination(string $destination): self
     {
         $this->destination = $destination;
+
+        return $this;
     }
 
-    public function setParcel(string $parcel): void
+    public function setParcel(string $parcel): self
     {
         $this->parcel = $parcel;
+
+        return $this;
     }
 
-    public function setBarcode(string $barcode): void
+    public function setBarcode(string $barcode): self
     {
         $this->barcode = $barcode;
+
+        return $this;
     }
 
-    public function setComment(string $comment): void
+    public function setComment(string $comment): self
     {
         $this->comment = $comment;
+
+        return $this;
     }
 }
