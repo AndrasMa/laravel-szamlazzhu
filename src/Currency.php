@@ -2,9 +2,6 @@
 
 namespace Omisai\Szamlazzhu;
 
-/**
- * A Számla Agent-ben használható valuták
- */
 class Currency
 {
     public const CURRENCY_FT = 'Ft';
