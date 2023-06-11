@@ -2,6 +2,8 @@
 
 namespace Omisai\Szamlazzhu;
 
+use Carbon\Carbon;
+
 /**
  * HU: A vevő főkönyvi adatai
  */
@@ -9,59 +11,15 @@ class BuyerLedger
 {
     protected string $buyerId;
 
-    protected string $bookingDate;
+    protected Carbon $bookingDate;
 
     protected string $buyerLedgerNumber;
 
     protected bool $continuedFulfillment;
 
-    protected string $settlementPeriodStart;
+    protected Carbon $settlementPeriodStart;
 
-    protected string $settlementPeriodEnd;
-
-    public function __construct(string $buyerId = '', string $bookingDate = '', string $buyerLedgerNumber = '', bool $continuedFulfillment = false)
-    {
-        $this->setBuyerId($buyerId);
-        $this->setBookingDate($bookingDate);
-        $this->setBuyerLedgerNumber($buyerLedgerNumber);
-        $this->setContinuedFulfillment($continuedFulfillment);
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkField($field, $value): string
-    {
-        if (property_exists($this, $field)) {
-            switch ($field) {
-                case 'bookingDate':
-                case 'settlementPeriodStart':
-                case 'settlementPeriodEnd':
-                    SzamlaAgentUtil::checkDateField($field, $value, false, __CLASS__);
-                    break;
-                case 'continuedFulfillment':
-                    SzamlaAgentUtil::checkBoolField($field, $value, false, __CLASS__);
-                    break;
-                case 'buyerId':
-                case 'buyerLedgerNumber':
-                    SzamlaAgentUtil::checkStrField($field, $value, false, __CLASS__);
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields()
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
+    protected Carbon $settlementPeriodEnd;
 
     /**
      * @throws SzamlaAgentException
@@ -69,87 +27,67 @@ class BuyerLedger
     public function getXmlData(): array
     {
         $data = [];
-        $this->checkFields();
-
-        if (SzamlaAgentUtil::isNotBlank($this->getBookingDate())) {
-            $data['konyvelesDatum'] = $this->getBookingDate();
+        if (!empty($this->bookingDate)) {
+            $data['konyvelesDatum'] = $this->bookingDate->format('Y-m-d');
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getBuyerId())) {
-            $data['vevoAzonosito'] = $this->getBuyerId();
+        if (!empty($this->buyerId)) {
+            $data['vevoAzonosito'] = $this->buyerId;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getBuyerLedgerNumber())) {
-            $data['vevoFokonyviSzam'] = $this->getBuyerLedgerNumber();
+        if (!empty($this->buyerLedgerNumber)) {
+            $data['vevoFokonyviSzam'] = $this->buyerLedgerNumber;
         }
-        if ($this->isContinuedFulfillment()) {
-            $data['folyamatosTelj'] = $this->isContinuedFulfillment();
+        if ($this->continuedFulfillment) {
+            $data['folyamatosTelj'] = $this->continuedFulfillment;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodStart())) {
-            $data['elszDatumTol'] = $this->getSettlementPeriodStart();
+        if (!empty($this->settlementPeriodStart)) {
+            $data['elszDatumTol'] = $this->settlementPeriodStart->format('Y-m-d');
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getSettlementPeriodEnd())) {
-            $data['elszDatumIg'] = $this->getSettlementPeriodEnd();
+        if (!empty($this->settlementPeriodEnd)) {
+            $data['elszDatumIg'] = $this->settlementPeriodEnd->format('Y-m-d');
         }
 
         return $data;
     }
 
-    public function getBuyerId(): string
-    {
-        return $this->buyerId;
-    }
-
-    public function setBuyerId(string $buyerId): void
+    public function setBuyerId(string $buyerId): self
     {
         $this->buyerId = $buyerId;
+
+        return $this;
     }
 
-    public function getBookingDate(): string
-    {
-        return $this->bookingDate;
-    }
-
-    public function setBookingDate(string $bookingDate): void
+    public function setBookingDate(Carbon $bookingDate): self
     {
         $this->bookingDate = $bookingDate;
+
+        return $this;
     }
 
-    public function getBuyerLedgerNumber(): string
-    {
-        return $this->buyerLedgerNumber;
-    }
-
-    public function setBuyerLedgerNumber(string $buyerLedgerNumber): void
+    public function setBuyerLedgerNumber(string $buyerLedgerNumber): self
     {
         $this->buyerLedgerNumber = $buyerLedgerNumber;
+
+        return $this;
     }
 
-    public function isContinuedFulfillment(): bool
-    {
-        return $this->continuedFulfillment;
-    }
-
-    public function setContinuedFulfillment(bool $continuedFulfillment): void
+    public function setContinuedFulfillment(bool $continuedFulfillment): self
     {
         $this->continuedFulfillment = $continuedFulfillment;
+
+        return $this;
     }
 
-    public function getSettlementPeriodStart(): string
-    {
-        return $this->settlementPeriodStart;
-    }
-
-    public function setSettlementPeriodStart(string $settlementPeriodStart): void
+    public function setSettlementPeriodStart(Carbon $settlementPeriodStart): self
     {
         $this->settlementPeriodStart = $settlementPeriodStart;
+
+        return $this;
     }
 
-    public function getSettlementPeriodEnd(): string
-    {
-        return $this->settlementPeriodEnd;
-    }
-
-    public function setSettlementPeriodEnd(string $settlementPeriodEnd): void
+    public function setSettlementPeriodEnd(Carbon $settlementPeriodEnd): self
     {
         $this->settlementPeriodEnd = $settlementPeriodEnd;
+
+        return $this;
     }
 }
