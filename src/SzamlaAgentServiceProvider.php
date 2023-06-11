@@ -33,11 +33,9 @@ class SzamlaAgentServiceProvider extends ServiceProvider
         $this->app->extend('config', function ($config) {
             $config['logging.channels.szamlazzhu'] = [
                 'driver' => 'daily',
-                'root' => storage_path(sprintf('logs/%s', env('SZAMLAZZHU_LOG_FILENAME', 'szamlazzhu'))),
-                'throw' => false,
-                'visibility' => 'private',
-                'directory_visibility' => 'private',
+                'path' => storage_path(sprintf('logs/%s.log', env('SZAMLAZZHU_LOG_FILENAME', 'szamlazzhu'))),
                 'level' => env('SZAMLAZZHU_LOG_LEVEL', 'warning'),
+                'days' => 30,
             ];
 
             return $config;
