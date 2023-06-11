@@ -2,11 +2,14 @@
 
 namespace Omisai\Szamlazzhu;
 
+use Omisai\Szamlazzhu\FieldsValidationTrait;
 /**
  * HU: Adózó (adóalany)
  */
 class TaxPayer
 {
+    use FieldsValidationTrait;
+
     /**
      * Non-EU enterprise
      */
@@ -32,128 +35,42 @@ class TaxPayer
      */
     public const TAXPAYER_NO_TAXNUMBER = -1;
 
-    /**
-     * @var string
-     */
     protected string $taxPayerId;
 
-    /**
-     * @var int
-     */
-    protected int $taxPayerType;
+    protected int $taxPayerType = self::TAXPAYER_WE_DONT_KNOW;
 
-    /**
-     * @var array
-     */
     protected array $requiredFields = ['taxPayerId'];
 
     /**
-     * @param  string  $taxpayerId
-     * @param  int  $taxPayerType
+     * @throws SzamlaAgentException
      */
-    public function __construct($taxpayerId = '', $taxPayerType = self::TAXPAYER_WE_DONT_KNOW)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
-        $this->setTaxPayerId($taxpayerId);
-        $this->setTaxPayerType($taxPayerType);
+        $this->validateFields();
+
+        $data = [];
+        $data['beallitasok'] = $request->getAgent()->getSetting()->buildXmlData($request);
+        $data['torzsszam'] = $this->taxPayerId;
+
+        return $data;
     }
 
-    /**
-     * @return array
-     */
-    protected function getRequiredFields(): array
-    {
-        return $this->requiredFields;
-    }
 
     protected function setRequiredFields(array $requiredFields)
     {
         $this->requiredFields = $requiredFields;
     }
 
-    /**
-     * @return int
-     */
     public function getDefault(): int
     {
         return self::TAXPAYER_WE_DONT_KNOW;
     }
 
-    /**
-     * Validates the field type
-     *
-     * @param  string  $field
-     * @param  mixed  $value
-     * @return string
-     *
-     * @throws SzamlaAgentException
-     */
-    protected function checkField($field, $value)
-    {
-        if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
-            switch ($field) {
-                case 'taxPayerType':
-                    SzamlaAgentUtil::checkIntField($field, $value, $required, __CLASS__);
-                    break;
-                case 'taxPayerId':
-                    SzamlaAgentUtil::checkStrFieldWithRegExp($field, $value, false, __CLASS__, '/[0-9]{8}/');
-                    break;
-            }
-        }
-
-        return $value;
-    }
-
-    /**
-     * Validates the attributes
-     *
-     * @throws SzamlaAgentException
-     */
-    protected function checkFields()
-    {
-        $fields = get_object_vars($this);
-        foreach ($fields as $field => $value) {
-            $this->checkField($field, $value);
-        }
-    }
-
-    /**
-     * Creates the Taxpayer's XML data
-     *
-     * @return array
-     *
-     * @throws SzamlaAgentException
-     */
-    public function buildXmlData(SzamlaAgentRequest $request)
-    {
-        $this->checkFields();
-
-        $data = [];
-        $data['beallitasok'] = $request->getAgent()->getSetting()->buildXmlData($request);
-        $data['torzsszam'] = $this->getTaxPayerId();
-
-        return $data;
-    }
-
-    /**
-     * @return string
-     */
-    public function getTaxPayerId()
-    {
-        return $this->taxPayerId;
-    }
-
-    /**
-     * @param  string  $taxPayerId
-     */
     public function setTaxPayerId(string $taxPayerId)
     {
         $this->taxPayerId = substr($taxPayerId, 0, 8);
     }
 
-    /**
-     * @return int
-     */
     public function getTaxPayerType(): int
     {
         return $this->taxPayerType;
