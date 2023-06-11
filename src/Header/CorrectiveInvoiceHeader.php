@@ -3,20 +3,17 @@
 namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Header\Type;
+use Omisai\Szamlazzhu\SzamlaAgentException;
 
-/**
- * Helyesbítő számla fejléc
- */
 class CorrectiveInvoiceHeader extends InvoiceHeader
 {
     /**
-     * @param  int  $type
-     *
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
-    public function __construct($type = Invoice::INVOICE_TYPE_P_INVOICE)
+    public function __construct(int $type = Invoice::INVOICE_TYPE_P_INVOICE)
     {
         parent::__construct($type);
-        $this->setCorrective(true);
+        $this->setType(Type::CORRECTIVE_INVOICE);
     }
 }

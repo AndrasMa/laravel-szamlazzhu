@@ -7,42 +7,31 @@ use Omisai\Szamlazzhu\Document\Invoice\Invoice;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Header\Type;
 
 /**
  * Sztornó számla fejléc
  */
 class ReverseInvoiceHeader extends InvoiceHeader
 {
-    /**
-     * XML-ben kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = ['invoiceNumber'];
+    protected array $requiredFields = ['invoiceNumber'];
 
     /**
-     * @param  int  $type
-     *
      * @throws SzamlaAgentException
      */
-    public function __construct($type = Invoice::INVOICE_TYPE_P_INVOICE)
+    public function __construct(int $type = Invoice::INVOICE_TYPE_P_INVOICE)
     {
         parent::__construct($type);
-        $this->setReserveInvoice(true);
+        $this->setType(Type::REVERSE_INVOICE);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    public function checkField($field, $value)
+    public function checkField(string $field, mixed $value): mixed
     {
         if (property_exists(get_parent_class($this), $field) || property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'issueDate':
                 case 'fulfillment':
@@ -59,17 +48,9 @@ class ReverseInvoiceHeader extends InvoiceHeader
     }
 
     /**
-     * Összeállítja a bizonylat elkészítéséhez szükséges XML fejléc adatokat
-     *
-     * Csak azokat az XML mezőket adjuk hozzá, amelyek kötelezőek,
-     * illetve amelyek opcionálisak, de ki vannak töltve.
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
 
         try {
@@ -79,20 +60,20 @@ class ReverseInvoiceHeader extends InvoiceHeader
 
             $data['szamlaszam'] = $this->getInvoiceNumber();
 
-            if (! empty($this->getIssueDate())) {
-                $data['keltDatum'] = $this->getIssueDate();
+            if (!empty($this->issueDate)) {
+                $data['keltDatum'] = $this->issueDate;
             }
-            if (! empty($this->getFulfillment())) {
-                $data['teljesitesDatum'] = $this->getFulfillment();
+            if (!empty($this->fulfillment)) {
+                $data['teljesitesDatum'] = $this->fulfillment;
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
-                $data['megjegyzes'] = $this->getComment();
+            if (!empty($this->comment)) {
+                $data['megjegyzes'] = $this->comment;
             }
 
             $data['tipus'] = Document::DOCUMENT_TYPE_REVERSE_INVOICE_CODE;
 
-            if (! empty($this->getInvoiceTemplate())) {
-                $data['szamlaSablon'] = $this->getInvoiceTemplate();
+            if (!empty($this->invoiceTemplate)) {
+                $data['szamlaSablon'] = $this->invoiceTemplate;
             }
 
             $this->checkFields();

@@ -4,222 +4,67 @@ namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\Document\Document;
 use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\PaymentMethod;
+use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Header\Type;
 
-/**
- * Számla fejléc
- */
-class InvoiceHeader extends DocumentHeader
+class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInterface
 {
-    /**
-     * Számlaszám
-     *
-     * @var string
-     */
-    protected $invoiceNumber;
+    protected string $invoiceNumber;
 
     /**
-     * Számla típusa
-     *
      * INVOICE_TYPE_P_INVOICE : papírszámla
      * INVOICE_TYPE_E_INVOICE : e-számla
-     *
-     * @var int
      */
-    protected $invoiceType;
+    protected int $invoiceType;
+
+    protected string $issueDate;
+
+    protected string $language;
+
+    protected string $fulfillment;
+
+    protected string $paymentDue;
+
+    protected string $extraLogo;
+
+    protected float $correctionToPay;
+
+    protected string $correctivedNumber;
+
+    protected string $orderNumber;
+
+    protected string $proformaNumber;
+
+    protected bool $paid = false;
 
     /**
-     * Bizonylat kelte
-     * (a bizonylat kiadásának dátuma)
-     *
-     * @var string
+     * HU: Ez a bizonylat árrés alapján áfázik-e?
      */
-    protected $issueDate;
+    protected bool $profitVat = false;
 
     /**
-     * Bizonylat fizetési módja
-     *
-     * PAYMENT_METHOD_TRANSFER         : 'átutalás';
-     * PAYMENT_METHOD_CASH             : 'készpénz';
-     * PAYMENT_METHOD_BANKCARD         : 'bankkártya';
-     * PAYMENT_METHOD_CHEQUE           : 'csekk';
-     * PAYMENT_METHOD_CASH_ON_DELIVERY : 'utánvét';
-     * PAYMENT_METHOD_PAYPAL           : 'PayPal';
-     * PAYMENT_METHOD_SZEP_CARD        : 'SZÉP kártya';
-     * PAYMENT_METHOD_OTP_SIMPLE       : 'OTP Simple';
-     *
-     * @var int
-     */
-    protected $paymentMethod;
-
-    /**
-     * Bizonylat pénzneme
-     *
-     * @var string
-     */
-    protected $currency;
-
-    /**
-     * Bizonylat nyelve
-     *
-     * @var string
-     */
-    protected $language;
-
-    /**
-     * Bizonylat teljesítési dátuma
-     *
-     * @var string
-     */
-    protected $fulfillment;
-
-    /**
-     * Bizonylat fizetési határideje
-     *
-     * @var string
-     */
-    protected $paymentDue;
-
-    /**
-     * A bizonylat előtagja
-     *
-     * @var string
-     */
-    protected $prefix = '';
-
-    /**
-     * A bizonylaton másodikként megjelenő logó (fájl) neve.
-     *
-     * @var string
-     */
-    protected $extraLogo;
-
-    /**
-     * Bizonylat végösszegét korrigáló tétel.
-     * Nem befolyásolja a bruttó értéket, csak mint fizetendőt kell feltüntetni.
-     *
-     * @var float
-     */
-    protected $correctionToPay;
-
-    /**
-     * Helyesbített számlaszám
-     *
-     * @var string
-     */
-    protected $correctivedNumber = '';
-
-    /**
-     * Bizonylat megjegyzés
-     *
-     * @var string
-     */
-    protected $comment;
-
-    /**
-     * Deviza árfolyamot jegyző bank neve
-     *
-     * Devizás bizonylat esetén meg kell adni, hogy melyik bank árfolyamával számoltuk a bizonylaton a forintos ÁFA értéket.
-     * Ha 'MNB' és nincs megadva az árfolyam ($exchangeRate), akkor az 'MNB' aktuális árfolyamát használjuk a bizonylat elkészítésekor.
-     *
-     * @var string
-     */
-    protected $exchangeBank;
-
-    /**
-     * Deviza árfolyama
-     *
-     * Ha nincs megadva vagy 0-t adunk meg az árfolyam ($exchangeRate) értékének és a megadott pénznem ($currency) létezik az MNB adatbázisában,
-     * akkor az MNB aktuális árfolyamát használjuk a számlakészítéskor.
-     *
-     * @var float
-     */
-    protected $exchangeRate;
-
-    /**
-     * Rendelésszám
-     *
-     * @var string
-     */
-    protected $orderNumber = '';
-
-    /**
-     * Hivatkozás a díjbekérőre
-     * A számla kibocsátásakor explicit megadhatjuk annak a díjbekérőnek a számát, amire hivatkozva történik a számlakibocsátás.
-     *
-     * @var string
-     */
-    protected $proformaNumber = '';
-
-    /**
-     * A bizonylat kifizetettsége
-     *
-     * @var bool
-     */
-    protected $paid = false;
-
-    /**
-     * Ez a bizonylat árrés alapján áfázik-e?
-     *
-     * @var bool
-     */
-    protected $profitVat = false;
-
-    /**
-     * Számlasablon
-     * Ez a számlakép sablon lesz használva a számla kibocsátásánál.
-     *
      * INVOICE_TEMPLATE_DEFAULT      : 'SzlaMost';
      * INVOICE_TEMPLATE_TRADITIONAL  : 'SzlaAlap';
      * INVOICE_TEMPLATE_ENV_FRIENDLY : 'SzlaNoEnv';
      * INVOICE_TEMPLATE_8CM          : 'Szla8cm';
      * INVOICE_TEMPLATE_RETRO        : 'SzlaTomb';
-     *
-     * @var string
      */
-    protected $invoiceTemplate = Invoice::INVOICE_TEMPLATE_DEFAULT;
+    protected string $invoiceTemplate = Invoice::INVOICE_TEMPLATE_DEFAULT;
+
+    protected string $prePaymentInvoiceNumber;
+
+    protected bool $previewPdf = false;
+
+    protected bool $euVat = false;
 
     /**
-     * Előlegszámla számlaszám
-     * (ha a végszámlázandó előlegszámla nem azonosítható a rendelésszámmal, akkor itt megadhatod az előlegszámla számlaszámát)
-     *
-     * @var string
-     */
-    protected $prePaymentInvoiceNumber;
-
-    /**
-     * Ez a bizonylat előnézeti PDF-e?
-     * Ebben az esetben bizonylat nem készül!
-     *
-     * @var bool
-     */
-    protected $previewPdf = false;
-
-    /**
-     * A bizonylat nem magyar áfát tartalmaz-e.
-     * Ha tartalmaz, akkor a bizonylat adatai nem lesznek továbbítva a NAV Online Számla rendszere felé.
-     *
-     * @var bool
-     */
-    protected $euVat = false;
-
-    /**
-     * XML-ben kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = [];
-
-    /**
-     * InvoiceHeader constructor.
-     *
-     * @param  int  $type
-     *
      * @throws SzamlaAgentException
      */
-    public function __construct($type = Invoice::INVOICE_TYPE_P_INVOICE)
+    public function __construct(int $type = Invoice::INVOICE_TYPE_P_INVOICE)
     {
         if (! empty($type)) {
             $this->setDefaultData($type);
@@ -227,44 +72,35 @@ class InvoiceHeader extends DocumentHeader
     }
 
     /**
-     * Beállítja a bizonylat alapértelmezett adatait
-     *
-     *
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    public function setDefaultData($type)
+    public function setDefaultData(int $type)
     {
-        // A bizonylat számla típusú
-        $this->setInvoice(true);
-        // Számla típusa (papír vagy e-számla)
+        $this->setType(Type::INVOICE);
+
         $this->setInvoiceType($type);
-        // Számla kiállítás dátuma
+
         $this->setIssueDate(date('Y-m-d'));
-        // Számla fizetési módja (átutalás)
-        $this->setPaymentMethod(Document::PAYMENT_METHOD_TRANSFER);
-        // Számla pénzneme
+
+        $this->setPaymentMethod(PaymentMethod::PAYMENT_METHOD_TRANSFER);
+
         $this->setCurrency(Document::getDefaultCurrency());
-        // Számla nyelve
+
         $this->setLanguage(Document::getDefaultLanguage());
-        // Számla teljesítés dátuma
+
         $this->setFulfillment(date('Y-m-d'));
-        // Számla fizetési határideje
+
         $this->setPaymentDue(SzamlaAgentUtil::addDaysToDate(SzamlaAgentUtil::DEFAULT_ADDED_DAYS));
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'issueDate':
                 case 'fulfillment':
@@ -288,6 +124,8 @@ class InvoiceHeader extends DocumentHeader
                     SzamlaAgentUtil::checkBoolField($field, $value, $required, __CLASS__);
                     break;
                 case 'paymentMethod':
+                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
+                    break;
                 case 'currency':
                 case 'comment':
                 case 'exchangeBank':
@@ -307,11 +145,9 @@ class InvoiceHeader extends DocumentHeader
     }
 
     /**
-     * Ellenőrizzük a mezőket
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkFields()
+    protected function checkFields(): void
     {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
@@ -320,17 +156,9 @@ class InvoiceHeader extends DocumentHeader
     }
 
     /**
-     * Összeállítja a bizonylat elkészítéséhez szükséges XML fejléc adatokat
-     *
-     * Csak azokat az XML mezőket adjuk hozzá, amelyek kötelezőek,
-     * illetve amelyek opcionálisak, de ki vannak töltve.
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
 
         try {
@@ -343,30 +171,30 @@ class InvoiceHeader extends DocumentHeader
             ]);
 
             $data = [
-                'keltDatum' => $this->getIssueDate(),
-                'teljesitesDatum' => $this->getFulfillment(),
-                'fizetesiHataridoDatum' => $this->getPaymentDue(),
-                'fizmod' => $this->getPaymentMethod(),
-                'penznem' => $this->getCurrency(),
-                'szamlaNyelve' => $this->getLanguage(),
+                'keltDatum' => $this->issueDate,
+                'teljesitesDatum' => $this->fulfillment,
+                'fizetesiHataridoDatum' => $this->paymentDue,
+                'fizmod' => $this->paymentMethod,
+                'penznem' => $this->currency,
+                'szamlaNyelve' => $this->language,
             ];
 
-            if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
-                $data['megjegyzes'] = $this->getComment();
+            if (!empty($this->comment)) {
+                $data['megjegyzes'] = $this->comment;
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getExchangeBank())) {
-                $data['arfolyamBank'] = $this->getExchangeBank();
-            }
-
-            if (SzamlaAgentUtil::isNotNull($this->getExchangeRate())) {
-                $data['arfolyam'] = SzamlaAgentUtil::doubleFormat($this->getExchangeRate());
+            if (!empty($this->exchangeBank)) {
+                $data['arfolyamBank'] = $this->exchangeBank;
             }
 
-            if (SzamlaAgentUtil::isNotBlank($this->getOrderNumber())) {
-                $data['rendelesSzam'] = $this->getOrderNumber();
+            if (!empty($this->exchangeRate)) {
+                $data['arfolyam'] = $this->exchangeRate;
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getProformaNumber())) {
-                $data['dijbekeroSzamlaszam'] = $this->getProformaNumber();
+
+            if (!empty($this->orderNumber)) {
+                $data['rendelesSzam'] = $this->orderNumber;
+            }
+            if (!empty($this->proformaNumber)) {
+                $data['dijbekeroSzamlaszam'] = $this->proformaNumber;
             }
             if ($this->isPrePayment()) {
                 $data['elolegszamla'] = $this->isPrePayment();
@@ -374,14 +202,14 @@ class InvoiceHeader extends DocumentHeader
             if ($this->isFinal()) {
                 $data['vegszamla'] = $this->isFinal();
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getPrePaymentInvoiceNumber())) {
-                $data['elolegSzamlaszam'] = $this->getPrePaymentInvoiceNumber();
+            if (!empty($this->prePaymentInvoiceNumber)) {
+                $data['elolegSzamlaszam'] = $this->prePaymentInvoiceNumber;
             }
             if ($this->isCorrective()) {
                 $data['helyesbitoszamla'] = $this->isCorrective();
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getCorrectivedNumber())) {
-                $data['helyesbitettSzamlaszam'] = $this->getCorrectivedNumber();
+            if (!empty($this->correctivedNumber)) {
+                $data['helyesbitettSzamlaszam'] = $this->correctivedNumber;
             }
             if ($this->isProforma()) {
                 $data['dijbekero'] = $this->isProforma();
@@ -389,32 +217,32 @@ class InvoiceHeader extends DocumentHeader
             if ($this->isDeliveryNote()) {
                 $data['szallitolevel'] = $this->isDeliveryNote();
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getExtraLogo())) {
-                $data['logoExtra'] = $this->getExtraLogo();
+            if (!empty($this->extraLogo)) {
+                $data['logoExtra'] = $this->extraLogo;
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getPrefix())) {
-                $data['szamlaszamElotag'] = $this->getPrefix();
+            if (!empty($this->prefix)) {
+                $data['szamlaszamElotag'] = $this->prefix;
             }
 
-            if (SzamlaAgentUtil::isNotNull($this->getCorrectionToPay()) && $this->getCorrectionToPay() !== 0) {
-                $data['fizetendoKorrekcio'] = SzamlaAgentUtil::doubleFormat($this->getCorrectionToPay());
+            if (!empty($this->correctionToPay)) {
+                $data['fizetendoKorrekcio'] = $this->correctionToPay;
             }
 
             if ($this->isPaid()) {
-                $data['fizetve'] = $this->isPaid();
+                $data['fizetve'] = true;
             }
             if ($this->isProfitVat()) {
-                $data['arresAfa'] = $this->isProfitVat();
+                $data['arresAfa'] = true;
             }
 
             $data['eusAfa'] = ($this->isEuVat() ? true : false);
 
-            if (SzamlaAgentUtil::isNotBlank($this->getInvoiceTemplate())) {
-                $data['szamlaSablon'] = $this->getInvoiceTemplate();
+            if (!empty($this->invoiceTemplate)) {
+                $data['szamlaSablon'] = $this->invoiceTemplate;
             }
 
             if ($this->isPreviewPdf()) {
-                $data['elonezetpdf'] = $this->isPreviewPdf();
+                $data['elonezetpdf'] = true;
             }
 
             $this->checkFields();
@@ -425,345 +253,124 @@ class InvoiceHeader extends DocumentHeader
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getIssueDate()
-    {
-        return $this->issueDate;
-    }
-
-    /**
-     * @param  string  $issueDate
-     */
-    public function setIssueDate($issueDate)
+    public function setIssueDate(string $issueDate): self
     {
         $this->issueDate = $issueDate;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPaymentMethod()
-    {
-        return $this->paymentMethod;
-    }
-
-    /**
-     * @param  string  $paymentMethod
-     */
-    public function setPaymentMethod($paymentMethod)
-    {
-        $this->paymentMethod = $paymentMethod;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
-    }
-
-    /**
-     * @param  string  $currency
-     */
-    public function setCurrency($currency)
-    {
-        $this->currency = $currency;
-    }
-
-    /**
-     * @return string
-     */
-    public function getLanguage()
-    {
-        return $this->language;
-    }
-
-    /**
-     * @param  string  $language
-     */
-    public function setLanguage($language)
+    public function setLanguage(string $language): self
     {
         $this->language = $language;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getFulfillment()
-    {
-        return $this->fulfillment;
-    }
-
-    /**
-     * @param  string  $fulfillment
-     */
-    public function setFulfillment($fulfillment)
+    public function setFulfillment(string $fulfillment): self
     {
         $this->fulfillment = $fulfillment;
+
+        return $this;;
     }
 
-    /**
-     * @return string
-     */
-    public function getPaymentDue()
-    {
-        return $this->paymentDue;
-    }
-
-    /**
-     * @param  string  $paymentDue
-     */
-    public function setPaymentDue($paymentDue)
+    public function setPaymentDue(string $paymentDue): self
     {
         $this->paymentDue = $paymentDue;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * A bizonylat előtagjának beállítása
-     * Üres előtag esetén az alapértelmezett előtagot fogja használni a rendszer.
-     *
-     * @param  string  $prefix
-     */
-    public function setPrefix($prefix)
-    {
-        $this->prefix = $prefix;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExtraLogo()
-    {
-        return $this->extraLogo;
-    }
-
-    /**
-     * @param  string  $extraLogo
-     */
-    public function setExtraLogo($extraLogo)
+    public function setExtraLogo(string $extraLogo): self
     {
         $this->extraLogo = $extraLogo;
+
+        return $this;
     }
 
-    /**
-     * @return float
-     */
-    public function getCorrectionToPay()
-    {
-        return $this->correctionToPay;
-    }
-
-    /**
-     * @param  float  $correctionToPay
-     */
-    public function setCorrectionToPay($correctionToPay)
+    public function setCorrectionToPay(float $correctionToPay): self
     {
         $this->correctionToPay = (float) $correctionToPay;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getComment()
-    {
-        return $this->comment;
-    }
-
-    /**
-     * @param  string  $comment
-     */
-    public function setComment($comment)
-    {
-        $this->comment = $comment;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExchangeBank()
-    {
-        return $this->exchangeBank;
-    }
-
-    /**
-     * @param  string  $exchangeBank
-     */
-    public function setExchangeBank($exchangeBank)
-    {
-        $this->exchangeBank = $exchangeBank;
-    }
-
-    /**
-     * @return float
-     */
-    public function getExchangeRate()
-    {
-        return $this->exchangeRate;
-    }
-
-    /**
-     * @param  float  $exchangeRate
-     */
-    public function setExchangeRate($exchangeRate)
-    {
-        $this->exchangeRate = (float) $exchangeRate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOrderNumber()
-    {
-        return $this->orderNumber;
-    }
-
-    /**
-     * @param  string  $orderNumber
-     */
-    public function setOrderNumber($orderNumber)
+    public function setOrderNumber(string $orderNumber): self
     {
         $this->orderNumber = $orderNumber;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPrePaymentInvoiceNumber()
-    {
-        return $this->prePaymentInvoiceNumber;
-    }
-
-    /**
-     * @param  string  $prePaymentInvoiceNumber
-     */
-    public function setPrePaymentInvoiceNumber($prePaymentInvoiceNumber)
+    public function setPrePaymentInvoiceNumber(string $prePaymentInvoiceNumber): self
     {
         $this->prePaymentInvoiceNumber = $prePaymentInvoiceNumber;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getProformaNumber()
-    {
-        return $this->proformaNumber;
-    }
-
-    /**
-     * Beállítja annak a díjbekérőnek a számát, amire hivatkozva történik a számlakibocsátás
-     *
-     * @param  string  $proformaNumber
-     */
-    public function setProformaNumber($proformaNumber)
+    public function setProformaNumber(string $proformaNumber): self
     {
         $this->proformaNumber = $proformaNumber;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPaid()
+    public function isPaid(): bool
     {
         return $this->paid;
     }
 
-    /**
-     * @param  bool  $paid
-     */
-    public function setPaid($paid)
+    public function setPaid(bool $paid): self
     {
         $this->paid = $paid;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isProfitVat()
+    public function isProfitVat(): bool
     {
         return $this->profitVat;
     }
 
-    /**
-     * @param  bool  $profitVat
-     */
-    public function setProfitVat($profitVat)
+    public function setProfitVat(bool $profitVat): self
     {
         $this->profitVat = $profitVat;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCorrectivedNumber()
-    {
-        return $this->correctivedNumber;
-    }
-
-    /**
-     * @param  string  $correctivedNumber
-     */
-    public function setCorrectivedNumber($correctivedNumber)
+    public function setCorrectivedNumber(string $correctivedNumber): self
     {
         $this->correctivedNumber = $correctivedNumber;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getInvoiceNumber()
+    public function getInvoiceNumber(): string
     {
         return $this->invoiceNumber;
     }
 
-    /**
-     * @param  string  $invoiceNumber
-     */
-    public function setInvoiceNumber($invoiceNumber)
+    public function setInvoiceNumber(string $invoiceNumber): self
     {
         $this->invoiceNumber = $invoiceNumber;
+
+        return $this;
     }
 
     /**
-     * @return int
+     * Invoice::INVOICE_TEMPLATE_DEFAULT (számlázz.hu ajánlott számlakép)
+     * Invoice::INVOICE_TEMPLATE_TRADITIONAL (tradicionális számlakép)
+     * Invoice::INVOICE_TEMPLATE_ENV_FRIENDLY (borítékbarát számlakép)
+     * Invoice::INVOICE_TEMPLATE_8CM (hőnyomtatós számlakép - 8 cm széles)
+     * Invoice::INVOICE_TEMPLATE_RETRO (retró kéziszámla számlakép)
      */
-    public function getInvoiceTemplate()
-    {
-        return $this->invoiceTemplate;
-    }
-
-    /**
-     * Számlakép sablon beállítása
-     *
-     * INVOICE_TEMPLATE_DEFAULT      (számlázz.hu ajánlott számlakép)
-     * INVOICE_TEMPLATE_TRADITIONAL  (tradicionális számlakép)
-     * INVOICE_TEMPLATE_ENV_FRIENDLY (borítékbarát számlakép)
-     * INVOICE_TEMPLATE_8CM          (hőnyomtatós számlakép - 8 cm széles)
-     * INVOICE_TEMPLATE_RETRO        (retró kéziszámla számlakép)
-     *
-     * @param  string  $invoiceTemplate
-     */
-    public function setInvoiceTemplate($invoiceTemplate)
+    public function setInvoiceTemplate(string $invoiceTemplate): self
     {
         $this->invoiceTemplate = $invoiceTemplate;
-    }
 
-    /**
-     * @return int
-     */
-    public function getInvoiceType()
-    {
-        return $this->invoiceType;
+        return $this;
     }
 
     public function setInvoiceType($type)
@@ -771,62 +378,47 @@ class InvoiceHeader extends DocumentHeader
         $this->invoiceType = $type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEInvoice()
+    public function isEInvoice(): bool
     {
-        return $this->getInvoiceType() == Invoice::INVOICE_TYPE_E_INVOICE;
+        return $this->invoiceType == Invoice::INVOICE_TYPE_E_INVOICE;
     }
 
-    /**
-     * @return array
-     */
-    protected function getRequiredFields()
-    {
-        return $this->requiredFields;
-    }
-
-    protected function setRequiredFields(array $requiredFields)
+    protected function setRequiredFields(array $requiredFields): self
     {
         $this->requiredFields = $requiredFields;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPreviewPdf()
+    public function isPreviewPdf(): bool
     {
         return $this->previewPdf;
     }
 
     /**
-     * Beállítja a bizonylatot előnézeti PDF-re.
+     * HU: Beállítja a bizonylatot előnézeti PDF-re.
      * Ebben az esetben bizonylat nem készül.
-     *
-     * @param  bool  $previewPdf
      */
-    public function setPreviewPdf($previewPdf)
+    public function setPreviewPdf(bool $previewPdf): self
     {
         $this->previewPdf = $previewPdf;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isEuVat()
+    public function isEuVat(): bool
     {
         return $this->euVat;
     }
 
     /**
-     * Beállítja a bizonylathoz, hogy nem magyar áfát tartalmaz-e.
+     * HU: Beállítja a bizonylathoz, hogy nem magyar áfát tartalmaz-e.
      * Ha tartalmaz, akkor a bizonylat adatai nem lesznek továbbítva a NAV Online Számla rendszere felé.
-     *
-     * @param  bool  $euVat
      */
-    public function setEuVat($euVat)
+    public function setEuVat(bool $euVat): self
     {
         $this->euVat = $euVat;
+
+        return $this;
     }
 }

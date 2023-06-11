@@ -3,21 +3,18 @@
 namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\Document\Invoice\Invoice;
+use Omisai\Szamlazzhu\Header\Type;
+use Omisai\Szamlazzhu\SzamlaAgentException;
 
-/**
- * Előlegszámla fejléc
- */
 class PrePaymentInvoiceHeader extends InvoiceHeader
 {
     /**
-     * @param  int  $type
-     *
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
-    public function __construct($type = Invoice::INVOICE_TYPE_P_INVOICE)
+    public function __construct(int $type = Invoice::INVOICE_TYPE_P_INVOICE)
     {
         parent::__construct($type);
-        $this->setPrePayment(true);
+        $this->setType(Type::PREPAYMENT_INVOICE);
         $this->setPaid(false);
     }
 }

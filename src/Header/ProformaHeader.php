@@ -4,42 +4,24 @@ namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Header\Type;
 
-/**
- * Díjbekérő fejléc
- */
 class ProformaHeader extends InvoiceHeader
 {
     /**
-     * XML-ben kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = [];
-
-    /**
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
     public function __construct()
     {
         parent::__construct();
-        $this->setProforma(true);
+        $this->setType(Type::PROFORMA_INVOICE);
         $this->setPaid(false);
     }
 
     /**
-     * Összeállítja a bizonylat elkészítéséhez szükséges XML fejléc adatokat
-     *
-     * Csak azokat az XML mezőket adjuk hozzá, amelyek kötelezőek,
-     * illetve amelyek opcionálisak, de ki vannak töltve.
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         try {
             if (empty($request)) {
@@ -49,11 +31,11 @@ class ProformaHeader extends InvoiceHeader
             $data = [];
             switch ($request->getXmlName()) {
                 case $request::XML_SCHEMA_DELETE_PROFORMA:
-                    if (SzamlaAgentUtil::isNotBlank($this->getInvoiceNumber())) {
-                        $data['szamlaszam'] = $this->getInvoiceNumber();
+                    if (!empty($this->invoiceNumber)) {
+                        $data['szamlaszam'] = $this->invoiceNumber;
                     }
-                    if (SzamlaAgentUtil::isNotBlank($this->getOrderNumber())) {
-                        $data['rendelesszam'] = $this->getOrderNumber();
+                    if (!empty($this->orderNumber)) {
+                        $data['rendelesszam'] = $this->orderNumber;
                     }
                     $this->checkFields();
                     break;

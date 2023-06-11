@@ -2,223 +2,144 @@
 
 namespace Omisai\Szamlazzhu\Header;
 
-/**
- * Bizonylat fejléc
- */
+use Omisai\Szamlazzhu\Header\Type;
+use Omisai\Szamlazzhu\PaymentMethod;
+
 class DocumentHeader
 {
+    protected Type $type;
+
+    protected PaymentMethod $paymentMethod;
+
+    protected string $currency;
+
+    protected string $prefix = '';
+
+    protected string $comment;
     /**
-     * A bizonylat számla-e
-     *
-     * @var bool
+     * HU: Devizás bizonylat esetén meg kell adni, hogy melyik bank árfolyamával
+     * számoltuk a bizonylaton a forintos ÁFA értéket.
+     * Ha 'MNB' és nincs megadva az árfolyam ($exchangeRate),
+     * akkor az 'MNB' aktuális árfolyamát használjuk a bizonylat elkészítésekor.
      */
-    protected $invoice = false;
+    protected string $exchangeBank = "MNB";
 
     /**
-     * A bizonylat sztornó számla-e
-     *
-     * @var bool
+     * HU: Ha nincs megadva vagy 0-t adunk meg az árfolyam ($exchangeRate) értékének
+     * és a megadott pénznem ($currency) létezik az MNB adatbázisában,
+     * akkor az MNB aktuális árfolyamát használjuk a számlakészítéskor.
      */
-    protected $reserveInvoice = false;
+    protected float $exchangeRate;
 
-    /**
-     * A bizonylat előlegszámla-e
-     *
-     * @var bool
-     */
-    protected $prePayment = false;
+    protected array $requiredFields;
 
-    /**
-     * A bizonylat végszámla-e
-     *
-     * @var bool
-     */
-    protected $final = false;
-
-    /**
-     * A bizonylat helyesbítő számla-e
-     *
-     * @var bool
-     */
-    protected $corrective = false;
-
-    /**
-     * A bizonylat díjbekérő-e
-     *
-     * @var bool
-     */
-    protected $proforma = false;
-
-    /**
-     * A bizonylat szállítólevél-e
-     *
-     * @var bool
-     */
-    protected $deliveryNote = false;
-
-    /**
-     * A bizonylat nyugta-e
-     *
-     * @var bool
-     */
-    protected $receipt = false;
-
-    /**
-     * A bizonylat sztornó nyugta-e
-     *
-     * @var bool
-     */
-    protected $reverseReceipt = false;
-
-    /**
-     * @return bool
-     */
-    public function isInvoice()
+    public function setType(Type $type): self
     {
-        return $this->invoice;
+        $this->type = $type;
+
+        return $this;
     }
 
-    /**
-     * @param  bool  $invoice
-     */
-    public function setInvoice($invoice)
+    public function getPaymentMethod(): string
     {
-        $this->invoice = $invoice;
+        return $this->paymentMethod->value;
     }
 
-    /**
-     * @return bool
-     */
-    public function isReserveInvoice()
+    public function setPaymentMethod(PaymentMethod $paymentMethod): self
     {
-        return $this->reserveInvoice;
+        $this->paymentMethod = $paymentMethod;
+
+        return $this;
+    }
+    public function setPaymentMethodByString(string $paymentMethod): self
+    {
+        $this->paymentMethod = PaymentMethod::tryFrom($paymentMethod);
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isNotReserveInvoice()
+    public function setCurrency(string $currency): self
     {
-        return ! $this->reserveInvoice;
+        $this->currency = $currency;
+
+        return $this;
     }
 
-    /**
-     * @param  bool  $reserveInvoice
-     */
-    public function setReserveInvoice($reserveInvoice)
+    public function setPrefix(string $prefix): self
     {
-        $this->reserveInvoice = $reserveInvoice;
+        $this->prefix = $prefix;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isPrePayment()
+    public function setComment(string $comment): self
     {
-        return $this->prePayment;
+        $this->comment = $comment;
+
+        return $this;
     }
 
-    /**
-     * @param  bool  $prePayment
-     */
-    public function setPrePayment($prePayment)
+    public function setExchangeBank(string $exchangeBank): self
     {
-        $this->prePayment = $prePayment;
+        $this->exchangeBank = $exchangeBank;
+
+        return $this;
     }
 
-    /**
-     * @return bool
-     */
-    public function isFinal()
+    public function setExchangeRate(float $exchangeRate): self
     {
-        return $this->final;
+        $this->exchangeRate = (float) $exchangeRate;
+
+        return $this;
     }
 
-    /**
-     * @param  bool  $final
-     */
-    public function setFinal($final)
+    public function isInvoice(): bool
     {
-        $this->final = $final;
+        return Type::INVOICE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isCorrective()
+    public function isReserveInvoice(): bool
     {
-        return $this->corrective;
+        return Type::REVERSE_INVOICE === $this->type;
     }
 
-    /**
-     * @param  bool  $corrective
-     */
-    public function setCorrective($corrective)
+    public function isNotReserveInvoice(): bool
     {
-        $this->corrective = $corrective;
+        return Type::REVERSE_INVOICE !== $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isProforma()
+    public function isPrePayment(): bool
     {
-        return $this->proforma;
+        return Type::PREPAYMENT_INVOICE === $this->type;
     }
 
-    /**
-     * @param  bool  $proforma
-     */
-    public function setProforma($proforma)
+    public function isFinal(): bool
     {
-        $this->proforma = $proforma;
+        return Type::FINAL_INVOICE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isDeliveryNote()
+    public function isCorrective(): bool
     {
-        return $this->deliveryNote;
+        return Type::CORRECTIVE_INVOICE === $this->type;
     }
 
-    /**
-     * @param  bool  $deliveryNote
-     */
-    public function setDeliveryNote($deliveryNote)
+    public function isProforma(): bool
     {
-        $this->deliveryNote = $deliveryNote;
+        return Type::PROFORMA_INVOICE === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isReceipt()
+    public function isDeliveryNote(): bool
     {
-        return $this->receipt;
+        return Type::DELIVERY_NOTE === $this->type;
     }
 
-    /**
-     * @param  bool  $receipt
-     */
-    public function setReceipt($receipt)
+    public function isReceipt(): bool
     {
-        $this->receipt = $receipt;
+        return Type::RECEIPT === $this->type;
     }
 
-    /**
-     * @return bool
-     */
-    public function isReverseReceipt()
+    public function isReverseReceipt(): bool
     {
-        return $this->reverseReceipt;
-    }
-
-    /**
-     * @param  bool  $reverseReceipt
-     */
-    public function setReverseReceipt($reverseReceipt)
-    {
-        $this->reverseReceipt = $reverseReceipt;
+        return Type::REVERSE_RECEIPT === $this->type;
     }
 }

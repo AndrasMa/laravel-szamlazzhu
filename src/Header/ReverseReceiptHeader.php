@@ -4,43 +4,25 @@ namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Header\Type;
 
-/**
- * Sztornó nyugta fejléc
- */
 class ReverseReceiptHeader extends ReceiptHeader
 {
-    /**
-     * XML-ben kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields = ['receiptNumber'];
+    protected array $requiredFields = ['receiptNumber'];
 
-    /**
-     * Sztornó nyugta fejléc létrehozása
-     * Beállítja a nyugta fejlécének alapértelmezett adatait
-     *
-     * @param  string  $receiptNumber nyugtaszám
-     */
-    public function __construct($receiptNumber = '')
+    public function __construct(string $receiptNumber = '')
     {
         parent::__construct($receiptNumber);
-        $this->setReverseReceipt(true);
+        $this->setType(Type::REVERSE_RECEIPT);
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    public function checkField($field, $value)
+    public function checkField($field, $value): mixed
     {
         if (property_exists(get_parent_class($this), $field) || property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'receiptNumber':
                 case 'pdfTemplate':

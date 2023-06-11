@@ -2,18 +2,18 @@
 
 namespace Omisai\Szamlazzhu\Header;
 
-/**
- * Szállítólevél fejléc
- */
+use Omisai\Szamlazzhu\Header\Type;
+use Omisai\Szamlazzhu\SzamlaAgentException;
+
 class DeliveryNoteHeader extends InvoiceHeader
 {
     /**
-     * @throws \SzamlaAgent\SzamlaAgentException
+     * @throws SzamlaAgentException
      */
     public function __construct()
     {
         parent::__construct();
-        $this->setDeliveryNote(true);
+        $this->setType(Type::DELIVERY_NOTE);
         $this->setPaid(false);
     }
 }

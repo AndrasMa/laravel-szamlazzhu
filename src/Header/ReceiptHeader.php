@@ -3,141 +3,48 @@
 namespace Omisai\Szamlazzhu\Header;
 
 use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\PaymentMethod;
+use Omisai\Szamlazzhu\HasXmlBuildWithRequestInterface;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Header\Type;
 
-/**
- * Nyugta fejléc
- */
-class ReceiptHeader extends DocumentHeader
+class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInterface
 {
-    /**
-     * Nyugtaszám
-     *
-     * @var string
-     */
-    protected $receiptNumber;
+    protected string $receiptNumber;
 
-    /**
-     * A létrehozás egyedi azonosítója, megakadályozza a nyugta duplikált létrehozását
-     *
-     * @var string
-     */
-    protected $callId;
+    protected string $callId;
 
-    /**
-     * Nyugtaszám előtag
-     *
-     * @example NYGTA-2017-111
-     *
-     * @var string
-     */
-    protected $prefix = '';
+    protected string $pdfTemplate;
 
-    /**
-     * Nyugta fizetési módja
-     *
-     * A fizetési mód bármilyen szöveg lehet vagy a felületen használt értékek egyike.
-     * (lásd. a bizonylat fizetési módjainál)
-     *
-     * @see Document
-     *
-     * @var string
-     */
-    protected $paymentMethod;
+    protected string $buyerLedgerId;
 
-    /**
-     * Nyugta pénzneme
-     *
-     * @example Ft, HUF, EUR, USD stb.
-     *
-     * @var string
-     */
-    protected $currency;
-
-    /**
-     * Deviza (nem Ft/HUF) pénznem esetén az árfolyamot jegyző bank neve
-     *
-     * Devizás bizonylat esetén meg kell adni, hogy melyik bank árfolyamával számoltuk a bizonylaton a forintos ÁFA értéket.
-     * Ha 'MNB' és nincs megadva az árfolyam ($exchangeRate), akkor az 'MNB' aktuális árfolyamát használjuk a bizonylat elkészítésekor.
-     *
-     * @var string
-     */
-    protected $exchangeBank;
-
-    /**
-     * Deviza árfolyama
-     *
-     * Ha nincs megadva vagy 0-t adunk meg az árfolyam ($exchangeRate) értékének és a megadott pénznem ($currency) létezik az MNB adatbázisában,
-     * akkor az MNB aktuális árfolyamát használjuk a számlakészítéskor.
-     *
-     * @var float
-     */
-    protected $exchangeRate;
-
-    /**
-     * Általános szöveges megjegyzés, nyugtán megjelenik
-     *
-     * @var string
-     */
-    protected $comment;
-
-    /**
-     * Egyedi PDF sablon esetén annak azonosítója
-     *
-     * @var string
-     */
-    protected $pdfTemplate;
-
-    /**
-     * Vevő főkönyvi azonosítója
-     *
-     * @var string
-     */
-    protected $buyerLedgerId;
-
-    /**
-     * XML-ben kötelezően kitöltendő mezők
-     *
-     * @var array
-     */
-    protected $requiredFields;
-
-    /**
-     * Nyugta fejléc létrehozása
-     * Beállítja a nyugta fejlécének alapértelmezett adatait
-     *
-     * @param  string  $receiptNumber nyugtaszám
-     */
-    public function __construct($receiptNumber = '')
+    public function __construct(string $receiptNumber = '')
     {
-        $this->setReceipt(true);
+        $this->setType(Type::RECEIPT);
         $this->setReceiptNumber($receiptNumber);
-        $this->setPaymentMethod(Document::PAYMENT_METHOD_CASH);
+        $this->setPaymentMethod(PaymentMethod::PAYMENT_METHOD_CASH);
         $this->setCurrency(Document::getDefaultCurrency());
     }
 
     /**
-     * Ellenőrizzük a mező típusát
-     *
-     *
-     * @return string
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkField($field, $value)
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'exchangeRate':
                     SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
                     break;
+                case 'paymentMethod':
+                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
+                    break;
                 case 'receiptNumber':
                 case 'callId':
                 case 'prefix':
-                case 'paymentMethod':
                 case 'currency':
                 case 'exchangeBank':
                 case 'comment':
@@ -152,11 +59,9 @@ class ReceiptHeader extends DocumentHeader
     }
 
     /**
-     * Ellenőrizzük a mezőket
-     *
      * @throws SzamlaAgentException
      */
-    protected function checkFields()
+    protected function checkFields(): void
     {
         $fields = get_object_vars($this);
         foreach ($fields as $field => $value) {
@@ -165,14 +70,9 @@ class ReceiptHeader extends DocumentHeader
     }
 
     /**
-     * Összeállítja a bizonylat elkészítéséhez szükséges XML fejléc adatokat
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request)
+    public function buildXmlData(SzamlaAgentRequest $request): array
     {
         try {
             if (empty($request)) {
@@ -208,14 +108,9 @@ class ReceiptHeader extends DocumentHeader
     }
 
     /**
-     * Összeállítja és visszaadja az adott mezőkhöz tartozó adatokat
-     *
-     *
-     * @return array
-     *
      * @throws SzamlaAgentException
      */
-    private function buildFieldsData(SzamlaAgentRequest $request, array $fields)
+    private function buildFieldsData(SzamlaAgentRequest $request, array $fields): array
     {
         $data = [];
 
@@ -225,25 +120,35 @@ class ReceiptHeader extends DocumentHeader
 
         foreach ($fields as $key) {
             switch ($key) {
-                case 'hivasAzonosito': $value = (SzamlaAgentUtil::isNotBlank($this->getCallId())) ? $this->getCallId() : null;
+                case 'hivasAzonosito':
+                    $value = !empty($this->callId) ? $this->callId: null;
                 break;
-                case 'elotag':         $value = $this->getPrefix();
+                case 'elotag':
+                    $value = $this->prefix;
                 break;
-                case 'fizmod':         $value = $this->getPaymentMethod();
+                case 'fizmod':
+                    $value = $this->getPaymentMethod();
                 break;
-                case 'penznem':        $value = $this->getCurrency();
+                case 'penznem':
+                    $value = $this->currency;
                 break;
-                case 'devizabank':     $value = (SzamlaAgentUtil::isNotBlank($this->getExchangeBank())) ? $this->getExchangeBank() : null;
+                case 'devizabank':
+                    $value = (!empty($this->exchangeBank)) ? $this->exchangeBank : null;
                 break;
-                case 'devizaarf':      $value = (SzamlaAgentUtil::isNotNull($this->getExchangeRate())) ? SzamlaAgentUtil::doubleFormat($this->getExchangeRate()) : null;
+                case 'devizaarf':
+                    $value = (!empty($this->exchangeRate)) ? $this->exchangeRate : null;
                 break;
-                case 'megjegyzes':     $value = (SzamlaAgentUtil::isNotBlank($this->getComment())) ? $this->getComment() : null;
+                case 'megjegyzes':
+                    $value = (!empty($this->comment)) ? $this->comment : null;
                 break;
-                case 'pdfSablon':      $value = (SzamlaAgentUtil::isNotBlank($this->getPdfTemplate())) ? $this->getPdfTemplate() : null;
+                case 'pdfSablon':
+                    $value = (!empty($this->pdfTemplate)) ? $this->pdfTemplate : null;
                 break;
-                case 'fokonyvVevo':    $value = (SzamlaAgentUtil::isNotBlank($this->getBuyerLedgerId())) ? $this->getBuyerLedgerId() : null;
+                case 'fokonyvVevo':
+                    $value = (!empty($this->buyerLedgerId)) ? $this->buyerLedgerId : null;
                 break;
-                case 'nyugtaszam':     $value = $this->getReceiptNumber();
+                case 'nyugtaszam':
+                    $value = $this->receiptNumber;
                 break;
                 default:
                     throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS.": {$key}");
@@ -258,185 +163,43 @@ class ReceiptHeader extends DocumentHeader
     }
 
     /**
-     * @return string
-     */
-    public function getPaymentMethod()
-    {
-        return $this->paymentMethod;
-    }
-
-    /**
-     * @param  string  $paymentMethod
-     */
-    public function setPaymentMethod($paymentMethod)
-    {
-        $this->paymentMethod = $paymentMethod;
-    }
-
-    /**
-     * @return string
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
-    }
-
-    /**
-     * @param  string  $currency
-     */
-    public function setCurrency($currency)
-    {
-        $this->currency = $currency;
-    }
-
-    /**
-     * @return string
-     */
-    public function getPrefix()
-    {
-        return $this->prefix;
-    }
-
-    /**
-     * A bizonylat előtagjának beállítása
-     * Üres előtag esetén az alapértelmezett előtagot fogja használni a rendszer.
-     *
-     * @param  string  $prefix
-     */
-    public function setPrefix($prefix)
-    {
-        $this->prefix = $prefix;
-    }
-
-    /**
-     * @return string
-     */
-    public function getComment()
-    {
-        return $this->comment;
-    }
-
-    /**
-     * @param  string  $comment
-     */
-    public function setComment($comment)
-    {
-        $this->comment = $comment;
-    }
-
-    /**
-     * @return string
-     */
-    public function getExchangeBank()
-    {
-        return $this->exchangeBank;
-    }
-
-    /**
-     * @param  string  $exchangeBank
-     */
-    public function setExchangeBank($exchangeBank)
-    {
-        $this->exchangeBank = $exchangeBank;
-    }
-
-    /**
-     * @return float
-     */
-    public function getExchangeRate()
-    {
-        return $this->exchangeRate;
-    }
-
-    /**
-     * @param  float  $exchangeRate
-     */
-    public function setExchangeRate($exchangeRate)
-    {
-        $this->exchangeRate = (float) $exchangeRate;
-    }
-
-    /**
-     * @return string
-     */
-    public function getReceiptNumber()
-    {
-        return $this->receiptNumber;
-    }
-
-    /**
-     * Nyugta sorszám beállítása
-     *
-     * A nyugta létrehozásánál ne használd, mert a kiállított nyugták számait a Számlázz.hu
+     * HU: A nyugta létrehozásánál NE használd, mert a kiállított nyugták számait a Számlázz.hu
      * a jogszabálynak megfelelően automatikusan osztja ki: 1-től indulva, kihagyásmentesen.
      *
      * @see https://tudastar.szamlazz.hu/gyik/szamlaszam-formatumok-mikor-kell-megadni
-     *
-     * @param  string  $receiptNumber
      */
-    public function setReceiptNumber($receiptNumber)
+    public function setReceiptNumber(string $receiptNumber): self
     {
         $this->receiptNumber = $receiptNumber;
+
+        return $this;
     }
 
-    /**
-     * @return array
-     */
-    protected function getRequiredFields()
-    {
-        return $this->requiredFields;
-    }
-
-    protected function setRequiredFields(array $requiredFields)
+    protected function setRequiredFields(array $requiredFields): self
     {
         $this->requiredFields = $requiredFields;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getCallId()
-    {
-        return $this->callId;
-    }
-
-    /**
-     * @param  string  $callId
-     */
-    public function setCallId($callId)
+    public function setCallId(string $callId): self
     {
         $this->callId = $callId;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getPdfTemplate()
-    {
-        return $this->pdfTemplate;
-    }
-
-    /**
-     * @param  string  $pdfTemplate
-     */
-    public function setPdfTemplate($pdfTemplate)
+    public function setPdfTemplate(string $pdfTemplate): self
     {
         $this->pdfTemplate = $pdfTemplate;
+
+        return $this;
     }
 
-    /**
-     * @return string
-     */
-    public function getBuyerLedgerId()
-    {
-        return $this->buyerLedgerId;
-    }
-
-    /**
-     * @param  string  $buyerLedgerId
-     */
-    public function setBuyerLedgerId($buyerLedgerId)
+    public function setBuyerLedgerId(string $buyerLedgerId): self
     {
         $this->buyerLedgerId = $buyerLedgerId;
+
+        return $this;
     }
 }
