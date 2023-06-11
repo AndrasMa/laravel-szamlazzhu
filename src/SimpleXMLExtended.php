@@ -15,7 +15,7 @@ class SimpleXMLExtended extends \SimpleXMLElement
     public function addChildWithCData(string $name = '', string $value = ''): \SimpleXMLElement
     {
         $newChild = parent::addChild($name);
-        if (SzamlaAgentUtil::isNotBlank($value)) {
+        if (!empty($value)) {
             $this->addCDataToNode($newChild, $value);
         }
 
