@@ -22,6 +22,8 @@ class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
     protected string $buyerLedgerId;
 
+    protected array $requiredFields = ['prefix', 'paymentMethod', 'currency'];
+
     public function __construct(string $receiptNumber = '')
     {
         $this->setType(Type::RECEIPT);
@@ -41,7 +43,6 @@ class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
         $this->validateFields();
 
-        $requireFields = ['receiptNumber'];
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_RECEIPT:
                 $requireFields = ['prefix', 'paymentMethod', 'currency'];
@@ -61,7 +62,6 @@ class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
             default:
                 throw new SzamlaAgentException(SzamlaAgentException::XML_SCHEMA_TYPE_NOT_EXISTS.": {$request->getXmlName()}");
         }
-        $this->setRequiredFields($requireFields);
 
         return $data;
     }
