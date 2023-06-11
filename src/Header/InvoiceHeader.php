@@ -65,12 +65,14 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
     protected bool $euVat = false;
 
+    protected array $requiredFields = ['issueDate', 'fulfillment', 'paymentDue', 'paymentMethod', 'currency', 'language'];
+
     /**
      * @throws SzamlaAgentException
      */
     public function __construct(int $type = Invoice::INVOICE_TYPE_P_INVOICE)
     {
-        if (! empty($type)) {
+        if (!empty($type)) {
             $this->setDefaultData($type);
         }
     }
@@ -109,15 +111,11 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
         $this->validateFields();
 
-        $this->setRequiredFields([
-            'invoiceDate', 'fulfillment', 'paymentDue', 'paymentMethod', 'currency', 'language', 'buyer', 'items',
-        ]);
-
         $data = [
             'keltDatum' => $this->issueDate->format('Y-m-d'),
             'teljesitesDatum' => $this->fulfillment->format('Y-m-d'),
             'fizetesiHataridoDatum' => $this->paymentDue->format('Y-m-d'),
-            'fizmod' => $this->paymentMethod,
+            'fizmod' => $this->getPaymentMethod(),
             'penznem' => $this->currency,
             'szamlaNyelve' => $this->language,
         ];
