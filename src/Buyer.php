@@ -12,7 +12,7 @@ class Buyer
 
     protected string $name;
 
-    protected string $country;
+    protected string $country = 'Hungary';
 
     protected string $zipCode;
 
@@ -76,7 +76,7 @@ class Buyer
 
     protected string $comment;
 
-    protected array $requiredFields = ['name', 'zip', 'city', 'address', 'country'];
+    protected array $requiredFields = ['name', 'zipCode', 'city', 'address', 'country'];
 
     /**
      * @throws SzamlaAgentException
@@ -341,5 +341,10 @@ class Buyer
         $this->comment = $comment;
 
         return $this;
+    }
+
+    public function getEmail(): string
+    {
+        return $this->email;
     }
 }
