@@ -31,7 +31,7 @@ class DocumentHeader
      */
     protected float $exchangeRate;
 
-    protected array $requiredFields;
+    protected array $requiredFields = [];
 
     public function setType(Type $type): self
     {
