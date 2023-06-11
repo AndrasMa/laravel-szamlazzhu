@@ -2,23 +2,18 @@
 
 namespace Omisai\Szamlazzhu\CreditNote;
 
-use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\PaymentMethod;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * HU: Számla jóváírás
- */
 class InvoiceCreditNote extends CreditNote
 {
-    protected string $date;
+    protected array $requiredFields = ['date', 'paymentMethod', 'amount'];
 
-    protected array $requiredFields = ['date', 'paymentMode', 'amount'];
-
-    public function __construct(string $date, string $amount, float $paymentMode = Document::PAYMENT_METHOD_TRANSFER, string $description = '')
+    public function __construct(string $date, string $amount, PaymentMethod $paymentMethod = PaymentMethod::PAYMENT_METHOD_TRANSFER, string $description = '')
     {
-        parent::__construct($paymentMode, $amount, $description);
-        $this->setDate($date);
+        parent::__construct($paymentMethod, $amount, $description);
+        $this->date = $date;
     }
 
     /**
@@ -27,17 +22,19 @@ class InvoiceCreditNote extends CreditNote
     protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'date':
-                    SzamlaAgentUtil::checkDateField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkDateField($field, $value, $required, self::class);
                     break;
                 case 'amount':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, self::class);
                     break;
-                case 'paymentMode':
+                case 'paymentMethod':
+                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
+                    break;
                 case 'description':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkStrField($field, $value, $required, self::class);
                     break;
             }
         }
@@ -64,29 +61,19 @@ class InvoiceCreditNote extends CreditNote
         $data = [];
         $this->checkFields();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getDate())) {
-            $data['datum'] = $this->getDate();
+        if (!empty($this->date)) {
+            $data['datum'] = $this->date;
         }
-        if (SzamlaAgentUtil::isNotBlank($this->getPaymentMode())) {
-            $data['jogcim'] = $this->getPaymentMode();
+
+        $data['jogcim'] = $this->getPaymentMethod();
+
+        if (!empty($this->amount)) {
+            $data['osszeg'] = $this->amount;
         }
-        if (SzamlaAgentUtil::isNotNull($this->getAmount())) {
-            $data['osszeg'] = SzamlaAgentUtil::doubleFormat($this->getAmount());
-        }
-        if (SzamlaAgentUtil::isNotBlank($this->getDescription())) {
-            $data['leiras'] = $this->getDescription();
+        if (!empty($this->description)) {
+            $data['leiras'] = $this->description;
         }
 
         return $data;
-    }
-
-    public function getDate(): string
-    {
-        return $this->date;
-    }
-
-    public function setDate(string $date): void
-    {
-        $this->date = $date;
     }
 }

@@ -2,29 +2,15 @@
 
 namespace Omisai\Szamlazzhu\CreditNote;
 
-use Omisai\Szamlazzhu\Document\Document;
+use Omisai\Szamlazzhu\PaymentMethod;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * HU: Nyugta jóváírás
- */
 class ReceiptCreditNote extends CreditNote
 {
-    protected string $paymentMode;
-
-    protected float $amount;
-
-    protected string $description = '';
-
-    public function __construct(string $paymentMode = Document::PAYMENT_METHOD_CASH, float $amount = 0.0, string $description = '')
+    public function __construct(PaymentMethod $paymentMethod = PaymentMethod::PAYMENT_METHOD_CASH, float $amount = 0.0, string $description = '')
     {
-        parent::__construct($paymentMode, $amount, $description);
-    }
-
-    protected function getRequiredFields(): array
-    {
-        return $this->requiredFields;
+        parent::__construct($paymentMethod, $amount, $description);
     }
 
     /**
@@ -33,14 +19,16 @@ class ReceiptCreditNote extends CreditNote
     protected function checkField($field, $value): string
     {
         if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'amount':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, self::class);
                     break;
-                case 'paymentMode':
+                case 'paymentMethod':
+                    SzamlaAgentUtil::checkStrField($field, $value->value, $required, self::class);
+                    break;
                 case 'description':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkStrField($field, $value, $required, self::class);
                     break;
             }
         }
@@ -67,14 +55,13 @@ class ReceiptCreditNote extends CreditNote
         $data = [];
         $this->checkFields();
 
-        if (SzamlaAgentUtil::isNotBlank($this->getPaymentMode())) {
-            $data['fizetoeszkoz'] = $this->getPaymentMode();
+        $data['fizetoeszkoz'] = $this->getPaymentMethod();
+
+        if (!empty($this->amount)) {
+            $data['osszeg'] = $this->amount;
         }
-        if (SzamlaAgentUtil::isNotNull($this->getAmount())) {
-            $data['osszeg'] = SzamlaAgentUtil::doubleFormat($this->getAmount());
-        }
-        if (SzamlaAgentUtil::isNotBlank($this->getDescription())) {
-            $data['leiras'] = $this->getDescription();
+        if (!empty($this->description)) {
+            $data['leiras'] = $this->description;
         }
 
         return $data;
