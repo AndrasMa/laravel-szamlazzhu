@@ -7,6 +7,7 @@ use Illuminate\Http\Client\Response;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\File;
+
 class CookieHandler
 {
     public const COOKIE_FILE_PATH = 'cookies/cookie.txt';
@@ -39,9 +40,11 @@ class CookieHandler
         return $this->cookieHandleMode;
     }
 
-    public function setCookieHandleMode(int $cookieHandleMode): void
+    public function setCookieHandleMode(int $cookieHandleMode): self
     {
         $this->cookieHandleMode = $cookieHandleMode;
+
+        return $this;
     }
 
     public function getCookies(): array
