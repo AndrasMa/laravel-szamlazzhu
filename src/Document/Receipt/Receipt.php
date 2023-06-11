@@ -11,7 +11,6 @@ use Omisai\Szamlazzhu\Item\ReceiptItem;
 use Omisai\Szamlazzhu\Seller;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
 /**
  * HU: Nyugta
@@ -64,14 +63,6 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
     }
 
     /**
-     * @return ReceiptItem[]
-     */
-    public function getItems(): array
-    {
-        return $this->items;
-    }
-
-    /**
      * @param  ReceiptItem[]  $items
      */
     public function setItems(array $items): self
@@ -88,14 +79,6 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
         }
 
         return $this;
-    }
-
-    /**
-     * @return ReceiptCreditNote[]
-     */
-    public function getCreditNotes(): array
-    {
-        return $this->creditNotes;
     }
 
     /**
@@ -168,15 +151,20 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
             $emailSendingData = $this->buildXmlEmailSendingData();
             foreach ($fields as $key) {
                 switch ($key) {
-                    case 'beallitasok': $value = $request->getAgent()->getSetting()->buildXmlData($request);
+                    case 'beallitasok':
+                        $value = $request->getAgent()->getSetting()->buildXmlData($request);
                     break;
-                    case 'fejlec':      $value = $this->getHeader()->buildXmlData($request);
+                    case 'fejlec':
+                        $value = $this->header->buildXmlData($request);
                     break;
-                    case 'tetelek':     $value = $this->buildXmlItemsData();
+                    case 'tetelek':
+                        $value = $this->buildXmlItemsData();
                     break;
-                    case 'kifizetesek': $value = (! empty($this->getCreditNotes())) ? $this->buildCreditsXmlData() : null;
+                    case 'kifizetesek':
+                        $value = (!empty($this->creditNotes)) ? $this->buildCreditsXmlData() : null;
                     break;
-                    case 'emailKuldes': $value = (! empty($emailSendingData)) ? $emailSendingData : null;
+                    case 'emailKuldes':
+                        $value = (!empty($emailSendingData)) ? $emailSendingData : null;
                     break;
                     default:
                         throw new SzamlaAgentException(SzamlaAgentException::XML_KEY_NOT_EXISTS.": {$key}");
@@ -198,8 +186,8 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
     {
         $data = [];
 
-        if (! empty($this->getItems())) {
-            foreach ($this->getItems() as $key => $item) {
+        if (! empty($this->items)) {
+            foreach ($this->items as $key => $item) {
                 $data["item{$key}"] = $item->buildXmlData();
             }
         }
@@ -213,8 +201,8 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
     protected function buildCreditsXmlData(): array
     {
         $data = [];
-        if (! empty($this->getCreditNotes())) {
-            foreach ($this->getCreditNotes() as $key => $note) {
+        if (! empty($this->creditNotes)) {
+            foreach ($this->creditNotes as $key => $note) {
                 $data["note{$key}"] = $note->buildXmlData();
             }
         }
@@ -226,19 +214,19 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
     {
         $data = [];
 
-        if (SzamlaAgentUtil::isNotNull($this->getBuyer()) && SzamlaAgentUtil::isNotBlank($this->getBuyer()->getEmail())) {
-            $data['email'] = $this->getBuyer()->getEmail();
+        if (!empty($this->buyer) && !empty($this->buyer->getEmail())) {
+            $data['email'] = $this->buyer->getEmail();
         }
 
-        if (SzamlaAgentUtil::isNotNull($this->getSeller())) {
-            if (SzamlaAgentUtil::isNotBlank($this->getSeller()->getEmailReplyTo())) {
-                $data['emailReplyto'] = $this->getSeller()->getEmailReplyTo();
+        if (!empty($this->seller)) {
+            if (!empty($this->seller->getEmailReplyTo())) {
+                $data['emailReplyto'] = $this->seller->getEmailReplyTo();
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getSeller()->getEmailSubject())) {
-                $data['emailTargy'] = $this->getSeller()->getEmailSubject();
+            if (!empty($this->seller->getEmailSubject())) {
+                $data['emailTargy'] = $this->seller->getEmailSubject();
             }
-            if (SzamlaAgentUtil::isNotBlank($this->getSeller()->getEmailContent())) {
-                $data['emailSzoveg'] = $this->getSeller()->getEmailContent();
+            if (!empty($this->seller->getEmailContent())) {
+                $data['emailSzoveg'] = $this->seller->getEmailContent();
             }
         }
 
