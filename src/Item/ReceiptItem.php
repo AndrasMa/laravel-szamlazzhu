@@ -2,21 +2,13 @@
 
 namespace Omisai\Szamlazzhu\Item;
 
+use Omisai\Szamlazzhu\HasXmlBuildInterface;
 use Omisai\Szamlazzhu\Ledger\ReceiptItemLedger;
 use Omisai\Szamlazzhu\SzamlaAgentException;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * Nyugtatétel
- */
-class ReceiptItem extends Item
+class ReceiptItem extends Item implements HasXmlBuildInterface
 {
-    protected $ledgerData;
-
-    public function __construct(string $name, float $netUnitPrice, float $quantity = self::DEFAULT_QUANTITY, string $quantityUnit = self::DEFAULT_QUANTITY_UNIT, string $vat = self::DEFAULT_VAT)
-    {
-        parent::__construct($name, $netUnitPrice, $quantity, $quantityUnit, $vat);
-    }
+    protected ReceiptItemLedger $ledgerData;
 
     /**
      * @throws SzamlaAgentException
@@ -26,34 +18,32 @@ class ReceiptItem extends Item
         $data = [];
         $this->checkFields();
 
-        $data['megnevezes'] = $this->getName();
+        $data['megnevezes'] = $this->name;
 
-        if (SzamlaAgentUtil::isNotBlank($this->getId())) {
-            $data['azonosito'] = $this->getId();
+        if (!empty($this->id)) {
+            $data['azonosito'] = $this->id;
         }
 
-        $data['mennyiseg'] = SzamlaAgentUtil::doubleFormat($this->getQuantity());
-        $data['mennyisegiEgyseg'] = $this->getQuantityUnit();
-        $data['nettoEgysegar'] = SzamlaAgentUtil::doubleFormat($this->getNetUnitPrice());
-        $data['afakulcs'] = $this->getVat();
-        $data['netto'] = SzamlaAgentUtil::doubleFormat($this->getNetPrice());
-        $data['afa'] = SzamlaAgentUtil::doubleFormat($this->getVatAmount());
-        $data['brutto'] = SzamlaAgentUtil::doubleFormat($this->getGrossAmount());
 
-        if (SzamlaAgentUtil::isNotNull($this->getLedgerData())) {
-            $data['fokonyv'] = $this->getLedgerData()->buildXmlData();
+        $data['mennyiseg'] = $this->quantity;
+        $data['mennyisegiEgyseg'] = $this->quantityUnit;
+        $data['nettoEgysegar'] = $this->netUnitPrice;
+        $data['afakulcs'] = $this->vat;
+        $data['netto'] = $this->netPrice;
+        $data['afa'] = $this->vatAmount;
+        $data['brutto'] = $this->grossAmount;
+
+        if (!empty($this->ledgerData)) {
+            $data['fokonyv'] = $this->ledgerData->buildXmlData();
         }
 
         return $data;
     }
 
-    public function getLedgerData(): ReceiptItemLedger
-    {
-        return $this->ledgerData;
-    }
-
-    public function setLedgerData(ReceiptItemLedger $ledgerData): void
+    public function setLedgerData(ReceiptItemLedger $ledgerData): self
     {
         $this->ledgerData = $ledgerData;
+
+        return $this;
     }
 }

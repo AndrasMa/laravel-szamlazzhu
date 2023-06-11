@@ -5,9 +5,6 @@ namespace Omisai\Szamlazzhu\Item;
 use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * HU: Tétel
- */
 class Item
 {
     /**
@@ -165,27 +162,13 @@ class Item
 
     protected array $requiredFields = ['name', 'quantity', 'quantityUnit', 'netUnitPrice', 'vat', 'netPrice', 'vatAmount', 'grossAmount'];
 
-    public function __construct(string $name, float $netUnitPrice, float $quantity = self::DEFAULT_QUANTITY, string $quantityUnit = self::DEFAULT_QUANTITY_UNIT, string $vat = self::DEFAULT_VAT)
-    {
-        $this->setName($name);
-        $this->setNetUnitPrice($netUnitPrice);
-        $this->setQuantity($quantity);
-        $this->setQuantityUnit($quantityUnit);
-        $this->setVat($vat);
-    }
-
-    protected function getRequiredFields(): array
-    {
-        return $this->requiredFields;
-    }
-
     /**
      * @throws SzamlaAgentException
      */
-    protected function checkField(string $field, string $value): string
+    protected function checkField(string $field, mixed $value): mixed
     {
         if (property_exists($this, $field)) {
-            $required = in_array($field, $this->getRequiredFields());
+            $required = in_array($field, $this->requiredFields);
             switch ($field) {
                 case 'quantity':
                 case 'netUnitPrice':
@@ -193,14 +176,14 @@ class Item
                 case 'netPrice':
                 case 'vatAmount':
                 case 'grossAmount':
-                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkDoubleField($field, $value, $required, self::class);
                     break;
                 case 'name':
                 case 'id':
                 case 'quantityUnit':
                 case 'vat':
                 case 'comment':
-                    SzamlaAgentUtil::checkStrField($field, $value, $required, __CLASS__);
+                    SzamlaAgentUtil::checkStrField($field, $value, $required, self::class);
                     break;
             }
         }
@@ -221,93 +204,80 @@ class Item
         }
     }
 
-    public function getId(): string
-    {
-        return $this->id;
-    }
-
-    public function setId(string $id): void
+    public function setId(string $id): self
     {
         $this->id = $id;
+
+        return $this;
     }
 
-    public function getName(): string
-    {
-        return $this->name;
-    }
-
-    public function setName(string $name): void
+    public function setName(string $name): self
     {
         $this->name = $name;
+
+        return $this;
     }
 
-    public function getQuantity(): float
-    {
-        return $this->quantity;
-    }
-
-    public function setQuantity(float $quantity): void
+    public function setQuantity(float $quantity): self
     {
         $this->quantity = (float) $quantity;
+
+        return $this;
     }
 
-    public function getQuantityUnit(): string
-    {
-        return $this->quantityUnit;
-    }
-
-    public function setQuantityUnit(string $quantityUnit): void
+    public function setQuantityUnit(string $quantityUnit): self
     {
         $this->quantityUnit = $quantityUnit;
+
+        return $this;
     }
 
-    public function getNetUnitPrice(): float
-    {
-        return $this->netUnitPrice;
-    }
-
-    public function setNetUnitPrice(float $netUnitPrice): void
+    public function setNetUnitPrice(float $netUnitPrice): self
     {
         $this->netUnitPrice = (float) $netUnitPrice;
+
+        return $this;
     }
 
-    public function getVat(): string
-    {
-        return $this->vat;
-    }
-
-    public function setVat(string $vat): void
+    public function setVat(string $vat): self
     {
         $this->vat = $vat;
+
+        return $this;
     }
 
-    public function getNetPrice(): float
+    public function setPriceGapVatBase(float $priceGapVatBase): self
     {
-        return $this->netPrice;
+        $this->priceGapVatBase = (float) $priceGapVatBase;
+
+        return $this;
     }
 
-    public function setNetPrice(float $netPrice): void
+    public function setNetPrice(float $netPrice): self
     {
         $this->netPrice = (float) $netPrice;
+
+        return $this;
     }
 
-    public function getVatAmount(): float
-    {
-        return $this->vatAmount;
-    }
-
-    public function setVatAmount(float $vatAmount): void
+    public function setVatAmount(float $vatAmount): self
     {
         $this->vatAmount = (float) $vatAmount;
+
+        return $this;
     }
 
-    public function getGrossAmount(): float
-    {
-        return $this->grossAmount;
-    }
-
-    public function setGrossAmount(float $grossAmount): void
+    public function setGrossAmount(float $grossAmount): self
     {
         $this->grossAmount = (float) $grossAmount;
+
+        return $this;
+    }
+
+    public function setComment(string $comment): self
+    {
+        $this->comment = $comment;
+
+        return $this;
     }
 }

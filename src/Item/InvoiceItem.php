@@ -2,21 +2,13 @@
 
 namespace Omisai\Szamlazzhu\Item;
 
+use Omisai\Szamlazzhu\HasXmlBuildInterface;
 use Omisai\Szamlazzhu\Ledger\InvoiceItemLedger;
 use Omisai\Szamlazzhu\SzamlaAgentException;
-use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-/**
- * HU: Számlatétel
- */
-class InvoiceItem extends Item
+class InvoiceItem extends Item implements HasXmlBuildInterface
 {
     protected InvoiceItemLedger $ledgerData;
-
-    public function __construct(string $name, float $netUnitPrice, float $quantity = self::DEFAULT_QUANTITY, string $quantityUnit = self::DEFAULT_QUANTITY_UNIT, string $vat = self::DEFAULT_VAT)
-    {
-        parent::__construct($name, $netUnitPrice, $quantity, $quantityUnit, $vat);
-    }
 
     /**
      * @throws SzamlaAgentException
@@ -26,63 +18,48 @@ class InvoiceItem extends Item
         $data = [];
         $this->checkFields();
 
-        $data['megnevezes'] = $this->getName();
+        $data['megnevezes'] = $this->name;
 
-        if (SzamlaAgentUtil::isNotBlank($this->getId())) {
-            $data['azonosito'] = $this->getId();
+        if (!empty($this->id)) {
+            $data['azonosito'] = $this->id;
         }
 
-        $data['mennyiseg'] = SzamlaAgentUtil::doubleFormat($this->getQuantity());
-        $data['mennyisegiEgyseg'] = $this->getQuantityUnit();
-        $data['nettoEgysegar'] = SzamlaAgentUtil::doubleFormat($this->getNetUnitPrice());
-        $data['afakulcs'] = $this->getVat();
+        $data['mennyiseg'] = $this->quantity;
+        $data['mennyisegiEgyseg'] = $this->quantityUnit;
+        $data['nettoEgysegar'] = $this->netUnitPrice;
+        $data['afakulcs'] = $this->vat;
 
-        if (SzamlaAgentUtil::isNotNull($this->getPriceGapVatBase())) {
-            $data['arresAfaAlap'] = SzamlaAgentUtil::doubleFormat($this->getPriceGapVatBase());
+        if (!empty($this->priceGapVatBase)) {
+            $data['arresAfaAlap'] = $this->priceGapVatBase;
         }
 
-        $data['nettoErtek'] = SzamlaAgentUtil::doubleFormat($this->getNetPrice());
-        $data['afaErtek'] = SzamlaAgentUtil::doubleFormat($this->getVatAmount());
-        $data['bruttoErtek'] = SzamlaAgentUtil::doubleFormat($this->getGrossAmount());
-
-        if (SzamlaAgentUtil::isNotBlank($this->getComment())) {
-            $data['megjegyzes'] = $this->getComment();
+        if (!empty($this->netPrice)) {
+            $data['nettoErtek'] = $this->netPrice;
         }
 
-        if (SzamlaAgentUtil::isNotNull($this->getLedgerData())) {
-            $data['tetelFokonyv'] = $this->getLedgerData()->buildXmlData();
+        if (!empty($this->vatAmount)) {
+            $data['afaErtek'] = $this->vatAmount;
+        }
+
+        if (!empty($this->grossAmount)) {
+            $data['bruttoErtek'] = $this->grossAmount;
+        }
+
+        if (!empty($this->comment)) {
+            $data['megjegyzes'] = $this->comment;
+        }
+
+        if (!empty($this->ledgerData)) {
+            $data['tetelFokonyv'] = $this->ledgerData->buildXmlData();
         }
 
         return $data;
     }
 
-    public function getPriceGapVatBase(): float
-    {
-        return $this->priceGapVatBase;
-    }
-
-    public function setPriceGapVatBase(float $priceGapVatBase): void
-    {
-        $this->priceGapVatBase = (float) $priceGapVatBase;
-    }
-
-    public function getLedgerData(): InvoiceItemLedger
-    {
-        return $this->ledgerData;
-    }
-
-    public function setLedgerData(InvoiceItemLedger $ledgerData): void
+    public function setLedgerData(InvoiceItemLedger $ledgerData): self
     {
         $this->ledgerData = $ledgerData;
-    }
 
-    public function getComment(): string
-    {
-        return $this->comment;
-    }
-
-    public function setComment(string $comment): void
-    {
-        $this->comment = $comment;
+        return $this;
     }
 }
