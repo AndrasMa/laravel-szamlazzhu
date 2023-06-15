@@ -110,12 +110,12 @@ class Document
      */
     public const DOCUMENT_TYPE_RESERVE_RECEIPT_CODE = 'SN';
 
-    public static function getDefaultCurrency(): string
+    public static function getDefaultCurrency(): Currency
     {
         return Currency::getDefault();
     }
 
-    public static function getDefaultLanguage(): string
+    public static function getDefaultLanguage(): Language
     {
         return Language::getDefault();
     }

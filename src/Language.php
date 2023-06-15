@@ -2,102 +2,76 @@
 
 namespace Omisai\Szamlazzhu;
 
-class Language
+enum Language: string
 {
-    public const LANGUAGE_HU = 'hu';
+    case HU = 'hu';
 
-    public const LANGUAGE_EN = 'en';
+    case EN = 'en';
 
-    public const LANGUAGE_DE = 'de';
+    case DE = 'de';
 
-    public const LANGUAGE_IT = 'it';
+    case IT = 'it';
 
-    public const LANGUAGE_RO = 'ro';
+    case RO = 'ro';
 
-    public const LANGUAGE_SK = 'sk';
+    case SK = 'sk';
 
-    public const LANGUAGE_HR = 'hr';
+    case HR = 'hr';
 
-    public const LANGUAGE_FR = 'fr';
+    case FR = 'fr';
 
-    public const LANGUAGE_ES = 'es';
+    case ES = 'es';
 
-    public const LANGUAGE_CZ = 'cz';
+    case CZ = 'cz';
 
-    public const LANGUAGE_PL = 'pl';
+    case PL = 'pl';
 
-    /**
-     * Számlázz.hu rendszerében használható nyelvek
-     *
-     * @var array
-     */
-    protected static $availableLanguages = [
-        self::LANGUAGE_HU, self::LANGUAGE_EN, self::LANGUAGE_DE, self::LANGUAGE_IT,
-        self::LANGUAGE_RO, self::LANGUAGE_SK, self::LANGUAGE_HR, self::LANGUAGE_FR,
-        self::LANGUAGE_ES, self::LANGUAGE_CZ, self::LANGUAGE_PL,
-    ];
-
-    public static function getDefault(): string
+    public static function getDefault(): self
     {
-        return self::LANGUAGE_HU;
+        return self::HU;
     }
 
-    /**
-     * @throws \ReflectionException
-     */
-    public static function getAll(): array
+    public static function getLanguageName(Currency $language): string
     {
-        $reflector = new \ReflectionClass(new Language());
-        $languageConstants = $reflector->getConstants();
-
-        $languages = [];
-        foreach ($languageConstants as $languageSymbol) {
-            $languages[] = $languageSymbol;
-        }
-
-        return $languages;
-    }
-
-    /**
-     * @return string
-     */
-    public static function getLanguageStr($language): string
-    {
-        if ($language == null || $language == '' || $language === self::LANGUAGE_HU) {
-            $result = 'magyar';
-        } else {
-            switch ($language) {
-                case self::LANGUAGE_EN: $result = 'angol';
-                    break;
-                case self::LANGUAGE_DE: $result = 'német';
-                    break;
-                case self::LANGUAGE_IT: $result = 'olasz';
-                    break;
-                case self::LANGUAGE_RO: $result = 'román';
-                    break;
-                case self::LANGUAGE_SK: $result = 'szlovák';
-                    break;
-                case self::LANGUAGE_HR: $result = 'horvát';
-                    break;
-                case self::LANGUAGE_FR: $result = 'francia';
-                    break;
-                case self::LANGUAGE_ES: $result = 'spanyol';
-                    break;
-                case self::LANGUAGE_CZ: $result = 'cseh';
-                    break;
-                case self::LANGUAGE_PL: $result = 'lengyel';
-                    break;
-                default:
-                    $result = 'ismeretlen';
-                    break;
-            }
+        switch ($language) {
+            case self::HU:
+                $result = 'magyar';
+                break;
+            case self::EN:
+                $result = 'angol';
+                break;
+            case self::DE:
+                $result = 'német';
+                break;
+            case self::IT:
+                $result = 'olasz';
+                break;
+            case self::RO:
+                $result = 'román';
+                break;
+            case self::SK:
+                $result = 'szlovák';
+                break;
+            case self::HR:
+                $result = 'horvát';
+                break;
+            case self::FR:
+                $result = 'francia';
+                break;
+            case self::ES:
+                $result = 'spanyol';
+                break;
+            case self::CZ:
+                $result = 'cseh';
+                break;
+            case self::PL:
+                $result = 'lengyel';
+                break;
+            default:
+                $result = 'ismeretlen';
+                break;
         }
 
         return $result;
-    }
-
-    public function getAvailableLanguages(): array
-    {
-        return self::$availableLanguages;
     }
 }

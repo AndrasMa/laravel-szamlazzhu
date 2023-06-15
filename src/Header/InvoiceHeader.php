@@ -12,6 +12,7 @@ use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 use Omisai\Szamlazzhu\Header\Type;
+use Omisai\Szamlazzhu\Language;
 
 class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInterface
 {
@@ -27,7 +28,7 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
     protected Carbon $issueDate;
 
-    protected string $language;
+    protected Language $language;
 
     protected Carbon $fulfillment;
 
@@ -103,7 +104,7 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
     /**
      * @throws SzamlaAgentException
      */
-    public function buildXmlData(SzamlaAgentRequest $request): array
+    public function buildXmlData(SzamlaAgentRequest $request = null): array
     {
         if (empty($request)) {
             throw new SzamlaAgentException(SzamlaAgentException::XML_DATA_NOT_AVAILABLE);
@@ -116,8 +117,8 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
             'teljesitesDatum' => $this->fulfillment->format('Y-m-d'),
             'fizetesiHataridoDatum' => $this->paymentDue->format('Y-m-d'),
             'fizmod' => $this->getPaymentMethod(),
-            'penznem' => $this->currency,
-            'szamlaNyelve' => $this->language,
+            'penznem' => $this->getCurrency(),
+            'szamlaNyelve' => $this->getLanguage(),
         ];
 
         if (!empty($this->comment)) {
@@ -196,11 +197,16 @@ class InvoiceHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
         return $this;
     }
 
-    public function setLanguage(string $language): self
+    public function setLanguage(Language $language): self
     {
         $this->language = $language;
 
         return $this;
+    }
+
+    public function getLanguage(): string
+    {
+        return $this->language->value;
     }
 
     public function setFulfillment(Carbon $fulfillment): self
