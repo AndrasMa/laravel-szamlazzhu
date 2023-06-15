@@ -2,17 +2,9 @@
 
 namespace Omisai\Szamlazzhu;
 
-use Illuminate\Support\Facades\Log;
-
 class SzamlaAgentUtil
 {
     public const DEFAULT_ADDED_DAYS = 8;
-
-    public const DATE_FORMAT_DATE = 'date';
-
-    public const DATE_FORMAT_DATETIME = 'datetime';
-
-    public const DATE_FORMAT_TIMESTAMP = 'timestamp';
 
     /**
      * @throws \ReflectionException
