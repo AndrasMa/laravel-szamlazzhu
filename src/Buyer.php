@@ -100,7 +100,7 @@ class Buyer
                     $data['email'] = $this->email;
                 }
 
-                $data['sendEmail'] = $this->isSendEmail() ? true : false;
+                $data['sendEmail'] = $this->shouldSendEmail() ? true : false;
 
                 if (!empty($this->taxPayer)) {
                     $data['adoalany'] = $this->taxPayer;
@@ -221,12 +221,12 @@ class Buyer
         return $this;
     }
 
-    public function isSendEmail(): bool
+    public function shouldSendEmail(): bool
     {
         return $this->sendEmail;
     }
 
-    public function setSendEmail(bool $sendEmail): self
+    public function setSendEmailState(bool $sendEmail): self
     {
         $this->sendEmail = $sendEmail;
 
