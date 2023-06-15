@@ -135,7 +135,11 @@ class SzamlaAgentRequest
         $this->cookieHandler = $cookieHandler;
         $this->entity = $entity;
         $this->cData = true;
-        $this->requestTimeout = $agent->getRequestTimeout();
+        if (null === $agent->getRequestTimeout()) {
+            $this->requestTimeout = self::REQUEST_TIMEOUT;
+        } else {
+            $this->requestTimeout = $agent->getRequestTimeout();
+        }
     }
 
     /**
@@ -146,8 +150,6 @@ class SzamlaAgentRequest
     {
         $this->buildXmlData();
         $response = $this->makeHttpRequest();
-
-        // $this->checkXmlFileSave();
 
         return $response;
     }
@@ -263,9 +265,9 @@ class SzamlaAgentRequest
                 throw new SzamlaAgentException(SzamlaAgentException::REQUEST_TYPE_NOT_EXISTS . ": {$type}");
         }
 
-        $this->setFieldName($fieldName);
-        $this->setXmlName($xmlName);
-        $this->setXmlDirectory($xmlDirectory);
+        $this->fieldName = $fieldName;
+        $this->xmlName = $xmlName;
+        $this->xmlDirectory = $xmlDirectory;
     }
 
     private function getXmlBase(): string
@@ -323,12 +325,13 @@ class SzamlaAgentRequest
      */
     private function createXmlFile(\DOMDocument $xml): void
     {
-        $realPath = sprintf('%s/%s/%s', SzamlaAgent::XML_FILE_SAVE_PATH, $this->getXmlDirectory(), $this->getFileName());
+        $realPath = sprintf('%s/request/%s/%s', SzamlaAgent::XML_FILE_SAVE_PATH, $this->getXmlDirectory(), $this->getFileName());
         $isStored = Storage::disk('payment')->put($realPath, $xml->saveXML());
         if ($isStored) {
             Log::channel('szamlazzhu')->debug('XML file saved', ['path' => $realPath]);
         } else {
             Log::channel('szamlazzhu')->debug('XML file was not saved', ['path' => $realPath, 'xml' => $xml->saveXML()]);
+            throw new SzamlaAgentException(SzamlaAgentException::XML_FILE_SAVE_FAILED);
         }
 
         $this->setXmlFilePath($realPath);
@@ -403,19 +406,9 @@ class SzamlaAgentRequest
         return $this->xmlName;
     }
 
-    private function setXmlName(string $xmlName): void
-    {
-        $this->xmlName = $xmlName;
-    }
-
     private function getFieldName(): string
     {
         return $this->fieldName;
-    }
-
-    private function setFieldName(string $fieldName): void
-    {
-        $this->fieldName = $fieldName;
     }
 
     private function getFileName(): string
@@ -443,11 +436,6 @@ class SzamlaAgentRequest
         return $this->xmlDirectory;
     }
 
-    private function setXmlDirectory(string $xmlDirectory): void
-    {
-        $this->xmlDirectory = $xmlDirectory;
-    }
-
     private function hasAttachments()
     {
         $entity = $this->getEntity();
@@ -460,10 +448,6 @@ class SzamlaAgentRequest
 
     private function getRequestTimeout(): int
     {
-        if ($this->requestTimeout == 0) {
-            return self::REQUEST_TIMEOUT;
-        }
-
         return $this->requestTimeout;
     }
 
