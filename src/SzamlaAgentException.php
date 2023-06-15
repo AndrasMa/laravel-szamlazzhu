@@ -56,6 +56,8 @@ class SzamlaAgentException extends \Exception
 
     public const XML_FILE_SAVE_FAILED = 'Failed to save XML file';
 
+    public const TAX_PAYER_RESPONSE = 'The response is TAXPAYER type. Custom XML processing required';
+
     public function __toString()
     {
         return self::class . ": [{$this->code}]: {$this->message}\n";
