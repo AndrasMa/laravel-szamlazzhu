@@ -45,7 +45,6 @@ class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
 
         switch ($request->getXmlName()) {
             case $request::XML_SCHEMA_CREATE_RECEIPT:
-                $requireFields = ['prefix', 'paymentMethod', 'currency'];
                 $data = $this->buildFieldsData($request, [
                     'hivasAzonosito', 'elotag', 'fizmod', 'penznem', 'devizabank', 'devizaarf', 'megjegyzes', 'pdfSablon', 'fokonyvVevo',
                 ]);
@@ -89,7 +88,7 @@ class ReceiptHeader extends DocumentHeader implements HasXmlBuildWithRequestInte
                     $value = $this->getPaymentMethod();
                 break;
                 case 'penznem':
-                    $value = $this->currency;
+                    $value = $this->getCurrency();
                 break;
                 case 'devizabank':
                     $value = (!empty($this->exchangeBank)) ? $this->exchangeBank : null;
