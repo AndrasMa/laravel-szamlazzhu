@@ -73,7 +73,12 @@ class CookieHandler
         }
 
         $receivedCookies = $response->cookies();
-        $receivedCookie = $receivedCookies->getCookieByName('JSESSIONID');
+        preg_match_all('/(?<=JSESSIONID=)(.*?)(?=;)/', $receivedCookies->getCookieByName('JSESSIONID'), $receivedCookie);
+        $receivedCookie = $receivedCookie[0][0];
+
+        Log::channel('szamlazzhu')->debug('Cookie set JSESSIONID.', [
+            'receivedCookie' => $receivedCookie,
+        ]);
 
         if (Storage::disk('payment')->exists(self::COOKIE_FILE_PATH)) {
             $storedCookie = Storage::disk('payment')->get(self::COOKIE_FILE_PATH);
