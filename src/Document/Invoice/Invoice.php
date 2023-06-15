@@ -3,6 +3,7 @@
 namespace Omisai\Szamlazzhu\Document\Invoice;
 
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Omisai\Szamlazzhu\Buyer;
 use Omisai\Szamlazzhu\CreditNote\InvoiceCreditNote;
 use Omisai\Szamlazzhu\Document\Document;
@@ -316,21 +317,54 @@ class Invoice extends Document implements HasXmlBuildWithRequestInterface
      * Hibás csatolmány esetén is kiküldésre kerül az értesítő email úgy, hogy a megfelelő fájlok csatolva lesznek.
      * Ha nem érkezik kérés értesítő email kiküldésére, akkor a beküldött csatolmányok nem kerülnek feldolgozásra.
      *
-     * @throws SzamlaAgentException
+     * @var fileName format = fileName.extension
      */
-    public function addAttachment(string $filePath)
+    public function addAttachment(string $fileName, string $fileContent = null, string $filePath = null): self
     {
-        if (empty($filePath)) {
-            Log::channel('szamlazzhu')->warning('No file path given as an attachment!');
-        } else {
-            if (count($this->attachments) >= self::INVOICE_ATTACHMENTS_LIMIT) {
-                throw new SzamlaAgentException(sprintf('The file attachment failed: %s. The maximum number of attached file for an invoice is: %s.', $filePath, self::INVOICE_ATTACHMENTS_LIMIT));
-            }
+        if (count($this->attachments) >= self::INVOICE_ATTACHMENTS_LIMIT) {
+            Log::channel('szamlazzhu')->error(sprintf('The file attachment failed: %s. The maximum number of attached file for an invoice is: %s.', $filePath, self::INVOICE_ATTACHMENTS_LIMIT));
 
-            if (! file_exists($filePath)) {
-                throw new SzamlaAgentException(SzamlaAgentException::ATTACHMENT_NOT_EXISTS.': '.$filePath);
-            }
-            array_push($this->attachments, $filePath);
+            return $this;
         }
+
+        if (empty($fileName)) {
+            Log::channel('szamlazzhu')->error('No file name was given as an attachment!');
+
+            return $this;
+        }
+
+        if (empty($fileContent) && empty($filePath)) {
+            Log::channel('szamlazzhu')->error('No file was given as an attachment!');
+
+            return $this;
+        }
+
+        if (!empty($fileContent)) {
+            $this->attachments[] = [
+                'name' => $fileName,
+                'content' => $fileContent,
+            ];
+
+            return $this;
+        }
+
+        if (!Storage::disk('payment')->exists($filePath) && !Storage::exists($filePath)) {
+            Log::channel('szamlazzhu')->error('Attached file does not exists', ['file_path' => $filePath]);
+
+            return $this;
+        }
+
+        if (Storage::disk('payment')->exists($filePath)) {
+            $fileContent = Storage::disk('payment')->exists($filePath);
+        } elseif (Storage::exists($filePath)) {
+            $fileContent = Storage::disk('payment')->exists($filePath);
+        }
+
+        $this->attachments[] = [
+            'name' => $fileName,
+            'content' => $fileContent,
+        ];
+
+        return $this;
     }
 }
