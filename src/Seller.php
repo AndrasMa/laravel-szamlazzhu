@@ -8,17 +8,17 @@ class Seller
 {
     use FieldsValidationTrait;
 
-    protected string $bank;
+    protected string $bank = '';
 
-    protected string $bankAccount;
+    protected string $bankAccount = '';
 
-    protected string $emailReplyTo;
+    protected string $emailReplyTo = '';
 
-    protected string $emailSubject;
+    protected string $emailSubject = '';
 
-    protected string $emailContent;
+    protected string $emailContent = '';
 
-    protected string $signatoryName;
+    protected string $signatoryName = '';
 
     protected array $requiredFields = [];
 
