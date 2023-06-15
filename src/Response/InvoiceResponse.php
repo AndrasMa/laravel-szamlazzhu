@@ -2,337 +2,114 @@
 
 namespace Omisai\Szamlazzhu\Response;
 
+use Illuminate\Support\Facades\Log;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Response\AbstractResponse;
+use Omisai\Szamlazzhu\SzamlaAgentException;
 
-/**
- * Egy számla típusú bizonylat kérésére adott választ reprezentáló osztály
- */
-class InvoiceResponse
+class InvoiceResponse extends AbstractResponse
 {
-    /**
-     * Számlaértesítő kézbesítése sikertelen
-     */
     public const INVOICE_NOTIFICATION_SEND_FAILED = 56;
 
-    /**
-     * Vevői fiók URL
-     *
-     * @var string
-     */
-    protected $userAccountUrl;
+    protected string $userAccountUrl;
 
-    /**
-     * Kintlévőség
-     *
-     * @var int
-     */
-    protected $assetAmount;
+    protected float $outstandingDebtAmount;
 
-    /**
-     * Nettó végösszeg
-     *
-     * @var int
-     */
-    protected $netPrice;
+    protected float $netPrice;
 
-    /**
-     * Bruttó végösszeg
-     *
-     * @var int
-     */
-    protected $grossAmount;
+    protected float $grossAmount;
 
-    /**
-     * Számlaszám
-     *
-     * @var string
-     */
-    protected $invoiceNumber;
+    protected string $invoiceNumber = '';
 
-    /**
-     * Számla azonosító
-     *
-     * @var int
-     */
-    protected $invoiceIdentifier;
+    protected int $invoiceIdentifier;
 
-    /**
-     * A válasz hibakódja
-     *
-     * @var string
-     */
-    protected $errorCode;
+    protected string $pdfData;
 
-    /**
-     * A válasz hibaüzenete
-     *
-     * @var string
-     */
-    protected $errorMessage;
+    protected array $headers;
 
-    /**
-     * A válaszban kapott PDF adatai
-     *
-     * @var string
-     */
-    protected $pdfData;
-
-    /**
-     * Sikeres-e a válasz
-     *
-     * @var bool
-     */
-    protected $success;
-
-    /**
-     * A válasz fejléc adatai
-     *
-     * @var array
-     */
-    protected $headers;
-
-    /**
-     * Számla válasz létrehozása
-     *
-     * @param  string  $invoiceNumber
-     */
-    public function __construct($invoiceNumber = '')
+    protected function parseData()
     {
-        $this->setInvoiceNumber($invoiceNumber);
-    }
-
-    /**
-     * Feldolgozás után visszaadja a számla válaszát objektumként
-     *
-     * @param  int  $type
-     * @return InvoiceResponse
-     */
-    public static function parseData(array $data, $type = SzamlaAgentResponse::RESULT_AS_TEXT)
-    {
-        $response = new InvoiceResponse();
-        $headers = $data['headers'];
-        $isPdf = self::isPdfResponse($data);
-        $pdfFile = '';
-
-        if (isset($data['body'])) {
-            $pdfFile = $data['body'];
-        } elseif ($type == SzamlaAgentResponse::RESULT_AS_XML && isset($data['pdf'])) {
-            $pdfFile = $data['pdf'];
+        if('array' !== gettype($this->getData()) || empty($this->getData()) || empty($this->getData()['headers'])) {
+            return;
         }
 
-        if (! empty($headers)) {
-            $response->setHeaders($headers);
+        $this->headers = $this->getData()['result']['headers'];
 
-            if (array_key_exists('szlahu_szamlaszam', $headers)) {
-                $response->setInvoiceNumber($headers['szlahu_szamlaszam']);
-            }
-
-            if (array_key_exists('szlahu_id', $headers)) {
-                $response->setInvoiceIdentifier($headers['szlahu_id']);
-            }
-
-            if (array_key_exists('szlahu_vevoifiokurl', $headers)) {
-                $response->setUserAccountUrl(rawurldecode($headers['szlahu_vevoifiokurl']));
-            }
-
-            if (array_key_exists('szlahu_kintlevoseg', $headers)) {
-                $response->setAssetAmount($headers['szlahu_kintlevoseg']);
-            }
-
-            if (array_key_exists('szlahu_nettovegosszeg', $headers)) {
-                $response->setNetPrice($headers['szlahu_nettovegosszeg']);
-            }
-
-            if (array_key_exists('szlahu_bruttovegosszeg', $headers)) {
-                $response->setGrossAmount($headers['szlahu_bruttovegosszeg']);
-            }
-
-            if (array_key_exists('szlahu_error', $headers)) {
-                $error = urldecode($headers['szlahu_error']);
-                $response->setErrorMessage($error);
-            }
-
-            if (array_key_exists('szlahu_error_code', $headers)) {
-                $response->setErrorCode($headers['szlahu_error_code']);
-            }
-
-            if ($isPdf && ! empty($pdfFile)) {
-                $response->setPdfData($pdfFile);
-            }
-
-            if ($response->isNotError()) {
-                $response->setSuccess(true);
-            }
+        if (array_key_exists('szlahu_szamlaszam', $this->headers)) {
+            $this->invoiceNumber = $this->headers['szlahu_szamlaszam'];
         }
 
-        return $response;
+        if (array_key_exists('szlahu_id', $this->headers)) {
+            $this->invoiceIdentifier = $this->headers['szlahu_id'];
+        }
+
+        if (array_key_exists('szlahu_vevoifiokurl', $this->headers)) {
+            $this->userAccountUrl = rawurldecode($this->headers['szlahu_vevoifiokurl']);
+        }
+
+        if (array_key_exists('szlahu_kintlevoseg', $this->headers)) {
+            $this->outstandingDebtAmount = floatval($this->headers['szlahu_kintlevoseg']);
+        }
+
+        if (array_key_exists('szlahu_nettovegosszeg', $this->headers)) {
+            $this->netPrice = floatval($this->headers['szlahu_nettovegosszeg']);
+        }
+
+        if (array_key_exists('szlahu_bruttovegosszeg', $this->headers)) {
+            $this->grossAmount = floatval($this->headers['szlahu_bruttovegosszeg']);
+        }
+
+        if (array_key_exists('szlahu_error', $this->headers)) {
+            $this->errorMessage = urldecode($this->headers['szlahu_error']);
+        }
+
+        if (array_key_exists('szlahu_error_code', $this->headers)) {
+            $this->errorCode = intval($this->headers['szlahu_error_code']);
+        }
+
+        if (isset($this->getData()['result']['body'])) {
+            $pdfFile = $this->getData()['result']['body'];
+        } elseif ($this->isXmlResponse() && isset($this->getData()['result']['pdf'])) {
+            $pdfFile = $this->getData()['result']['pdf'];
+        } else {
+            $pdfFile = '';
+        }
+        if ($this->isPdfResponse($this->getData()['result']) && !empty($pdfFile)) {
+            $this->pdfFile = base64_decode($this->$pdfFile);
+        }
+
+        if (!$this->hasError()) {
+            $this->isSuccess = true;
+        }
+
+        if ($this->hasInvoiceNotificationSendError()) {
+            Log::channel('szamlazzhu')->debug(SzamlaAgentException::INVOICE_NOTIFICATION_SEND_FAILED);
+        }
     }
 
-    /**
-     * Visszaadja, hogy a válasz tartalmaz-e PDF-et
-     *
-     *
-     * @return bool
-     */
-    protected static function isPdfResponse($result)
+    protected function isPdfResponse(array $data): bool
     {
-        if (isset($result['pdf'])) {
+        if (isset($data['pdf'])) {
             return true;
         }
 
-        if (isset($result['headers']['Content-Type']) && $result['headers']['Content-Type'] == 'application/pdf') {
+        if (isset($data['headers']['Content-Type']) && $data['headers']['Content-Type'] == 'application/pdf') {
             return true;
         }
 
-        if (isset($result['headers']['Content-Disposition']) && stripos($result['headers']['Content-Disposition'], 'pdf') !== false) {
+        if (isset($data['headers']['Content-Disposition']) && stripos($data['headers']['Content-Disposition'], 'pdf') !== false) {
             return true;
         }
 
         return false;
     }
 
-    /**
-     * Visszaadja, hogy a válasz tartalmaz-e számlaszámot
-     *
-     * @return bool
-     */
-    public function hasInvoiceNumber()
-    {
-        return SzamlaAgentUtil::isNotBlank($this->invoiceNumber);
-    }
-
-    /**
-     * Visszaadja a számlaszámot
-     *
-     * @return string
-     */
-    public function getInvoiceNumber()
-    {
-        return $this->invoiceNumber;
-    }
-
-    /**
-     * Visszaadja a bizonylat (számla) számát
-     *
-     * @return string
-     */
-    public function getDocumentNumber()
-    {
-        return $this->getInvoiceNumber();
-    }
-
-    /**
-     * @param  string  $invoiceNumber
-     */
-    protected function setInvoiceNumber($invoiceNumber)
-    {
-        $this->invoiceNumber = $invoiceNumber;
-    }
-
-    /**
-     * Visszaadja a számla azonosítót
-     *
-     * @return int
-     */
-    public function getInvoiceIdentifier()
-    {
-        return $this->invoiceIdentifier;
-    }
-
-    /**
-     * @param  int  $invoiceIdentifier
-     */
-    protected function setInvoiceIdentifier($invoiceIdentifier)
-    {
-        $this->invoiceIdentifier = $invoiceIdentifier;
-    }
-
-    /**
-     * Visszaadja a válasz hibakódját
-     *
-     * @return string
-     */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
-
-    /**
-     * @param  string  $errorCode
-     */
-    protected function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-    }
-
-    /**
-     * Visszaadja a válasz hibaüzenetét
-     *
-     * @return string
-     */
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
-    }
-
-    /**
-     * @param  string  $errorMessage
-     */
-    protected function setErrorMessage($errorMessage)
-    {
-        $this->errorMessage = $errorMessage;
-    }
-
-    /**
-     * @return false|string
-     */
-    public function getPdfFile()
-    {
-        $pdfData = SzamlaAgentUtil::isNotNull($this->getPdfData()) ? $this->getPdfData() : '';
-
-        return base64_decode($pdfData);
-    }
-
-    /**
-     * Visszaadja a számlához tartozó PDF adatait
-     *
-     * @return string
-     */
-    public function getPdfData()
-    {
-        return $this->pdfData;
-    }
-
-    /**
-     * @param  string  $pdfData
-     */
-    protected function setPdfData($pdfData)
-    {
-        $this->pdfData = $pdfData;
-    }
-
-    /**
-     * Visszaadja a válasz sikerességét
-     *
-     * @return bool
-     */
-    public function isSuccess()
-    {
-        return $this->success && $this->isNotError();
-    }
-
-    /**
-     * Visszaadja, hogy a számla kiállítása sikertelen volt-e
-     *
-     * @return bool
-     */
-    public function isError()
+    public function hasError()
     {
         $result = false;
-        if (! empty($this->getErrorMessage()) || ! empty($this->getErrorCode())) {
+        if (!empty($this->errorMessage) || !empty($this->errorCode)) {
             $result = true;
         }
-        // Ha a számlaértesítő kézbesítése sikertelen volt, de a válasz tartalmaz számlaszámot, akkor a számla kiállítása sikeres.
         if ($this->hasInvoiceNumber() && $this->hasInvoiceNotificationSendError()) {
             $result = false;
         }
@@ -340,122 +117,52 @@ class InvoiceResponse
         return $result;
     }
 
-    /**
-     * Visszaadja, hogy nem történt-e hiba
-     *
-     * @return bool
-     */
-    public function isNotError()
+    public function hasInvoiceNumber(): bool
     {
-        return ! $this->isError();
+        return !empty($this->invoiceNumber);
     }
 
-    /**
-     * @param  bool  $success
-     */
-    protected function setSuccess($success)
+    public function hasInvoiceNotificationSendError(): bool
     {
-        $this->success = $success;
-    }
-
-    /**
-     * Visszaadja a vevői fiók URL-jét
-     *
-     * @return string
-     */
-    public function getUserAccountUrl()
-    {
-        return urldecode($this->userAccountUrl);
-    }
-
-    /**
-     * @param  string  $userAccountUrl
-     */
-    protected function setUserAccountUrl($userAccountUrl)
-    {
-        $this->userAccountUrl = $userAccountUrl;
-    }
-
-    /**
-     * Visszaadja a kintlévőség összegét
-     *
-     * @return int
-     */
-    public function getAssetAmount()
-    {
-        return $this->assetAmount;
-    }
-
-    /**
-     * @param  int  $assetAmount
-     */
-    protected function setAssetAmount($assetAmount)
-    {
-        $this->assetAmount = $assetAmount;
-    }
-
-    /**
-     * Visszaadja a nettó összeget
-     *
-     * @return int
-     */
-    public function getNetPrice()
-    {
-        return $this->netPrice;
-    }
-
-    /**
-     * @param  int  $netPrice
-     */
-    protected function setNetPrice($netPrice)
-    {
-        $this->netPrice = $netPrice;
-    }
-
-    /**
-     * Visszaadja a bruttó összeget
-     *
-     * @return int
-     */
-    public function getGrossAmount()
-    {
-        return $this->grossAmount;
-    }
-
-    protected function setGrossAmount($grossAmount)
-    {
-        $this->grossAmount = $grossAmount;
-    }
-
-    /**
-     * Visszaadja a válasz fejléc adatait
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * @param  array  $headers
-     */
-    protected function setHeaders($headers)
-    {
-        $this->headers = $headers;
-    }
-
-    /**
-     * Visszaadja, hogy a számlaértesítő kézbesítése sikertelen volt-e
-     *
-     * @return bool
-     */
-    public function hasInvoiceNotificationSendError()
-    {
-        if ($this->getErrorCode() == self::INVOICE_NOTIFICATION_SEND_FAILED) {
+        if (self::INVOICE_NOTIFICATION_SEND_FAILED === $this->errorCode) {
             return true;
         }
 
         return false;
+    }
+
+    public function getUserAccountUrl(): string
+    {
+        return urldecode($this->userAccountUrl);
+    }
+
+    public function getInvoiceNumber(): string
+    {
+        return $this->invoiceNumber;
+    }
+
+    public function getOutstandingDebtAmount(): float
+    {
+        return $this->outstandingDebtAmount;
+    }
+
+    public function getNetPrice(): float
+    {
+        return $this->netPrice;
+    }
+
+    public function getGrossAmount(): float
+    {
+        return $this->grossAmount;
+    }
+
+    public function getHeaders(): array
+    {
+        return $this->headers;
+    }
+
+    public function getDocumentNumber(): string
+    {
+        return $this->invoiceNumber;
     }
 }

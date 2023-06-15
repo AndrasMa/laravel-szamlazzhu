@@ -2,148 +2,47 @@
 
 namespace Omisai\Szamlazzhu\Response;
 
+use Carbon\Carbon;
+use Omisai\Szamlazzhu\Currency;
+use Omisai\Szamlazzhu\PaymentMethod;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
+use Omisai\Szamlazzhu\Response\AbstractResponse;
 
-/**
- * Egy nyugta típusú bizonylat kérésére adott választ reprezentáló osztály
- */
-class ReceiptResponse
+class ReceiptResponse extends AbstractResponse
 {
-    /**
-     * Nyugta azonosítója
-     *
-     * @var int
-     */
-    protected $id;
+    protected int $id;
 
-    /**
-     * Nyugtaszám
-     *
-     * @var string
-     */
-    protected $receiptNumber;
+    protected string $receiptNumber = '';
 
-    /**
-     * A nyugta típusa
-     *
-     * @var string
-     */
-    protected $type;
+    protected string $type;
 
-    /**
-     * A nyugta sztornózott-e
-     *
-     * @var false
-     */
-    protected $reserved;
+    protected bool $isReserved;
 
-    /**
-     * Sztornózott nyugtaszám
-     *
-     * @var string
-     */
-    protected $reservedReceiptNumber;
+    protected string $reservedReceiptNumber;
 
-    /**
-     * A nyugta kelte
-     *
-     * @var string
-     */
-    protected $created;
+    protected string $createdAt;
 
-    /**
-     * A nyugta fizetési módja
-     *
-     * @var string
-     */
-    protected $paymentMethod;
+    protected PaymentMethod $paymentMethod;
 
-    /**
-     * A nyugta pénzneme
-     *
-     * @var string
-     */
-    protected $currency;
+    protected Currency $currency;
 
-    /**
-     * Teszt vagy valós céggel lett létrehozva a nyugta
-     *
-     * @var bool
-     */
-    protected $test;
+    protected bool $isTestAccount;
 
-    /**
-     * A nyugta tételei
-     *
-     * @var array
-     */
-    protected $items;
+    protected array $items;
 
-    /**
-     * A nyugta összegei
-     *
-     * @var array
-     */
-    protected $amounts;
+    protected array $amounts;
 
-    /**
-     * A válasz hibakódja
-     *
-     * @var string
-     */
-    protected $errorCode;
+    protected array $creditNotes;
 
-    /**
-     * A válasz hibaüzenete
-     *
-     * @var string
-     */
-    protected $errorMessage;
-
-    /**
-     * A válaszban kapott PDF adatai
-     *
-     * @var string
-     */
-    protected $pdfData;
-
-    /**
-     * Sikeres-e a válasz
-     *
-     * @var bool
-     */
-    protected $success;
-
-    /**
-     * Jóváírások
-     *
-     * @var array
-     */
-    protected $creditNotes;
-
-    /**
-     * Nyugta létrehozása nyugtaszám alapján
-     *
-     * @param  string  $receiptNumber
-     */
-    public function __construct($receiptNumber = '')
+    protected function parseData()
     {
-        $this->setReceiptNumber($receiptNumber);
-    }
+        if ('array' !== gettype($this->getData()) || empty($this->getData()) || empty($this->getData()['body'])) {
+            return;
+        }
 
-    /**
-     * Feldolgozás után visszaadja a nyugta válaszát objektumként
-     *
-     * @param  int  $type
-     * @return ReceiptResponse
-     */
-    public static function parseData(array $data, $type = SzamlaAgentResponse::RESULT_AS_TEXT)
-    {
-        $response = new ReceiptResponse();
-
-        if ($type == SzamlaAgentResponse::RESULT_AS_TEXT) {
-            $params = $xmlData = new \SimpleXMLElement(base64_decode($data['body']));
-            $data = SzamlaAgentUtil::toArray($params);
+        if (self::RESULT_AS_TEXT === $this->agent->getResponseType()) {
+            $xmlData = new \SimpleXMLElement(base64_decode($this->getData()['body']));
+            $data = SzamlaAgentUtil::toArray($xmlData);
         }
 
         $base = [];
@@ -152,375 +51,118 @@ class ReceiptResponse
         }
 
         if (isset($base['id'])) {
-            $response->setId($base['id']);
+            $this->id = $base['id'];
         }
         if (isset($base['nyugtaszam'])) {
-            $response->setReceiptNumber($base['nyugtaszam']);
+            $this->receiptNumber = $base['nyugtaszam'];
         }
         if (isset($base['tipus'])) {
-            $response->setType($base['tipus']);
+            $this->type = $base['tipus'];
         }
         if (isset($base['stornozott'])) {
-            $response->setReserved(($base['stornozott'] === 'true'));
+            $this->isReserved = ($base['stornozott'] === 'true');
         }
         if (isset($base['stornozottNyugtaszam'])) {
-            $response->setReservedReceiptNumber($base['stornozottNyugtaszam']);
+            $this->reservedReceiptNumber = $base['stornozottNyugtaszam'];
         }
         if (isset($base['kelt'])) {
-            $response->setCreated($base['kelt']);
+            $this->createdAt = Carbon::createFromFormat('Y-m-d', $base['kelt']);
         }
         if (isset($base['fizmod'])) {
-            $response->setPaymentMethod($base['fizmod']);
+            $this->setPaymentMethodByString($base['fizmod']);
         }
         if (isset($base['penznem'])) {
-            $response->setCurrency($base['penznem']);
+            $this->setCurrencyByString($base['penznem']);
         }
         if (isset($base['teszt'])) {
-            $response->setTest(($base['teszt'] === 'true'));
+            $this->isTestAccount = ($base['teszt'] === 'true');
         }
         if (isset($data['nyugta']['tetelek'])) {
-            $response->setItems($data['nyugta']['tetelek']);
+            $this->items = $data['nyugta']['tetelek'];
         }
         if (isset($data['nyugta']['osszegek'])) {
-            $response->setAmounts($data['nyugta']['osszegek']);
+            $this->amounts = $data['nyugta']['osszegek'];
         }
         if (isset($data['nyugta']['kifizetesek'])) {
-            $response->setCreditNotes($data['nyugta']['kifizetesek']);
+            $this->creditNotes = $data['nyugta']['kifizetesek'];
         }
         if (isset($data['sikeres'])) {
-            $response->setSuccess(($data['sikeres'] === 'true'));
+            $this->isSuccess = ($data['sikeres'] === 'true');
         }
 
-        if (isset($data['nyugtaPdf'])) {
-            $response->setPdfData($data['nyugtaPdf']);
+        if (isset($data['nyugtaPdf']) && !empty($data['nyugtaPdf'])) {
+            $this->pdfFile = base64_decode($data['nyugtaPdf']);
         }
         if (isset($data['hibakod'])) {
-            $response->setErrorCode($data['hibakod']);
+            $this->errorCode = $data['hibakod'];
         }
         if (isset($data['hibauzenet'])) {
-            $response->setErrorMessage($data['hibauzenet']);
+            $this->errorMessage = $data['hibauzenet'];
         }
-
-        return $response;
     }
 
-    /**
-     * Visszaadja a nyugta azonosítót
-     *
-     * @return int
-     */
-    public function getId()
+    protected function setPaymentMethodByString(string $paymentMethod)
+    {
+        $this->paymentMethod = PaymentMethod::tryFrom($paymentMethod);
+    }
+
+    public function getPaymentMethod(): string
+    {
+        return $this->paymentMethod->value;
+    }
+
+    public function setCurrencyByString(string $currency): void
+    {
+        $this->currency = Currency::tryFrom($currency);
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency->value;
+    }
+
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @param  int  $id
-     */
-    protected function setId($id)
-    {
-        $this->id = $id;
-    }
-
-    /**
-     * Visszaadja a nyugta számát
-     *
-     * @return string
-     */
-    public function getReceiptNumber()
-    {
-        return $this->receiptNumber;
-    }
-
-    /**
-     * Visszaadja a bizonylat számát
-     *
-     * @return string
-     */
-    public function getDocumentNumber()
-    {
-        return $this->getReceiptNumber();
-    }
-
-    /**
-     * @param  string  $receiptNumber
-     */
-    protected function setReceiptNumber($receiptNumber)
-    {
-        $this->receiptNumber = $receiptNumber;
-    }
-
-    /**
-     * Visszaadja a nyugta típusát
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
-     * @param  string  $type
-     */
-    protected function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * Visszaadja, hogy a nyugta sztornózott-e
-     *
-     * @return false
-     */
-    public function getReserved()
-    {
-        return $this->reserved;
-    }
-
-    /**
-     * @param  false  $reserved
-     */
-    protected function setReserved($reserved)
-    {
-        $this->reserved = $reserved;
-    }
-
-    /**
-     * Visszaadja a nyugta keltét
-     *
-     * @return string
-     */
-    public function getCreated()
-    {
-        return $this->created;
-    }
-
-    /**
-     * @param  string  $created
-     */
-    protected function setCreated($created)
-    {
-        $this->created = $created;
-    }
-
-    /**
-     * Visszaadja a nyugta fizetési módját
-     *
-     * @return string
-     */
-    public function getPaymentMethod()
-    {
-        return $this->paymentMethod;
-    }
-
-    /**
-     * @param  string  $paymentMethod
-     */
-    protected function setPaymentMethod($paymentMethod)
-    {
-        $this->paymentMethod = $paymentMethod;
-    }
-
-    /**
-     * Visszaadja a nyugta valutáját
-     *
-     * @return string
-     */
-    public function getCurrency()
-    {
-        return $this->currency;
-    }
-
-    /**
-     * @param  string  $currency
-     */
-    protected function setCurrency($currency)
-    {
-        $this->currency = $currency;
-    }
-
-    /**
-     * Visszaadja, hogy a nyugtát teszt cég hozta-e létre
-     *
-     * @return bool
-     */
-    public function isTest()
-    {
-        return $this->test;
-    }
-
-    /**
-     * @param  bool  $test
-     */
-    protected function setTest($test)
-    {
-        $this->test = $test;
-    }
-
-    /**
-     * Visszaadja a nyugta tételeit
-     *
-     * @return array
-     */
-    public function getItems()
-    {
-        return $this->items;
-    }
-
-    /**
-     * @param  array  $items
-     */
-    protected function setItems($items)
-    {
-        $this->items = $items;
-    }
-
-    /**
-     * Visszaadja a nyugta összegeit
-     *
-     * @return array
-     */
-    public function getAmounts()
-    {
-        return $this->amounts;
-    }
-
-    /**
-     * @param  array  $amounts
-     */
-    protected function setAmounts($amounts)
-    {
-        $this->amounts = $amounts;
-    }
-
-    /**
-     * Visszaadja a hibakódot
-     *
-     * @return string
-     */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
-
-    /**
-     * @param  string  $errorCode
-     */
-    protected function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-    }
-
-    /**
-     * Visszaadja a hibaüzenetet
-     *
-     * @return string
-     */
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
-    }
-
-    /**
-     * @param  string  $errorMessage
-     */
-    protected function setErrorMessage($errorMessage)
-    {
-        $this->errorMessage = $errorMessage;
-    }
-
-    /**
-     * Visszaadja a nyugta PDF fájlt
-     *
-     * @return bool|string
-     */
-    public function getPdfFile()
-    {
-        $pdfData = SzamlaAgentUtil::isNotNull($this->getPdfData()) ? $this->getPdfData() : '';
-
-        return base64_decode($pdfData);
-    }
-
-    /**
-     * Visszaadja a nyugta PDF adatokat
-     *
-     * @return string
-     */
-    public function getPdfData()
-    {
-        return $this->pdfData;
-    }
-
-    /**
-     * @param  string  $pdfData
-     */
-    protected function setPdfData($pdfData)
-    {
-        $this->pdfData = $pdfData;
-    }
-
-    /**
-     * Visszaadja a nyugta kiállításának sikerességét
-     *
-     * @return bool
-     */
-    public function isSuccess()
-    {
-        return $this->success;
-    }
-
-    /**
-     * Visszaadja, hogy a válasz tartalmaz-e hibát
-     *
-     * @return bool
-     */
-    public function isError()
-    {
-        return ! $this->isSuccess();
-    }
-
-    /**
-     * @param  bool  $success
-     */
-    protected function setSuccess($success)
-    {
-        $this->success = $success;
-    }
-
-    /**
-     * Visszaadja a nyugta jóváírásait
-     *
-     * @return array
-     */
-    public function getCreditNotes()
-    {
-        return $this->creditNotes;
-    }
-
-    /**
-     * @param  array  $creditNotes
-     */
-    protected function setCreditNotes($creditNotes)
-    {
-        $this->creditNotes = $creditNotes;
-    }
-
-    /**
-     * Visszaadja a sztornózott nyugta számát
-     *
-     * @return string
-     */
-    public function getReservedReceiptNumber()
+    public function getReservedReceiptNumber(): string
     {
         return $this->reservedReceiptNumber;
     }
 
-    /**
-     * @param  string  $reservedReceiptNumber
-     */
-    protected function setReservedReceiptNumber($reservedReceiptNumber)
+    public function getType(): string
     {
-        $this->reservedReceiptNumber = $reservedReceiptNumber;
+        return $this->type;
+    }
+
+    public function isReserved(): bool
+    {
+        return $this->isReserved;
+    }
+
+    public function getCreatedAt(): string
+    {
+        return $this->createdAt;
+    }
+
+    public function isTestAccount(): bool
+    {
+        return $this->isTestAccount;
+    }
+
+    public function getItems(): array
+    {
+        return $this->items;
+    }
+
+    public function getAmounts(): array
+    {
+        return $this->amounts;
+    }
+
+    public function getCreditNotes(): array
+    {
+        return $this->creditNotes;
     }
 }

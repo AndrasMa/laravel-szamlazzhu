@@ -2,186 +2,32 @@
 
 namespace Omisai\Szamlazzhu\Response;
 
-/**
- * Díjbekérő törlés kérésére adott válasz
- */
-class ProformaDeletionResponse
+use Omisai\Szamlazzhu\Response\AbstractResponse;
+
+class ProformaDeletionResponse extends AbstractResponse
 {
-    /**
-     * Díjbekérő száma
-     *
-     * @var string
-     */
-    protected $proformaNumber;
+    protected string $proformaNumber;
 
-    /**
-     * A válasz hibakódja
-     *
-     * @var string
-     */
-    protected $errorCode;
+    protected array $headers;
 
-    /**
-     * A válasz hibaüzenete
-     *
-     * @var string
-     */
-    protected $errorMessage;
-
-    /**
-     * Sikeres-e a válasz
-     *
-     * @var bool
-     */
-    protected $success = false;
-
-    /**
-     * A válasz fejléc adatai
-     *
-     * @var array
-     */
-    protected $headers;
-
-    /**
-     * Feldolgozás után visszaadja a díjbekérő törlés válaszát objektumként
-     *
-     *
-     * @return ProformaDeletionResponse
-     */
-    public static function parseData(array $data)
+    public function parseData()
     {
-        $response = new ProformaDeletionResponse();
-        $headers = $data['headers'];
-
-        if (! empty($headers)) {
-            $response->setHeaders($headers);
-
-            if (array_key_exists('szlahu_error', $headers)) {
-                $error = urldecode($headers['szlahu_error']);
-                $response->setErrorMessage($error);
-            }
-
-            if (array_key_exists('szlahu_error_code', $headers)) {
-                $response->setErrorCode($headers['szlahu_error_code']);
-            }
-
-            if ($response->isNotError()) {
-                $response->setSuccess(true);
-            }
+        if ('array' !== gettype($this->getData()) || empty($this->getData()) || empty($this->getData()['headers'])) {
+            return;
         }
 
-        return $response;
-    }
+        $this->headers = $this->getData()['headers'];
 
-    /**
-     * Visszaadja a bizonylat számát
-     *
-     * @return string
-     */
-    public function getDocumentNumber()
-    {
-        return $this->getProformaNumber();
-    }
+        if (array_key_exists('szlahu_error', $this->headers)) {
+            $this->errorMessage = urldecode($this->headers['szlahu_error']);
+        }
 
-    /**
-     * Visszaadja a díjbekérő számát
-     *
-     * @return string
-     */
-    public function getProformaNumber()
-    {
-        return $this->proformaNumber;
-    }
+        if (array_key_exists('szlahu_error_code', $this->headers)) {
+            $this->errorCode = $this->headers['szlahu_error_code'];
+        }
 
-    /**
-     * Visszaadja a válasz hibakódját
-     *
-     * @return string
-     */
-    public function getErrorCode()
-    {
-        return $this->errorCode;
-    }
-
-    /**
-     * @param  string  $errorCode
-     */
-    protected function setErrorCode($errorCode)
-    {
-        $this->errorCode = $errorCode;
-    }
-
-    /**
-     * Visszaadja a válasz hibaüzenetét
-     *
-     * @return string
-     */
-    public function getErrorMessage()
-    {
-        return $this->errorMessage;
-    }
-
-    /**
-     * @param  string  $errorMessage
-     */
-    protected function setErrorMessage($errorMessage)
-    {
-        $this->errorMessage = $errorMessage;
-    }
-
-    /**
-     * Visszaadja a válasz sikerességét
-     *
-     * @return bool
-     */
-    public function isSuccess()
-    {
-        return $this->success && $this->isNotError();
-    }
-
-    /**
-     * Visszaadja, hogy a válasz tartalmaz-e hibát
-     *
-     * @return bool
-     */
-    public function isError()
-    {
-        return ! empty($this->getErrorMessage()) || ! empty($this->getErrorCode());
-    }
-
-    /**
-     * Visszaadja, hogy nem történt-e hiba
-     *
-     * @return bool
-     */
-    public function isNotError()
-    {
-        return ! $this->isError();
-    }
-
-    /**
-     * @param  bool  $success
-     */
-    protected function setSuccess($success)
-    {
-        $this->success = $success;
-    }
-
-    /**
-     * Visszaadja a válasz fejléc adatait
-     *
-     * @return array
-     */
-    public function getHeaders()
-    {
-        return $this->headers;
-    }
-
-    /**
-     * @param  array  $headers
-     */
-    protected function setHeaders($headers)
-    {
-        $this->headers = $headers;
+        if (!$this->hasError()) {
+            $this->isSuccess = true;
+        }
     }
 }
