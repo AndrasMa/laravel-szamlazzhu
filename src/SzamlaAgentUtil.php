@@ -20,7 +20,7 @@ class SzamlaAgentUtil
 
     public static function getDateTimeWithMilliseconds(): string
     {
-        return date('YmdHis').substr(microtime(false), 2, 5);
+        return date('Y-m-d_H:i:s').substr(microtime(false), 2, 5);
     }
 
     public static function formatXml(\SimpleXMLElement $simpleXMLElement): \DOMDocument
