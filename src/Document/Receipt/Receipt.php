@@ -131,7 +131,7 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
                 $data = $this->buildFieldsData($request, $fields);
                 break;
             case $request::XML_SCHEMA_SEND_RECEIPT:
-                $data = $this->buildFieldsData($request, array_merge($fields, ['emailKuldes']));
+                $data = $this->buildFieldsData($request, array_merge($fields, $this->buyer->shouldSendEmail() ? ['emailKuldes'] : []));
                 break;
             default:
                 throw new SzamlaAgentException(SzamlaAgentException::XML_SCHEMA_TYPE_NOT_EXISTS.": {$request->getXmlName()}");
@@ -147,8 +147,7 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
     {
         $data = [];
 
-        if (! empty($fields)) {
-            $emailSendingData = $this->buildXmlEmailSendingData();
+        if (!empty($fields)) {
             foreach ($fields as $key) {
                 switch ($key) {
                     case 'beallitasok':
@@ -164,6 +163,7 @@ class Receipt extends Document implements HasXmlBuildWithRequestInterface
                         $value = (!empty($this->creditNotes)) ? $this->buildCreditsXmlData() : null;
                     break;
                     case 'emailKuldes':
+                        $emailSendingData = $this->buildXmlEmailSendingData();
                         $value = (!empty($emailSendingData)) ? $emailSendingData : null;
                     break;
                     default:
