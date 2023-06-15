@@ -19,7 +19,7 @@ trait FieldsValidationTrait
             }
 
             if (empty($this->{$field})) {
-                throw new SzamlaAgentException(sprintf('The %s::%s field is mandatory and cannot be null, empty string or 0', self::class));
+                throw new SzamlaAgentException(sprintf('The %s::%s field is mandatory and cannot be null, empty string or 0', self::class, $field));
             }
         }
     }
