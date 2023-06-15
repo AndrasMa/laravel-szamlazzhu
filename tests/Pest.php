@@ -14,3 +14,10 @@ use Omisai\Szamlazzhu\Tests\TestCase;
 */
 
 uses(TestCase::class)->in(__DIR__);
+
+function skipIfConfigNotSet(string $key)
+{
+    if (null === config($key)) {
+        test()->markTestSkipped("Config key {$key} not set");
+    }
+}
