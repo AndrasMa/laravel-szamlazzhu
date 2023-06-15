@@ -14,7 +14,10 @@ use Omisai\Szamlazzhu\Document\Proforma;
 use Omisai\Szamlazzhu\Document\Receipt\Receipt;
 use Omisai\Szamlazzhu\Document\Receipt\ReverseReceipt;
 use Omisai\Szamlazzhu\Header\DocumentHeader;
-use Omisai\Szamlazzhu\Response\SzamlaAgentResponse;
+use Omisai\Szamlazzhu\Response\AbstractResponse;
+use Omisai\Szamlazzhu\Response\InvoiceResponse;
+use Omisai\Szamlazzhu\Response\ReceiptResponse;
+use Omisai\Szamlazzhu\Response\ProformaDeletionResponse;
 
 class SzamlaAgent
 {
@@ -34,7 +37,7 @@ class SzamlaAgent
 
     private  ?int $requestTimeout = null;
 
-    private SzamlaAgentResponse $response;
+    private AbstractResponse $response;
 
     /**
      * @var SzamlaAgent[]
@@ -53,7 +56,7 @@ class SzamlaAgent
 
     private CookieHandler $cookieHandler;
 
-    protected function __construct(?string $username, ?string $password, ?string $apiKey, bool $downloadPdf, int $responseType = SzamlaAgentResponse::RESULT_AS_XML, string $aggregator = '')
+    protected function __construct(?string $username, ?string $password, ?string $apiKey, bool $downloadPdf, int $responseType = AbstractResponse::RESULT_AS_XML, string $aggregator = '')
     {
         $this->setting = new SzamlaAgentSetting($username, $password, $apiKey, $downloadPdf, SzamlaAgentSetting::DOWNLOAD_COPIES_COUNT, $responseType, $aggregator);
         $this->cookieHandler = new CookieHandler();
@@ -88,7 +91,7 @@ class SzamlaAgent
     /**
      * API key is the recommended authentication mode
      */
-    public static function createWithAPIkey(string $apiKey, bool $downloadPdf = true, int $responseType = SzamlaAgentResponse::RESULT_AS_XML, string $aggregator = '')
+    public static function createWithAPIkey(string $apiKey, bool $downloadPdf = true, int $responseType = AbstractResponse::RESULT_AS_XML, string $aggregator = '')
     {
         $index = self::getHash($apiKey);
 
@@ -133,18 +136,18 @@ class SzamlaAgent
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    private function sendRequest(SzamlaAgentRequest $request): SzamlaAgentResponse
+    private function sendRequest(SzamlaAgentRequest $request): AbstractResponse
     {
-        try {
-            $this->setRequest($request);
-            $response = new SzamlaAgentResponse($this, $request->send());
-
-            return $response->handleResponse();
-        } catch (SzamlaAgentException $sze) {
-            throw $sze;
-        } catch (\Exception $e) {
-            throw $e;
+        $this->setRequest($request);
+        if (Proforma::class === $request->getEntity()::class) {
+            return new ProformaDeletionResponse($this, $request->send());
+        } elseif (Invoice::class === $request->getEntity()::class) {
+            return new InvoiceResponse($this, $request->send());
+        } elseif (Receipt::class === $request->getEntity()::class) {
+            return new ReceiptResponse($this, $request->send());
         }
+
+        throw new SzamlaAgentException("Cannot process response.");
     }
 
     /**
@@ -152,7 +155,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateDocument(string $type, Document $document): SzamlaAgentResponse
+    public function generateDocument(string $type, Document $document): AbstractResponse
     {
         $request = new SzamlaAgentRequest($this, $this->cookieHandler, $type, $document);
 
@@ -164,7 +167,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateInvoice(Invoice $invoice): SzamlaAgentResponse
+    public function generateInvoice(Invoice $invoice): AbstractResponse
     {
         return $this->generateDocument('generateInvoice', $invoice);
     }
@@ -174,7 +177,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generatePrePaymentInvoice(PrePaymentInvoice $invoice): SzamlaAgentResponse
+    public function generatePrePaymentInvoice(PrePaymentInvoice $invoice): AbstractResponse
     {
         return $this->generateInvoice($invoice);
     }
@@ -184,7 +187,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateFinalInvoice(FinalInvoice $invoice): SzamlaAgentResponse
+    public function generateFinalInvoice(FinalInvoice $invoice): AbstractResponse
     {
         return $this->generateInvoice($invoice);
     }
@@ -194,7 +197,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateCorrectiveInvoice(CorrectiveInvoice $invoice): SzamlaAgentResponse
+    public function generateCorrectiveInvoice(CorrectiveInvoice $invoice): AbstractResponse
     {
         return $this->generateInvoice($invoice);
     }
@@ -204,7 +207,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateReceipt(Receipt $receipt): SzamlaAgentResponse
+    public function generateReceipt(Receipt $receipt): AbstractResponse
     {
         return $this->generateDocument('generateReceipt', $receipt);
     }
@@ -214,13 +217,13 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function payInvoice(Invoice $invoice): SzamlaAgentResponse
+    public function payInvoice(Invoice $invoice): AbstractResponse
     {
-        if ($this->getResponseType() != SzamlaAgentResponse::RESULT_AS_TEXT) {
+        if ($this->getResponseType() != AbstractResponse::RESULT_AS_TEXT) {
             $message = 'Helytelen beállítási kísérlet a számla kifizetettségi adatok elküldésénél: a kérésre adott válaszverziónak TEXT formátumúnak kell lennie!';
             Log::channel('szamlazzhu')->warning($message);
         }
-        $this->setResponseType(SzamlaAgentResponse::RESULT_AS_TEXT);
+        $this->setResponseType(AbstractResponse::RESULT_AS_TEXT);
 
         return $this->generateDocument('payInvoice', $invoice);
     }
@@ -230,7 +233,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function sendReceipt(Receipt $receipt): SzamlaAgentResponse
+    public function sendReceipt(Receipt $receipt): AbstractResponse
     {
         return $this->generateDocument('sendReceipt', $receipt);
     }
@@ -238,7 +241,7 @@ class SzamlaAgent
     /**
      * @throws SzamlaAgentException
      */
-    public function getInvoiceData(string $data, int $type = Invoice::FROM_INVOICE_NUMBER, $downloadPdf = false): SzamlaAgentResponse
+    public function getInvoiceData(string $data, int $type = Invoice::FROM_INVOICE_NUMBER, $downloadPdf = false): AbstractResponse
     {
         $invoice = new Invoice();
 
@@ -248,13 +251,13 @@ class SzamlaAgent
             $invoice->getHeader()->setOrderNumber($data);
         }
 
-        if ($this->getResponseType() !== SzamlaAgentResponse::RESULT_AS_XML) {
+        if ($this->getResponseType() !== AbstractResponse::RESULT_AS_XML) {
             $message = 'Helytelen beállítási kísérlet a számla adatok lekérdezésénél: Számla adatok letöltéséhez a kérésre adott válasznak xml formátumúnak kell lennie!';
             Log::channel('szamlazzhu')->warning($message);
         }
 
         $this->setDownloadPdf($downloadPdf);
-        $this->setResponseType(SzamlaAgentResponse::RESULT_AS_XML);
+        $this->setResponseType(AbstractResponse::RESULT_AS_XML);
 
         return $this->generateDocument('requestInvoiceData', $invoice);
     }
@@ -263,7 +266,7 @@ class SzamlaAgent
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    public function getInvoicePdf(string $data, int $type = Invoice::FROM_INVOICE_NUMBER): SzamlaAgentResponse
+    public function getInvoicePdf(string $data, int $type = Invoice::FROM_INVOICE_NUMBER): AbstractResponse
     {
         $invoice = new Invoice();
 
@@ -307,7 +310,7 @@ class SzamlaAgent
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    public function getReceiptData(string $receiptNumber): SzamlaAgentResponse
+    public function getReceiptData(string $receiptNumber): AbstractResponse
     {
         return $this->generateDocument('requestReceiptData', new Receipt($receiptNumber));
     }
@@ -316,7 +319,7 @@ class SzamlaAgent
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    public function getReceiptPdf(string $receiptNumber): SzamlaAgentResponse
+    public function getReceiptPdf(string $receiptNumber): AbstractResponse
     {
         return $this->generateDocument('requestReceiptPDF', new Receipt($receiptNumber));
     }
@@ -327,10 +330,10 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function getTaxPayer(string $taxPayerId): SzamlaAgentResponse
+    public function getTaxPayer(string $taxPayerId): AbstractResponse
     {
         $request = new SzamlaAgentRequest($this, $this->cookieHandler, 'getTaxPayer', new TaxPayer($taxPayerId));
-        $this->setResponseType(SzamlaAgentResponse::RESULT_AS_TAXPAYER_XML);
+        $this->setResponseType(AbstractResponse::RESULT_AS_TAXPAYER_XML);
 
         return $this->sendRequest($request);
     }
@@ -340,7 +343,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateReverseInvoice(ReverseInvoice $invoice): SzamlaAgentResponse
+    public function generateReverseInvoice(ReverseInvoice $invoice): AbstractResponse
     {
         return $this->generateDocument('generateReverseInvoice', $invoice);
     }
@@ -350,7 +353,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateReverseReceipt(ReverseReceipt $receipt): SzamlaAgentResponse
+    public function generateReverseReceipt(ReverseReceipt $receipt): AbstractResponse
     {
         return $this->generateDocument('generateReverseReceipt', $receipt);
     }
@@ -360,7 +363,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateProforma(Proforma $proforma): SzamlaAgentResponse
+    public function generateProforma(Proforma $proforma): AbstractResponse
     {
         return $this->generateDocument('generateProforma', $proforma);
     }
@@ -369,7 +372,7 @@ class SzamlaAgent
      * @throws SzamlaAgentException
      * @throws \Exception
      */
-    public function getDeleteProforma(string $data, int $type = Proforma::FROM_INVOICE_NUMBER): SzamlaAgentResponse
+    public function getDeleteProforma(string $data, int $type = Proforma::FROM_INVOICE_NUMBER): AbstractResponse
     {
         $proforma = new Proforma();
 
@@ -379,7 +382,7 @@ class SzamlaAgent
             $proforma->getHeader()->setOrderNumber($data);
         }
 
-        $this->setResponseType(SzamlaAgentResponse::RESULT_AS_XML);
+        $this->setResponseType(AbstractResponse::RESULT_AS_XML);
         $this->setDownloadPdf(false);
 
         return $this->generateDocument('deleteProforma', $proforma);
@@ -390,7 +393,7 @@ class SzamlaAgent
      *
      * @throws SzamlaAgentException
      */
-    public function generateDeliveryNote(DeliveryNote $deliveryNote): SzamlaAgentResponse
+    public function generateDeliveryNote(DeliveryNote $deliveryNote): AbstractResponse
     {
         return $this->generateDocument('generateDeliveryNote', $deliveryNote);
     }
@@ -569,18 +572,17 @@ class SzamlaAgent
         return $this;
     }
 
-    public function getResponse(): SzamlaAgentResponse
+    public function getResponse(): AbstractResponse
     {
         return $this->response;
     }
 
-    public function setResponse(SzamlaAgentResponse $response): self
+    public function setResponse(AbstractResponse $response): self
     {
         $this->response = $response;
 
         return $this;
     }
-
 
     public function getCustomHTTPHeaders(): array
     {
