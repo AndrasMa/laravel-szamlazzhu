@@ -2,178 +2,221 @@
 
 namespace Omisai\Szamlazzhu;
 
-class Currency
+enum Currency: string
 {
-    public const CURRENCY_FT = 'Ft';
+    case FT = 'Ft';
 
-    public const CURRENCY_HUF = 'HUF';
+    case HUF = 'HUF';
 
-    public const CURRENCY_EUR = 'EUR';
+    case EUR = 'EUR';
 
-    public const CURRENCY_CHF = 'CHF';
+    case CHF = 'CHF';
 
-    public const CURRENCY_USD = 'USD';
+    case USD = 'USD';
 
-    public const CURRENCY_AED = 'AED';
+    case AED = 'AED';
 
-    public const CURRENCY_AUD = 'AUD';
+    case AUD = 'AUD';
 
-    public const CURRENCY_BGN = 'BGN';
+    case BGN = 'BGN';
 
-    public const CURRENCY_BRL = 'BRL';
+    case BRL = 'BRL';
 
-    public const CURRENCY_CAD = 'CAD';
+    case CAD = 'CAD';
 
-    public const CURRENCY_CNY = 'CNY';
+    case CNY = 'CNY';
 
-    public const CURRENCY_CZK = 'CZK';
+    case CZK = 'CZK';
 
-    public const CURRENCY_DKK = 'DKK';
+    case DKK = 'DKK';
 
-    public const CURRENCY_EEK = 'EEK';
+    case EEK = 'EEK';
 
-    public const CURRENCY_GBP = 'GBP';
+    case GBP = 'GBP';
 
-    public const CURRENCY_HKD = 'HKD';
+    case HKD = 'HKD';
 
-    public const CURRENCY_HRK = 'HRK';
+    case HRK = 'HRK';
 
-    public const CURRENCY_IDR = 'IDR';
+    case IDR = 'IDR';
 
-    public const CURRENCY_ILS = 'ILS';
+    case ILS = 'ILS';
 
-    public const CURRENCY_INR = 'INR';
+    case INR = 'INR';
 
-    public const CURRENCY_ISK = 'ISK';
+    case ISK = 'ISK';
 
-    public const CURRENCY_JPY = 'JPY';
+    case JPY = 'JPY';
 
-    public const CURRENCY_KRW = 'KRW';
+    case KRW = 'KRW';
 
-    public const CURRENCY_LTL = 'LTL';
+    case LTL = 'LTL';
 
-    public const CURRENCY_LVL = 'LVL';
+    case LVL = 'LVL';
 
-    public const CURRENCY_MXN = 'MXN';
+    case MXN = 'MXN';
 
-    public const CURRENCY_MYR = 'MYR';
+    case MYR = 'MYR';
 
-    public const CURRENCY_NOK = 'NOK';
+    case NOK = 'NOK';
 
-    public const CURRENCY_NZD = 'NZD';
+    case NZD = 'NZD';
 
-    public const CURRENCY_PHP = 'PHP';
+    case PHP = 'PHP';
 
-    public const CURRENCY_PLN = 'PLN';
+    case PLN = 'PLN';
 
-    public const CURRENCY_RON = 'RON';
+    case RON = 'RON';
 
-    public const CURRENCY_RSD = 'RSD';
+    case RSD = 'RSD';
 
-    public const CURRENCY_RUB = 'RUB';
+    case RUB = 'RUB';
 
-    public const CURRENCY_SEK = 'SEK';
+    case SEK = 'SEK';
 
-    public const CURRENCY_SGD = 'SGD';
+    case SGD = 'SGD';
 
-    public const CURRENCY_THB = 'THB';
+    case THB = 'THB';
 
-    public const CURRENCY_TRY = 'TRY';
+    case TRY = 'TRY';
 
-    public const CURRENCY_UAH = 'UAH';
+    case UAH = 'UAH';
 
-    public const CURRENCY_VND = 'VND';
+    case VND = 'VND';
 
-    public const CURRENCY_ZAR = 'ZAR';
+    case ZAR = 'ZAR';
 
-    public static function getDefault(): string
+    public static function getDefault(): self
     {
-        return self::CURRENCY_FT;
+        return self::FT;
     }
 
-    public static function getCurrencyStr($currency): string
+    public static function getCurrencyName(Currency $currency): string
     {
         if ($currency == null || $currency == '' || $currency === 'Ft' || $currency == 'HUF') {
             $result = 'forint';
         } else {
             switch ($currency) {
-                case self::CURRENCY_EUR: $result = 'euró';
+                case self::FT:
+                case self::HUF:
+                    $result = 'forint';
                     break;
-                case self::CURRENCY_USD: $result = 'amerikai dollár';
+                case self::EUR:
+                    $result = 'euró';
                     break;
-                case self::CURRENCY_AUD: $result = 'ausztrál dollár';
+                case self::USD:
+                    $result = 'amerikai dollár';
                     break;
-                case self::CURRENCY_AED: $result = 'Arab Emírségek dirham';
+                case self::AUD:
+                    $result = 'ausztrál dollár';
                     break;
-                case self::CURRENCY_BRL: $result = 'brazil real';
+                case self::AED:
+                    $result = 'Arab Emírségek dirham';
                     break;
-                case self::CURRENCY_CAD: $result = 'kanadai dollár';
+                case self::BRL:
+                    $result = 'brazil real';
                     break;
-                case self::CURRENCY_CHF: $result = 'svájci frank';
+                case self::CAD:
+                    $result = 'kanadai dollár';
                     break;
-                case self::CURRENCY_CNY: $result = 'kínai jüan';
+                case self::CHF:
+                    $result = 'svájci frank';
                     break;
-                case self::CURRENCY_CZK: $result = 'cseh korona';
+                case self::CNY:
+                    $result = 'kínai jüan';
                     break;
-                case self::CURRENCY_DKK: $result = 'dán korona';
+                case self::CZK:
+                    $result = 'cseh korona';
                     break;
-                case self::CURRENCY_EEK: $result = 'észt korona';
+                case self::DKK:
+                    $result = 'dán korona';
                     break;
-                case self::CURRENCY_GBP: $result = 'angol font';
+                case self::EEK:
+                    $result = 'észt korona';
                     break;
-                case self::CURRENCY_HKD: $result = 'hongkongi dollár';
+                case self::GBP:
+                    $result = 'angol font';
                     break;
-                case self::CURRENCY_HRK: $result = 'horvát kúna';
+                case self::HKD:
+                    $result = 'hongkongi dollár';
                     break;
-                case self::CURRENCY_ISK: $result = 'izlandi korona';
+                case self::HRK:
+                    $result = 'horvát kúna';
                     break;
-                case self::CURRENCY_JPY: $result = 'japán jen';
+                case self::ISK:
+                    $result = 'izlandi korona';
                     break;
-                case self::CURRENCY_LTL: $result = 'litván litas';
+                case self::JPY:
+                    $result = 'japán jen';
                     break;
-                case self::CURRENCY_LVL: $result = 'lett lat';
+                case self::LTL:
+                    $result = 'litván litas';
                     break;
-                case self::CURRENCY_MXN: $result = 'mexikói peso';
+                case self::LVL:
+                    $result = 'lett lat';
                     break;
-                case self::CURRENCY_NOK: $result = 'norvég koron';
+                case self::MXN:
+                    $result = 'mexikói peso';
                     break;
-                case self::CURRENCY_NZD: $result = 'új-zélandi dollár';
+                case self::NOK:
+                    $result = 'norvég koron';
                     break;
-                case self::CURRENCY_PLN: $result = 'lengyel zloty';
+                case self::NZD:
+                    $result = 'új-zélandi dollár';
                     break;
-                case self::CURRENCY_RON: $result = 'új román lej';
+                case self::PLN:
+                    $result = 'lengyel zloty';
                     break;
-                case self::CURRENCY_RUB: $result = 'orosz rubel';
+                case self::RON:
+                    $result = 'új román lej';
                     break;
-                case self::CURRENCY_SEK: $result = 'svéd koron';
+                case self::RUB:
+                    $result = 'orosz rubel';
                     break;
-                case self::CURRENCY_UAH: $result = 'ukrán hryvna';
+                case self::SEK:
+                    $result = 'svéd koron';
                     break;
-                case self::CURRENCY_BGN: $result = 'bolgár leva';
+                case self::UAH:
+                    $result = 'ukrán hryvna';
                     break;
-                case self::CURRENCY_RSD: $result = 'szerb dínár';
+                case self::BGN:
+                    $result = 'bolgár leva';
                     break;
-                case self::CURRENCY_ILS: $result = 'izraeli sékel';
+                case self::RSD:
+                    $result = 'szerb dínár';
                     break;
-                case self::CURRENCY_IDR: $result = 'indonéz rúpia';
+                case self::ILS:
+                    $result = 'izraeli sékel';
                     break;
-                case self::CURRENCY_INR: $result = 'indiai rúpia';
+                case self::IDR:
+                    $result = 'indonéz rúpia';
                     break;
-                case self::CURRENCY_TRY: $result = 'török líra';
+                case self::INR:
+                    $result = 'indiai rúpia';
                     break;
-                case self::CURRENCY_VND: $result = 'vietnámi dong';
+                case self::TRY:
+                    $result = 'török líra';
                     break;
-                case self::CURRENCY_SGD: $result = 'szingapúri dollár';
+                case self::VND:
+                    $result = 'vietnámi dong';
                     break;
-                case self::CURRENCY_THB: $result = 'thai bát';
+                case self::SGD:
+                    $result = 'szingapúri dollár';
                     break;
-                case self::CURRENCY_KRW: $result = 'dél-koreai won';
+                case self::THB:
+                    $result = 'thai bát';
                     break;
-                case self::CURRENCY_MYR: $result = 'maláj ringgit';
+                case self::KRW:
+                    $result = 'dél-koreai won';
                     break;
-                case self::CURRENCY_PHP: $result = 'fülöp-szigeteki peso';
+                case self::MYR:
+                    $result = 'maláj ringgit';
                     break;
-                case self::CURRENCY_ZAR: $result = 'dél-afrikai rand';
+                case self::PHP:
+                    $result = 'fülöp-szigeteki peso';
+                    break;
+                case self::ZAR:
+                    $result = 'dél-afrikai rand';
                     break;
                 default:
                     $result = 'ismeretlen';

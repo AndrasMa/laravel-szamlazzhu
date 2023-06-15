@@ -2,6 +2,7 @@
 
 namespace Omisai\Szamlazzhu\Header;
 
+use Omisai\Szamlazzhu\Currency;
 use Omisai\Szamlazzhu\Header\Type;
 use Omisai\Szamlazzhu\PaymentMethod;
 
@@ -11,7 +12,7 @@ class DocumentHeader
 
     protected PaymentMethod $paymentMethod;
 
-    protected string $currency;
+    protected Currency $currency;
 
     protected string $prefix = '';
 
@@ -58,11 +59,16 @@ class DocumentHeader
         return $this;
     }
 
-    public function setCurrency(string $currency): self
+    public function setCurrency(Currency $currency): self
     {
         $this->currency = $currency;
 
         return $this;
+    }
+
+    public function getCurrency(): string
+    {
+        return $this->currency->value;
     }
 
     public function setPrefix(string $prefix): self
