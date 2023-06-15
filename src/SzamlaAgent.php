@@ -3,7 +3,6 @@
 namespace Omisai\Szamlazzhu;
 
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 use Omisai\Szamlazzhu\Document\DeliveryNote;
 use Omisai\Szamlazzhu\Document\Document;
 use Omisai\Szamlazzhu\Document\Invoice\CorrectiveInvoice;
@@ -19,15 +18,11 @@ use Omisai\Szamlazzhu\Response\SzamlaAgentResponse;
 
 class SzamlaAgent
 {
-    public const API_VERSION = '0.9.0';
+    public const API_ENDPOINT_URL = 'https://www.szamlazz.hu/szamla/';
 
-    public const API_URL = 'https://www.szamlazz.hu/szamla';
+    public const PACKAGE_VERSION = '0.9.0';
 
     public const MINIMUM_PHP_VERSION = '8.1';
-
-    public const CHARSET = 'utf-8';
-
-    public const CERTIFICATION_FILENAME = 'cacert.pem';
 
     public const PDF_FILE_SAVE_PATH = 'pdf';
 
@@ -37,7 +32,7 @@ class SzamlaAgent
 
     private SzamlaAgentRequest $request;
 
-    private  int $requestTimeout = SzamlaAgentRequest::REQUEST_TIMEOUT;
+    private  ?int $requestTimeout = null;
 
     private SzamlaAgentResponse $response;
 
@@ -400,16 +395,6 @@ class SzamlaAgent
         return $this->generateDocument('generateDeliveryNote', $deliveryNote);
     }
 
-    public function getApiVersion(): string
-    {
-        return self::API_VERSION;
-    }
-
-    public function getCertificationFile(): ?string
-    {
-        return Storage::disk('payment')->get(self::CERTIFICATION_FILENAME);
-    }
-
     public function getSetting(): SzamlaAgentSetting
     {
         return $this->setting;
@@ -695,7 +680,7 @@ class SzamlaAgent
         return $header;
     }
 
-    public function getRequestTimeout(): int
+    public function getRequestTimeout(): ?int
     {
         return $this->requestTimeout;
     }
