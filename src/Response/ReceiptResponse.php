@@ -36,13 +36,15 @@ class ReceiptResponse extends AbstractResponse
 
     protected function parseData()
     {
-        if ('array' !== gettype($this->getData()) || empty($this->getData()) || empty($this->getData()['body'])) {
+        if ('array' !== gettype($this->getData()) || empty($this->getData())) {
             return;
         }
 
         if (self::RESULT_AS_TEXT === $this->agent->getResponseType()) {
-            $xmlData = new \SimpleXMLElement(base64_decode($this->getData()['body']));
+            $xmlData = new \SimpleXMLElement(base64_decode($this->getData()['result']['body']));
             $data = SzamlaAgentUtil::toArray($xmlData);
+        } else {
+            $data = $this->getData()['result'];
         }
 
         $base = [];
@@ -164,5 +166,11 @@ class ReceiptResponse extends AbstractResponse
     public function getCreditNotes(): array
     {
         return $this->creditNotes;
+    }
+
+
+    public function getDocumentNumber(): string
+    {
+        return $this->receiptNumber;
     }
 }
