@@ -29,7 +29,7 @@ class InvoiceResponse extends AbstractResponse
 
     protected function parseData()
     {
-        if('array' !== gettype($this->getData()) || empty($this->getData()) || empty($this->getData()['headers'])) {
+        if('array' != gettype($this->getData()) || empty($this->getData()) || empty($this->getData()['result']['headers'])) {
             return;
         }
 
@@ -80,6 +80,15 @@ class InvoiceResponse extends AbstractResponse
 
         if (!$this->hasError()) {
             $this->isSuccess = true;
+            Log::channel('szamlazzhu')->debug('Invoice response is success', [
+                'code' => $this->errorCode,
+                'message' => $this->errorMessage,
+            ]);
+        } else {
+            Log::channel('szamlazzhu')->debug('Invoice response is failed', [
+                'code' => $this->errorCode,
+                'message' => $this->errorMessage,
+            ]);
         }
 
         if ($this->hasInvoiceNotificationSendError()) {
