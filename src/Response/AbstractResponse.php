@@ -51,6 +51,7 @@ abstract class AbstractResponse {
     {
         $this->agent = $agent;
         $this->httpResponse = $httpResponse;
+        $this->agent->getCookieHandler()->setCookieFile($httpResponse);
 
         $this->parseHttpResponse();
     }
@@ -337,7 +338,7 @@ abstract class AbstractResponse {
         return $this->pdfFile;
     }
 
-    public function getErrorCode(): int
+    public function getErrorCode(): ?int
     {
         return $this->errorCode;
     }
