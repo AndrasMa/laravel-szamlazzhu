@@ -1,5 +1,5 @@
 {
-    "name": "omisai/szamlazzhu",
+    "name": "omisai/laravel-szamlazzhu",
     "description": "Számlázz.hu Számla Agent API integration for Laravel",
     "keywords": [
         "omisai",
@@ -9,7 +9,7 @@
         "laravel"
     ],
     "license": "MIT",
-    "homepage": "https://github.com/omisai-tech/szamlazzhu",
+    "homepage": "https://github.com/omisai-tech/laravel-szamlazzhu",
     "authors": [
         {
             "name": "Sándor Gergely Bornemisza",

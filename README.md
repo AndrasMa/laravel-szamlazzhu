@@ -3,9 +3,9 @@
 
 ## About
 
-**Szamlazzhu-agent** is a Laravel package that provides an easy-to-use interface for communicating with the Számlázz.hu API. It was created by refactoring the original source code (available at [here](https://docs.szamlazz.hu/#php-api/)) and integrating it into the [Laravel framework](https://laravel.com/).
+**laravel-szamlazzhu** is a Laravel package that provides an easy-to-use interface for communicating with the Számlázz.hu API. It was created by refactoring the original source code (available at [here](https://docs.szamlazz.hu/#php-api/)) and integrating it into the [Laravel framework](https://laravel.com/).
 
-Many of the original source code files were reforged to use the built-in features of Laravel, such as HTTP client, Filesystem abstraction, Configuration and service provider. As a result, **Szamlazzhu-agent** provides a more streamlined and idiomatic way of interacting with the Számlázz.hu API.
+Many of the original source code files were reforged to use the built-in features of Laravel, such as HTTP client, Filesystem abstraction, Configuration and service provider. As a result, **laravel-szamlazzhu** provides a more streamlined and idiomatic way of interacting with the Számlázz.hu API.
 
 ## Installation
 
@@ -15,9 +15,8 @@ Many of the original source code files were reforged to use the built-in feature
 
 To get started with package, simply install it via Composer:
 
-<!-- TODO: update after package got released on Packagist -->
 ``` bash
-composer require <package>
+composer require omisai/laravel-szamlazzhu
 ```
 
 
@@ -34,6 +33,10 @@ or in config/szamlazzhu.php file:
 ``` php
 'api_key' => env('SZAMLAZZHU_API_KEY', null),
 ```
+
+## Usage
+
+WIP
 
 ## Changelog
 

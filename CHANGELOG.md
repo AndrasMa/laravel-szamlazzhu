@@ -1,3 +1,3 @@
 # Changelog
 
-All notable changes to `szamlazzhu-agent` will be documented in this file.
+All notable changes to `laravel-szamlazzhu` will be documented in this file.
