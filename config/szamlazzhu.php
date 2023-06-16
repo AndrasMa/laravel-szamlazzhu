@@ -58,6 +58,6 @@ return [
     |
     */
 
-    'test_prefix' => env('SZAMLAZZHU_TEST_PREFIX'),
+    'test_prefix' => env('SZAMLAZZHU_TEST_PREFIX', null),
 
 ];
