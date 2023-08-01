@@ -1,5 +1,7 @@
-<!-- TODO: add badges after package got released on Packagist -->
-<!-- Badges using https://poser.pugx.org/ -->
+[![Latest Stable Version](http://poser.pugx.org/omisai/laravel-szamlazzhu/v)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![Latest Unstable Version](http://poser.pugx.org/omisai/laravel-szamlazzhu/v/unstable)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![License](http://poser.pugx.org/omisai/laravel-szamlazzhu/license)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![PHP Version Require](http://poser.pugx.org/omisai/laravel-szamlazzhu/require/php)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
 
 ## About
 
