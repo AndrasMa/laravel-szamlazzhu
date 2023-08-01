@@ -26,7 +26,9 @@ class InvoiceItem extends Item implements HasXmlBuildInterface
         $data['mennyisegiEgyseg'] = $this->quantityUnit;
         $data['nettoEgysegar'] = $this->netUnitPrice;
         $data['afakulcs'] = $this->vat;
-        $data['arresAfaAlap'] = number_format($this->priceGapVatBase, 2);
+        if (!empty($this->priceGapVatBase)) {
+            $data['arresAfaAlap'] = $this->priceGapVatBase;
+        }
         $data['nettoErtek'] = number_format($this->netPrice, 2);
         $data['afaErtek'] = number_format($this->vatAmount, 2);
         $data['bruttoErtek'] = number_format($this->grossAmount, 2);
