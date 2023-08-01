@@ -18,8 +18,8 @@ trait FieldsValidationTrait
                 throw new SzamlaAgentException(sprintf('The %s::%s property is not defined, but it is set at the %s::requiredFields.', self::class, $field, self::class));
             }
 
-            if (empty($this->{$field})) {
-                throw new SzamlaAgentException(sprintf('The %s::%s field is mandatory and cannot be null, empty string or 0', self::class, $field));
+            if ($this->{$field} === null || $this->{$field} === '') {
+                throw new SzamlaAgentException(sprintf('The %s::%s field is mandatory and cannot be null, empty string', self::class, $field));
             }
         }
     }

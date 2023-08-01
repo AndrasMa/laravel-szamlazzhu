@@ -22,26 +22,14 @@ class InvoiceItem extends Item implements HasXmlBuildInterface
         if (!empty($this->id)) {
             $data['azonosito'] = $this->id;
         }
-        $data['mennyiseg'] = $this->quantity;
+        $data['mennyiseg'] = number_format($this->quantity, 2);
         $data['mennyisegiEgyseg'] = $this->quantityUnit;
         $data['nettoEgysegar'] = $this->netUnitPrice;
         $data['afakulcs'] = $this->vat;
-
-        if (!empty($this->priceGapVatBase)) {
-            $data['arresAfaAlap'] = $this->priceGapVatBase;
-        }
-
-        if (!empty($this->netPrice)) {
-            $data['nettoErtek'] = $this->netPrice;
-        }
-
-        if (!empty($this->vatAmount)) {
-            $data['afaErtek'] = $this->vatAmount;
-        }
-
-        if (!empty($this->grossAmount)) {
-            $data['bruttoErtek'] = $this->grossAmount;
-        }
+        $data['arresAfaAlap'] = number_format($this->priceGapVatBase, 2);
+        $data['nettoErtek'] = number_format($this->netPrice, 2);
+        $data['afaErtek'] = number_format($this->vatAmount, 2);
+        $data['bruttoErtek'] = number_format($this->grossAmount, 2);
 
         if (!empty($this->comment)) {
             $data['megjegyzes'] = $this->comment;

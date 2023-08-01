@@ -22,13 +22,13 @@ class ReceiptItem extends Item implements HasXmlBuildInterface
         if (!empty($this->id)) {
             $data['azonosito'] = $this->id;
         }
-        $data['mennyiseg'] = $this->quantity;
+        $data['mennyiseg'] = number_format($this->quantity, 2);
         $data['mennyisegiEgyseg'] = $this->quantityUnit;
         $data['nettoEgysegar'] = $this->netUnitPrice;
         $data['afakulcs'] = $this->vat;
-        $data['netto'] = $this->netPrice;
-        $data['afa'] = $this->vatAmount;
-        $data['brutto'] = $this->grossAmount;
+        $data['netto'] = number_format($this->netPrice, 2);
+        $data['afa'] = number_format($this->vatAmount, 2);
+        $data['brutto'] = number_format($this->grossAmount, 2);
         if (!empty($this->ledgerData)) {
             $data['fokonyv'] = $this->ledgerData->buildXmlData();
         }
