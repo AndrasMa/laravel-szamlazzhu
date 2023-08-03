@@ -29,9 +29,9 @@ class InvoiceItem extends Item implements HasXmlBuildInterface
         if (!empty($this->priceGapVatBase)) {
             $data['arresAfaAlap'] = $this->priceGapVatBase;
         }
-        $data['nettoErtek'] = number_format($this->netPrice, 2);
-        $data['afaErtek'] = number_format($this->vatAmount, 2);
-        $data['bruttoErtek'] = number_format($this->grossAmount, 2);
+        $data['nettoErtek'] = 0 == $this->netPrice ? number_format($this->netPrice, 2) : $this->netPrice;
+        $data['afaErtek'] = 0 == $this->vatAmount ? number_format($this->vatAmount, 2) : $this->vatAmount;
+        $data['bruttoErtek'] = 0 == $this->grossAmount ? number_format($this->grossAmount, 2) : $this->grossAmount;
 
         if (!empty($this->comment)) {
             $data['megjegyzes'] = $this->comment;
