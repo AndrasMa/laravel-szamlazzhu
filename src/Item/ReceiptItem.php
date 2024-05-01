@@ -19,9 +19,11 @@ class ReceiptItem extends Item implements HasXmlBuildInterface
 
         $data = [];
         $data['megnevezes'] = $this->name;
+
         if (!empty($this->id)) {
             $data['azonosito'] = $this->id;
         }
+
         $data['mennyiseg'] = number_format($this->quantity, 2);
         $data['mennyisegiEgyseg'] = $this->quantityUnit;
         $data['nettoEgysegar'] = $this->netUnitPrice;
@@ -29,6 +31,11 @@ class ReceiptItem extends Item implements HasXmlBuildInterface
         $data['netto'] = number_format($this->netPrice, 2);
         $data['afa'] = number_format($this->vatAmount, 2);
         $data['brutto'] = number_format($this->grossAmount, 2);
+
+        if (!empty($this->comment)) {
+            $data['megjegyzes'] = $this->comment;
+        }
+
         if (!empty($this->ledgerData)) {
             $data['fokonyv'] = $this->ledgerData->buildXmlData();
         }

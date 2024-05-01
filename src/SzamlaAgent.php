@@ -23,7 +23,7 @@ class SzamlaAgent
 {
     public const API_ENDPOINT_URL = 'https://www.szamlazz.hu/szamla/';
 
-    public const PACKAGE_VERSION = '0.9.0';
+    public const API_SUPPORT = '2.10.18';
 
     public const MINIMUM_PHP_VERSION = '8.1';
 
@@ -281,7 +281,7 @@ class SzamlaAgent
             $invoice->getHeader()->setOrderNumber($data);
         }
 
-        if (! $this->isDownloadPdf()) {
+        if (!$this->isDownloadPdf()) {
             $message = 'Helytelen beállítási kísérlet a számla PDF lekérdezésénél: Számla letöltéshez a "downloadPdf" paraméternek "true"-nak kell lennie!';
             Log::channel('szamlazzhu')->warning($message);
         }
@@ -624,7 +624,7 @@ class SzamlaAgent
 
     public function isNotXmlFileSave(): bool
     {
-        return ! $this->isXmlFileSave();
+        return !$this->isXmlFileSave();
     }
 
     public function setXmlFileSave(bool $isXmlFileSaveable): void
@@ -639,7 +639,7 @@ class SzamlaAgent
 
     public function isNotRequestXmlFileSave(): bool
     {
-        return ! $this->isRequestXmlFileSave();
+        return !$this->isRequestXmlFileSave();
     }
 
     public function setRequestXmlFileSave(bool $isRequestXmlFileSaveable): void
