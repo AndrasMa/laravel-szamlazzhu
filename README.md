@@ -1,7 +1,6 @@
-[![Latest Stable Version](http://poser.pugx.org/omisai/laravel-szamlazzhu/v)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
-[![Latest Unstable Version](http://poser.pugx.org/omisai/laravel-szamlazzhu/v/unstable)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
-[![License](http://poser.pugx.org/omisai/laravel-szamlazzhu/license)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
-[![PHP Version Require](http://poser.pugx.org/omisai/laravel-szamlazzhu/require/php)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![Latest Stable Version](https://img.shields.io/packagist/v/omisai/laravel-szamlazzhu?style=for-the-badge)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![License](https://img.shields.io/packagist/l/omisai/laravel-szamlazzhu?style=for-the-badge)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![PHP Version Require](https://img.shields.io/badge/PHP-%3E=8.1-blue?style=for-the-badge&logo=php)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
 
 ## About
 
