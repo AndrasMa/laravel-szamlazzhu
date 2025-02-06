@@ -4,7 +4,7 @@
 
 ## About
 
-**laravel-szamlazzhu** is a Laravel package that provides an easy-to-use interface for communicating with the Számlázz.hu API. It was created by refactoring the original source code (available at [here](https://docs.szamlazz.hu/#php-api/)) and integrating it into the [Laravel framework](https://laravel.com/).
+**laravel-szamlazzhu** is a Laravel package that provides an easy-to-use interface for communicating with the Számlázz.hu API. It was created by refactoring the original source code (available at [here](https://docs.szamlazz.hu/php)) and integrating it into the [Laravel framework](https://laravel.com/).
 
 Many of the original source code files were reforged to use the built-in features of Laravel, such as HTTP client, Filesystem abstraction, Configuration and service provider. As a result, **laravel-szamlazzhu** provides a more streamlined and idiomatic way of interacting with the Számlázz.hu API.
 
