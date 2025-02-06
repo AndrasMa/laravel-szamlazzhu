@@ -23,10 +23,6 @@ class SzamlaAgent
 {
     public const API_ENDPOINT_URL = 'https://www.szamlazz.hu/szamla/';
 
-    public const API_SUPPORT = '2.10.18';
-
-    public const MINIMUM_PHP_VERSION = '8.1';
-
     public const PDF_FILE_SAVE_PATH = 'pdf';
 
     public const XML_FILE_SAVE_PATH = 'xmls';
