@@ -1,19 +1,16 @@
-[![Latest Stable Version](http://poser.pugx.org/omisai/laravel-szamlazzhu/v)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
-[![Latest Unstable Version](http://poser.pugx.org/omisai/laravel-szamlazzhu/v/unstable)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
-[![License](http://poser.pugx.org/omisai/laravel-szamlazzhu/license)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
-[![PHP Version Require](http://poser.pugx.org/omisai/laravel-szamlazzhu/require/php)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![Latest Stable Version](https://img.shields.io/packagist/v/omisai/laravel-szamlazzhu?style=for-the-badge)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![License](https://img.shields.io/packagist/l/omisai/laravel-szamlazzhu?style=for-the-badge)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+[![PHP Version Require](https://img.shields.io/badge/PHP-%3E%3D8.1-blue?style=for-the-badge&logo=php)](https://packagist.org/packages/omisai/laravel-szamlazzhu)
+![Számlázz.hu API](https://img.shields.io/badge/Számlázz.hu%20API-2.10.20-yellow?style=for-the-badge)
+![Laravel](https://img.shields.io/badge/Laravel-9.0%2B-red?style=for-the-badge&logo=laravel)
 
 ## About
 
-**laravel-szamlazzhu** is a Laravel package that provides an easy-to-use interface for communicating with the Számlázz.hu API. It was created by refactoring the original source code (available at [here](https://docs.szamlazz.hu/#php-api/)) and integrating it into the [Laravel framework](https://laravel.com/).
+**laravel-szamlazzhu** is a Laravel package that provides an easy-to-use interface for communicating with the Számlázz.hu API. It was created by refactoring the original source code (available at [here](https://docs.szamlazz.hu/php)) and integrating it into the [Laravel framework](https://laravel.com/).
 
 Many of the original source code files were reforged to use the built-in features of Laravel, such as HTTP client, Filesystem abstraction, Configuration and service provider. As a result, **laravel-szamlazzhu** provides a more streamlined and idiomatic way of interacting with the Számlázz.hu API.
 
 ## Installation
-
-> **Requires:**
-- **[PHP 8.1+](https://php.net/releases/)**
-- **[Laravel 9.0+](https://github.com/laravel/laravel)**
 
 To get started with package, simply install it via Composer:
 

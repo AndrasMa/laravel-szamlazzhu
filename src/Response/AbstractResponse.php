@@ -14,7 +14,8 @@ use Omisai\Szamlazzhu\SzamlaAgentException;
 use Omisai\Szamlazzhu\SzamlaAgentRequest;
 use Omisai\Szamlazzhu\SzamlaAgentUtil;
 
-abstract class AbstractResponse {
+abstract class AbstractResponse
+{
     public const RESULT_AS_TEXT = 1;
 
     public const RESULT_AS_XML = 2;
@@ -221,9 +222,7 @@ abstract class AbstractResponse {
     /**
      * Method is overwritten in child Response
      */
-    protected function parseData()
-    {
-    }
+    protected function parseData() {}
 
     protected function getData(): ?array
     {
@@ -316,7 +315,13 @@ abstract class AbstractResponse {
         $header = $this->agent->getRequestEntityHeader();
 
         if ($header instanceof InvoiceHeader && $header->isPreviewPdf()) {
-            $documentNumber = sprintf('preview-invoice-%s', SzamlaAgentUtil::getDateTimeWithMilliseconds());
+            $name = '';
+            $entity = $this->agent->getRequestEntity();
+            if ($entity != null) {
+                $name = (new \ReflectionClass($entity))->getShortName();
+            }
+
+            $documentNumber = sprintf('preview-%s-%s', $name, SzamlaAgentUtil::getDateTimeWithMilliseconds());
         } else {
             $documentNumber = $this->getDocumentNumber();
         }

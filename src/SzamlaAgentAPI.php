@@ -2,7 +2,7 @@
 
 namespace Omisai\Szamlazzhu;
 
-use Omisai\Szamlazzhu\Response\SzamlaAgentResponse;
+use Omisai\Szamlazzhu\Response\AbstractResponse as SzamlaAgentResponse;
 
 /**
  * A Számla Agent inicializálását, az adatok küldését és fogadását kezelő osztály
