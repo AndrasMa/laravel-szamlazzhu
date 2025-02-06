@@ -8,7 +8,7 @@ use Omisai\Szamlazzhu\SzamlaAgentException;
 
 class ReceiptItem extends Item implements HasXmlBuildInterface
 {
-    protected ReceiptItemLedger $ledgerData;
+    protected ?ReceiptItemLedger $ledgerData = null;
 
     /**
      * @throws SzamlaAgentException
