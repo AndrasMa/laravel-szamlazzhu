@@ -37,8 +37,12 @@ class InvoiceItem extends Item implements HasXmlBuildInterface
             $data['megjegyzes'] = $this->comment;
         }
 
-        if (!empty($this->ledgerData)) {
+        if (null !== $this->ledgerData) {
             $data['tetelFokonyv'] = $this->ledgerData->buildXmlData();
+        }
+
+        if (null !== $this->dataDeletionCode) {
+            $data['torloKod'] = $this->dataDeletionCode;
         }
 
         return $data;
