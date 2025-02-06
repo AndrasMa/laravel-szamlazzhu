@@ -161,7 +161,7 @@ class Item
 
     protected string $comment;
 
-    protected int $dataDeletionCode;
+    protected ?int $dataDeletionCode = null;
 
     protected array $requiredFields = ['name', 'quantity', 'quantityUnit', 'netUnitPrice', 'vat', 'netPrice', 'vatAmount', 'grossAmount'];
 
