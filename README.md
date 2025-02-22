@@ -37,6 +37,8 @@ or in config/szamlazzhu.php file:
 
 WIP
 
+***Note:*** For detailed usage examples and the most recent updates, please check the test cases or read through the source code.
+
 ## Changelog
 
 Please see [CHANGELOG](CHANGELOG.md) for more information on what has changed recently.
