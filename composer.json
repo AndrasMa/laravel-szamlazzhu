@@ -34,7 +34,7 @@
         "pestphp/pest-plugin-arch": "^2.2",
         "pestphp/pest-plugin-laravel": "^2.0",
         "phpstan/phpstan": "^1.10.13",
-        "symfony/var-dumper": "^6.2.8"
+        "symfony/var-dumper": "^6.2.8|^7.0"
     },
     "autoload": {
         "psr-4": {
