@@ -20,11 +20,11 @@ jobs:
       matrix:
         php: [8.1, 8.2, 8.3, 8.4]
         laravel: [9.*, 10.*, 11.*, 12.*]
+        testbench: ["^7.0", "^8.0", "^9.0", "10.x-dev"]
         dependency-version: [prefer-lowest, prefer-stable]
-        testbench: ["^7.0", "^8.0", "^9.0", "^10.0"]
         include:
           - laravel: "^12.0"
-            testbench: 10.*
+            testbench: 10.x-dev
           - laravel: "^11.0"
             testbench: 9.*
           - laravel: "^10.0"
@@ -47,6 +47,12 @@ jobs:
           - laravel: "^8.12"
             php: 8.4
     name: PHP ${{ matrix.php }} - Laravel ${{ matrix.laravel }} - ${{ matrix.dependency-version }}
+    env:
+      APP_NAME: Test
+      APP_KEY: ${{ secrets.APP_KEY }}
+      APP_DEBUG: true
+      SZAMLAZZHU_API_KEY: ${{ secrets.SZAMLAZZHU_API_KEY }}
+      SZAMLAZZHU_TEST_PREFIX: ${{ secrets.SZAMLAZZHU_TEST_PREFIX }}
     steps:
       - uses: actions/checkout@v4
 
@@ -59,7 +65,8 @@ jobs:
 
       - name: Install dependencies
         run: |
-          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" "symfony/console:>=4.3.4" "mockery/mockery:^1.3.2" "nesbot/carbon:>=2.72.6" --no-interaction --no-update
+          composer install --prefer-dist --no-interaction
+          composer require "laravel/framework:${{ matrix.laravel }}" "orchestra/testbench:${{ matrix.testbench }}" --no-interaction --no-update
           composer update --${{ matrix.dependency-version }} --prefer-dist --no-interaction
 
       - name: Execute tests
